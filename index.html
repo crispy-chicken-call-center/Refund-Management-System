@@ -176,11 +176,12 @@
         .upload-area {
             border: 2px dashed #ccc;
             border-radius: 10px;
-            padding: 20px;
+            padding: 40px 20px;
             text-align: center;
             margin: 10px 0;
             cursor: pointer;
             transition: all 0.3s;
+            background-color: #f8f9fa;
         }
         
         .upload-area:hover {
@@ -398,6 +399,18 @@
             border-color: #3a56d4;
         }
         
+        .btn-success {
+            background-color: #28a745;
+            border-color: #28a745;
+            border-radius: 8px;
+            padding: 8px 15px;
+        }
+        
+        .btn-success:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+        
         .toast-container {
             position: fixed;
             top: 20px;
@@ -605,6 +618,94 @@
         .tab-content {
             padding: 15px 0;
         }
+        
+        .excel-upload-card {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .excel-upload-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .excel-upload-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        
+        .excel-upload-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .excel-upload-description {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .step-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .step-title {
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .sample-format {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .sample-format-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .sample-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        .sample-table th, .sample-table td {
+            border: 1px solid #dee2e6;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        .sample-table th {
+            background-color: #e9ecef;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -703,6 +804,22 @@
             </div>
         </div>
 
+        <!-- Excel Upload Card -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="excel-upload-card" onclick="switchToExcelUpload()">
+                    <div class="card-body text-center">
+                        <i class="bi bi-file-earmark-excel excel-upload-icon"></i>
+                        <div class="excel-upload-title">Excel Upload</div>
+                        <div class="excel-upload-description">Import multiple refund records at once with our Excel upload feature</div>
+                        <button class="btn btn-light mt-3">
+                            <i class="bi bi-upload"></i> Upload Excel File
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Filters Section -->
         <div class="filter-section">
             <h5><i class="bi bi-funnel"></i> Filter Data</h5>
@@ -762,15 +879,15 @@
         <div class="tab-container">
             <ul class="nav nav-tabs" id="dataEntryTabs" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual" type="button" role="tab" aria-controls="manual" aria-selected="true">Manual Entry</button>
+                    <button class="nav-link" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual" type="button" role="tab" aria-controls="manual" aria-selected="false">Manual Entry</button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="excel-tab" data-bs-toggle="tab" data-bs-target="#excel" type="button" role="tab" aria-controls="excel" aria-selected="false">Excel Upload</button>
+                    <button class="nav-link active" id="excel-tab" data-bs-toggle="tab" data-bs-target="#excel" type="button" role="tab" aria-controls="excel" aria-selected="true">Excel Upload</button>
                 </li>
             </ul>
             <div class="tab-content" id="dataEntryTabsContent">
                 <!-- Manual Entry Tab -->
-                <div class="tab-pane fade show active" id="manual" role="tabpanel" aria-labelledby="manual-tab">
+                <div class="tab-pane fade" id="manual" role="tabpanel" aria-labelledby="manual-tab">
                     <div class="table-container">
                         <h5><i class="bi bi-plus-circle"></i> Add New Refund</h5>
                         <form id="refundForm">
@@ -863,30 +980,100 @@
                 </div>
                 
                 <!-- Excel Upload Tab -->
-                <div class="tab-pane fade" id="excel" role="tabpanel" aria-labelledby="excel-tab">
+                <div class="tab-pane fade show active" id="excel" role="tabpanel" aria-labelledby="excel-tab">
                     <div class="excel-upload-section">
                         <h5><i class="bi bi-file-earmark-excel"></i> Excel Upload</h5>
                         <p>Upload an Excel file to import multiple refund records at once. The file should contain columns for Order ID, Branch, Order Date, Refund Date, Basket Amount, Refund Amount, Reason, and Status.</p>
                         
-                        <div class="row mt-3">
-                            <div class="col-md-6">
-                                <div class="upload-area" id="excelUploadArea">
-                                    <i class="bi bi-cloud-arrow-up fs-1"></i>
-                                    <p>Drag & drop Excel file here or click to browse</p>
-                                    <input type="file" id="excelFileInput" accept=".xlsx, .xls" style="display: none;">
+                        <div class="row mt-4">
+                            <div class="col-md-7">
+                                <div class="step-card">
+                                    <div class="step-title"><span class="step-number">1</span> Download Template</div>
+                                    <p>Download our pre-formatted Excel template to ensure your data is correctly structured.</p>
+                                    <button class="btn btn-success mt-2" onclick="downloadTemplate()">
+                                        <i class="bi bi-download"></i> Download Excel Template
+                                    </button>
+                                </div>
+                                
+                                <div class="step-card">
+                                    <div class="step-title"><span class="step-number">2</span> Fill in Your Data</div>
+                                    <p>Enter your refund data into the template. Make sure to fill in all required fields.</p>
+                                </div>
+                                
+                                <div class="step-card">
+                                    <div class="step-title"><span class="step-number">3</span> Upload Your File</div>
+                                    <p>Upload the completed Excel file using the upload area below.</p>
+                                </div>
+                                
+                                <div class="step-card">
+                                    <div class="step-title"><span class="step-number">4</span> Review and Import</div>
+                                    <p>Preview your data, select the rows you want to import, and click "Import Selected".</p>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h6>Excel Template</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <p>Download our Excel template to ensure your data is formatted correctly:</p>
-                                        <button class="btn btn-sm btn-success" onclick="downloadTemplate()">
-                                            <i class="bi bi-download"></i> Download Template
-                                        </button>
-                                    </div>
+                            
+                            <div class="col-md-5">
+                                <div class="sample-format">
+                                    <div class="sample-format-title">Expected Excel Format</div>
+                                    <p>Your Excel file should include the following columns:</p>
+                                    <table class="sample-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Order ID</th>
+                                                <th>Branch</th>
+                                                <th>Order Date</th>
+                                                <th>Refund Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>123456</td>
+                                                <td>Al Barsha 1</td>
+                                                <td>2025-08-30 20:25</td>
+                                                <td>2025-08-30 21:33</td>
+                                            </tr>
+                                            <tr>
+                                                <td>789012</td>
+                                                <td>Al Danah</td>
+                                                <td>2025-08-30 19:45</td>
+                                                <td>2025-08-30 20:15</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <table class="sample-table mt-3">
+                                        <thead>
+                                            <tr>
+                                                <th>Basket Amount</th>
+                                                <th>Refund Amount</th>
+                                                <th>Reason</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>17.05</td>
+                                                <td>15.50</td>
+                                                <td>Spilled / damaged</td>
+                                                <td>Rejected</td>
+                                            </tr>
+                                            <tr>
+                                                <td>33.88</td>
+                                                <td>32.00</td>
+                                                <td>Missing item</td>
+                                                <td>Pending</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-md-12">
+                                <div class="upload-area" id="excelUploadArea">
+                                    <i class="bi bi-cloud-arrow-up fs-1"></i>
+                                    <h5>Drag & Drop Excel File Here</h5>
+                                    <p>or click to browse</p>
+                                    <input type="file" id="excelFileInput" accept=".xlsx, .xls" style="display: none;">
                                 </div>
                             </div>
                         </div>
@@ -1351,6 +1538,25 @@
                 }
             });
         });
+
+        // Switch to Excel upload tab
+        function switchToExcelUpload() {
+            // Switch to the Excel tab
+            const excelTab = document.getElementById('excel-tab');
+            const manualTab = document.getElementById('manual-tab');
+            
+            manualTab.classList.remove('active');
+            excelTab.classList.add('active');
+            
+            const manualPane = document.getElementById('manual');
+            const excelPane = document.getElementById('excel');
+            
+            manualPane.classList.remove('show', 'active');
+            excelPane.classList.add('show', 'active');
+            
+            // Scroll to the Excel upload section
+            document.getElementById('excel').scrollIntoView({ behavior: 'smooth' });
+        }
 
         // Handle file selection
         function handleFileSelect(files, previewId) {
