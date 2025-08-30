@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>📊 عارض ملفات Excel</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; direction: rtl; }
+    .progress { display: none; color: green; font-weight: bold; margin: 10px 0; }
+    table { border-collapse: collapse; width: 100%; margin-top: 15px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background: #f0f0f0; }
+    .controls { margin: 15px 0; }
+    .controls input { padding: 6px; width: 200px; margin-left: 10px; }
+    .controls button { padding: 6px 12px; margin-left: 10px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h2>📂 عارض ملفات Excel</h2>
+
+  <input type="file" id="fileInput" accept=".xlsx, .xls" onchange="handleFileUpload(event)" />
+  <div class="progress" id="progressMsg">⏳ جاري التحميل...</div>
+
+  <div class="controls" style="display:none;" id="controls">
+    🔍 بحث: <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="ابحث في الجدول...">
+    <button onclick="downloadCSV()">⬇️ تنزيل CSV</button>
+  </div>
+
+  <div id="tableContainer"></div>
+
+  <script>
+    let currentData = [];
+
+    function showProgress() {
+      document.getElementById("progressMsg").style.display = "block";
+    }
+
+    function hideProgress() {
+      document.getElementById("progressMsg").style.display = "none";
+    }
+
+    function handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        processExcelFile(file, event);
+      }
+    }
+
+    function processExcelFile(file, event) {
+      showProgress();
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+
+          const sheetName = workbook.SheetNames[0];
+          const sheet = workbook.Sheets[sheetName];
+          const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+
+          currentData = jsonData;
+          renderTable(jsonData);
+          document.getElementById("controls").style.display = "block";
+
+        } catch (err) {
+          console.error("Error reading Excel file:", err);
+          alert("❌ حدث خطأ أثناء قراءة ملف الإكسيل.");
+        } finally {
+          hideProgress();
+        }
+      };
+
+      reader.readAsArrayBuffer(file);
+
+      // Reset file input
+      if (event && event.target) {
+        event.target.value = '';
+      }
+    }
+
+    function renderTable(data) {
+      if (!data.length) {
+        document.getElementById("tableContainer").innerHTML = "<p>⚠️ الملف فارغ.</p>";
+        return;
+      }
+
+      let table = "<table id='dataTable'><thead><tr>";
+      Object.keys(data[0]).forEach(col => {
+        table += `<th>${col}</th>`;
+      });
+      table += "</tr></thead><tbody>";
+
+      data.forEach(row => {
+        table += "<tr>";
+        Object.values(row).forEach(val => {
+          table += `<td>${val}</td>`;
+        });
+        table += "</tr>";
+      });
+
+      table += "</tbody></table>";
+
+      document.getElementById("tableContainer").innerHTML = table;
+    }
+
+    function filterTable() {
+      const input = document.getElementById("searchInput").value.toLowerCase();
+      const table = document.getElementById("dataTable");
+      const rows = table.getElementsByTagName("tr");
+
+      for (let i = 1; i < rows.length; i++) {
+        let cells = rows[i].getElementsByTagName("td");
+        let match = false;
+
+        for (let j = 0; j < cells.length; j++) {
+          if (cells[j].innerText.toLowerCase().includes(input)) {
+            match = true;
+            break;
+          }
+        }
+
+        rows[i].style.display = match ? "" : "none";
+      }
+    }
+
+    function downloadCSV() {
+      if (!currentData.length) {
+        alert("⚠️ لا يوجد بيانات للتنزيل.");
+        return;
+      }
+
+      const headers = Object.keys(currentData[0]);
+      const rows = currentData.map(row => headers.map(h => `"${row[h]}"`).join(","));
+      const csvContent = [headers.join(","), ...rows].join("\n");
+
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "data.csv";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+  </script>
+</body>
+</html>
