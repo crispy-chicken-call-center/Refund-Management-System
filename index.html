@@ -6,6 +6,7 @@
     <title>Refund Management System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         :root {
             --primary-color: #4361ee;
@@ -356,6 +357,11 @@
             color: white;
         }
         
+        .excel-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        
         .modal-header {
             background-color: var(--primary-color);
             color: white;
@@ -505,6 +511,99 @@
             cursor: pointer;
             width: 100%;
             height: 100%;
+        }
+        
+        .excel-upload-section {
+            background-color: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .excel-preview-container {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+        
+        .excel-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .excel-table th, .excel-table td {
+            border: 1px solid #dee2e6;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        .excel-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        .excel-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .excel-table tr:hover {
+            background-color: #e9ecef;
+        }
+        
+        .excel-import-actions {
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .column-mapping {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .column-mapping-row {
+            display: flex;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        
+        .column-mapping-label {
+            width: 150px;
+            font-weight: 500;
+        }
+        
+        .column-mapping-select {
+            flex-grow: 1;
+            margin-left: 10px;
+        }
+        
+        .tab-container {
+            margin-bottom: 20px;
+        }
+        
+        .nav-tabs {
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 15px;
+        }
+        
+        .nav-tabs .nav-link {
+            border-radius: 8px 8px 0 0;
+            border: none;
+            color: #6c757d;
+            padding: 10px 20px;
+        }
+        
+        .nav-tabs .nav-link.active {
+            color: var(--primary-color);
+            background-color: transparent;
+            border-bottom: 3px solid var(--primary-color);
+        }
+        
+        .tab-content {
+            padding: 15px 0;
         }
     </style>
 </head>
@@ -659,95 +758,171 @@
             </div>
         </div>
 
-        <!-- Add New Refund Form -->
-        <div class="table-container">
-            <h5><i class="bi bi-plus-circle"></i> Add New Refund</h5>
-            <form id="refundForm">
-                <div class="row">
-                    <div class="col-md-3">
-                        <label for="orderId" class="form-label">Order ID</label>
-                        <input type="text" class="form-control" id="orderId" required>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="orderDate" class="form-label">Order Date</label>
-                        <input type="datetime-local" class="form-control" id="orderDate" required>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="refundDate" class="form-label">Refund Date</label>
-                        <input type="datetime-local" class="form-control" id="refundDate" required>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="branch" class="form-label">Branch</label>
-                        <select class="form-select" id="branch" required>
-                            <option value="">Select Branch</option>
-                            <option value="Al Barsha 1">Al Barsha 1</option>
-                            <option value="Al Markaziyah">Al Markaziyah</option>
-                            <option value="Al Danah">Al Danah</option>
-                            <option value="Al Satwa">Al Satwa</option>
-                            <option value="Mohammed Bin Zayed City">Mohammed Bin Zayed City</option>
-                            <option value="Al Rawdah">Al Rawdah</option>
-                        </select>
+        <!-- Data Entry Tabs -->
+        <div class="tab-container">
+            <ul class="nav nav-tabs" id="dataEntryTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual" type="button" role="tab" aria-controls="manual" aria-selected="true">Manual Entry</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="excel-tab" data-bs-toggle="tab" data-bs-target="#excel" type="button" role="tab" aria-controls="excel" aria-selected="false">Excel Upload</button>
+                </li>
+            </ul>
+            <div class="tab-content" id="dataEntryTabsContent">
+                <!-- Manual Entry Tab -->
+                <div class="tab-pane fade show active" id="manual" role="tabpanel" aria-labelledby="manual-tab">
+                    <div class="table-container">
+                        <h5><i class="bi bi-plus-circle"></i> Add New Refund</h5>
+                        <form id="refundForm">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label for="orderId" class="form-label">Order ID</label>
+                                    <input type="text" class="form-control" id="orderId" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="orderDate" class="form-label">Order Date</label>
+                                    <input type="datetime-local" class="form-control" id="orderDate" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="refundDate" class="form-label">Refund Date</label>
+                                    <input type="datetime-local" class="form-control" id="refundDate" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="branch" class="form-label">Branch</label>
+                                    <select class="form-select" id="branch" required>
+                                        <option value="">Select Branch</option>
+                                        <option value="Al Barsha 1">Al Barsha 1</option>
+                                        <option value="Al Markaziyah">Al Markaziyah</option>
+                                        <option value="Al Danah">Al Danah</option>
+                                        <option value="Al Satwa">Al Satwa</option>
+                                        <option value="Mohammed Bin Zayed City">Mohammed Bin Zayed City</option>
+                                        <option value="Al Rawdah">Al Rawdah</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-3">
+                                    <label for="basketAmount" class="form-label">Basket Amount (AED)</label>
+                                    <input type="number" step="0.01" class="form-control" id="basketAmount" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="refundAmount" class="form-label">Refund Amount (AED)</label>
+                                    <input type="number" step="0.01" class="form-control" id="refundAmount" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="reason" class="form-label">Refund Reason</label>
+                                    <select class="form-select" id="reason" required>
+                                        <option value="">Select Reason</option>
+                                        <option value="Spilled / damaged">Spilled / damaged</option>
+                                        <option value="Wrong item sent">Wrong item sent</option>
+                                        <option value="Missing or unavailable items (Main item)">Missing or unavailable items (Main item)</option>
+                                        <option value="Food is overcooked/burnt">Food is overcooked/burnt</option>
+                                        <option value="Food is undercooked">Food is undercooked</option>
+                                        <option value="Hair in the food">Hair in the food</option>
+                                        <option value="Foul Smell">Foul Smell</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="status" class="form-label">Status</label>
+                                    <select class="form-select" id="status" required>
+                                        <option value="Pending">Under Review</option>
+                                        <option value="Rejected">Rejected</option>
+                                        <option value="Accepted">Accepted</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-12">
+                                    <label for="notes" class="form-label">Notes</label>
+                                    <textarea class="form-control" id="notes" rows="2"></textarea>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-12">
+                                    <label class="form-label">Attachments</label>
+                                    <div class="upload-area" id="uploadArea">
+                                        <i class="bi bi-cloud-arrow-up fs-1"></i>
+                                        <p>Drag & drop files here or click to browse</p>
+                                        <input type="file" id="attachmentInput" multiple accept="image/*,.pdf" style="display: none;">
+                                    </div>
+                                    <div class="attachment-preview" id="attachmentPreview"></div>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-12">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-save"></i> Save Data
+                                    </button>
+                                    <button type="reset" class="btn btn-outline-secondary">
+                                        <i class="bi bi-arrow-clockwise"></i> Reset
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
-                <div class="row mt-3">
-                    <div class="col-md-3">
-                        <label for="basketAmount" class="form-label">Basket Amount (AED)</label>
-                        <input type="number" step="0.01" class="form-control" id="basketAmount" required>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="refundAmount" class="form-label">Refund Amount (AED)</label>
-                        <input type="number" step="0.01" class="form-control" id="refundAmount" required>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="reason" class="form-label">Refund Reason</label>
-                        <select class="form-select" id="reason" required>
-                            <option value="">Select Reason</option>
-                            <option value="Spilled / damaged">Spilled / damaged</option>
-                            <option value="Wrong item sent">Wrong item sent</option>
-                            <option value="Missing or unavailable items (Main item)">Missing or unavailable items (Main item)</option>
-                            <option value="Food is overcooked/burnt">Food is overcooked/burnt</option>
-                            <option value="Food is undercooked">Food is undercooked</option>
-                            <option value="Hair in the food">Hair in the food</option>
-                            <option value="Foul Smell">Foul Smell</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="status" class="form-label">Status</label>
-                        <select class="form-select" id="status" required>
-                            <option value="Pending">Under Review</option>
-                            <option value="Rejected">Rejected</option>
-                            <option value="Accepted">Accepted</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="row mt-3">
-                    <div class="col-md-12">
-                        <label for="notes" class="form-label">Notes</label>
-                        <textarea class="form-control" id="notes" rows="2"></textarea>
-                    </div>
-                </div>
-                <div class="row mt-3">
-                    <div class="col-md-12">
-                        <label class="form-label">Attachments</label>
-                        <div class="upload-area" id="uploadArea">
-                            <i class="bi bi-cloud-arrow-up fs-1"></i>
-                            <p>Drag & drop files here or click to browse</p>
-                            <input type="file" id="attachmentInput" multiple accept="image/*,.pdf" style="display: none;">
+                
+                <!-- Excel Upload Tab -->
+                <div class="tab-pane fade" id="excel" role="tabpanel" aria-labelledby="excel-tab">
+                    <div class="excel-upload-section">
+                        <h5><i class="bi bi-file-earmark-excel"></i> Excel Upload</h5>
+                        <p>Upload an Excel file to import multiple refund records at once. The file should contain columns for Order ID, Branch, Order Date, Refund Date, Basket Amount, Refund Amount, Reason, and Status.</p>
+                        
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="upload-area" id="excelUploadArea">
+                                    <i class="bi bi-cloud-arrow-up fs-1"></i>
+                                    <p>Drag & drop Excel file here or click to browse</p>
+                                    <input type="file" id="excelFileInput" accept=".xlsx, .xls" style="display: none;">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6>Excel Template</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <p>Download our Excel template to ensure your data is formatted correctly:</p>
+                                        <button class="btn btn-sm btn-success" onclick="downloadTemplate()">
+                                            <i class="bi bi-download"></i> Download Template
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="attachment-preview" id="attachmentPreview"></div>
+                        
+                        <div id="excelPreviewContainer" style="display: none;">
+                            <h6 class="mt-4">Preview of Excel Data</h6>
+                            <div class="excel-preview-container">
+                                <table class="excel-table" id="excelPreviewTable">
+                                    <thead id="excelPreviewHeader">
+                                        <!-- Header will be populated here -->
+                                    </thead>
+                                    <tbody id="excelPreviewBody">
+                                        <!-- Data rows will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="excel-import-actions">
+                                <div>
+                                    <button class="btn btn-success" id="importSelectedBtn" onclick="importSelectedExcelData()">
+                                        <i class="bi bi-check-circle"></i> Import Selected
+                                    </button>
+                                    <button class="btn btn-outline-secondary" onclick="cancelExcelImport()">
+                                        <i class="bi bi-x-circle"></i> Cancel
+                                    </button>
+                                </div>
+                                <div>
+                                    <label>
+                                        <input type="checkbox" id="selectAllExcel" onchange="toggleExcelSelection()"> Select All
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="row mt-3">
-                    <div class="col-md-12">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-save"></i> Save Data
-                        </button>
-                        <button type="reset" class="btn btn-outline-secondary">
-                            <i class="bi bi-arrow-clockwise"></i> Reset
-                        </button>
-                    </div>
-                </div>
-            </form>
+            </div>
         </div>
 
         <!-- Refunds Table -->
@@ -950,6 +1125,28 @@
         </div>
     </div>
 
+    <!-- Column Mapping Modal -->
+    <div class="modal fade" id="columnMappingModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Map Excel Columns</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Please map the columns from your Excel file to the corresponding fields in our system:</p>
+                    <div class="column-mapping" id="columnMappingContainer">
+                        <!-- Column mapping will be populated here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="applyColumnMapping()">Apply Mapping</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Container -->
     <div class="toast-container"></div>
 
@@ -1032,6 +1229,21 @@
         let reasonsChart, branchesChart;
         let newAttachments = [];
         let editAttachments = [];
+        let excelData = null;
+        let columnMapping = {};
+
+        // Define the expected columns
+        const expectedColumns = [
+            { field: 'orderId', label: 'Order ID' },
+            { field: 'branch', label: 'Branch' },
+            { field: 'orderDate', label: 'Order Date' },
+            { field: 'refundDate', label: 'Refund Date' },
+            { field: 'basketAmount', label: 'Basket Amount' },
+            { field: 'refundAmount', label: 'Refund Amount' },
+            { field: 'reason', label: 'Reason' },
+            { field: 'status', label: 'Status' },
+            { field: 'notes', label: 'Notes' }
+        ];
 
         // Initialize the application
         document.addEventListener('DOMContentLoaded', function() {
@@ -1056,6 +1268,11 @@
                 document.getElementById('editAttachmentInput').click();
             });
             
+            // Excel upload area click
+            document.getElementById('excelUploadArea').addEventListener('click', function() {
+                document.getElementById('excelFileInput').click();
+            });
+            
             // File input change
             document.getElementById('attachmentInput').addEventListener('change', function(e) {
                 handleFileSelect(e.target.files, 'attachmentPreview');
@@ -1064,6 +1281,11 @@
             // Edit file input change
             document.getElementById('editAttachmentInput').addEventListener('change', function(e) {
                 handleFileSelect(e.target.files, 'editAttachmentPreview');
+            });
+            
+            // Excel file input change
+            document.getElementById('excelFileInput').addEventListener('change', function(e) {
+                handleExcelFile(e.target.files[0]);
             });
             
             // Drag and drop for main upload area
@@ -1105,6 +1327,27 @@
                 
                 if (e.dataTransfer.files.length) {
                     handleFileSelect(e.dataTransfer.files, 'editAttachmentPreview');
+                }
+            });
+            
+            // Drag and drop for Excel upload area
+            const excelUploadArea = document.getElementById('excelUploadArea');
+            
+            excelUploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                excelUploadArea.classList.add('dragover');
+            });
+            
+            excelUploadArea.addEventListener('dragleave', function() {
+                excelUploadArea.classList.remove('dragover');
+            });
+            
+            excelUploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                excelUploadArea.classList.remove('dragover');
+                
+                if (e.dataTransfer.files.length) {
+                    handleExcelFile(e.dataTransfer.files[0]);
                 }
             });
         });
@@ -1173,6 +1416,330 @@
             } else {
                 editAttachments = editAttachments.filter(att => att.id !== id);
             }
+        }
+
+        // Handle Excel file
+        function handleExcelFile(file) {
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    
+                    if (jsonData.length === 0) {
+                        showToast('The Excel file is empty!', 'error');
+                        return;
+                    }
+                    
+                    // Get headers
+                    const headers = jsonData[0];
+                    
+                    // Check if headers match expected columns
+                    const headerMatch = expectedColumns.every(col => headers.includes(col.label));
+                    
+                    if (headerMatch) {
+                        // Direct mapping
+                        columnMapping = {};
+                        expectedColumns.forEach(col => {
+                            columnMapping[col.field] = col.label;
+                        });
+                        
+                        // Process data
+                        processExcelData(jsonData.slice(1));
+                    } else {
+                        // Show column mapping modal
+                        showColumnMappingModal(headers, jsonData.slice(1));
+                    }
+                } catch (error) {
+                    showToast('Error processing Excel file: ' + error.message, 'error');
+                }
+            };
+            
+            reader.readAsArrayBuffer(file);
+        }
+
+        // Show column mapping modal
+        function showColumnMappingModal(headers, data) {
+            const mappingContainer = document.getElementById('columnMappingContainer');
+            mappingContainer.innerHTML = '';
+            
+            expectedColumns.forEach(col => {
+                const mappingRow = document.createElement('div');
+                mappingRow.className = 'column-mapping-row';
+                
+                const label = document.createElement('div');
+                label.className = 'column-mapping-label';
+                label.textContent = col.label;
+                
+                const select = document.createElement('select');
+                select.className = 'form-select column-mapping-select';
+                select.id = `map-${col.field}`;
+                
+                // Add empty option
+                const emptyOption = document.createElement('option');
+                emptyOption.value = '';
+                emptyOption.textContent = '-- Select --';
+                select.appendChild(emptyOption);
+                
+                // Add header options
+                headers.forEach(header => {
+                    const option = document.createElement('option');
+                    option.value = header;
+                    option.textContent = header;
+                    select.appendChild(option);
+                });
+                
+                mappingRow.appendChild(label);
+                mappingRow.appendChild(select);
+                mappingContainer.appendChild(mappingRow);
+            });
+            
+            // Store data for later use
+            excelData = data;
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('columnMappingModal'));
+            modal.show();
+        }
+
+        // Apply column mapping
+        function applyColumnMapping() {
+            columnMapping = {};
+            
+            expectedColumns.forEach(col => {
+                const select = document.getElementById(`map-${col.field}`);
+                if (select.value) {
+                    columnMapping[col.field] = select.value;
+                }
+            });
+            
+            // Check if all required fields are mapped
+            const requiredFields = ['orderId', 'branch', 'orderDate', 'refundDate', 'basketAmount', 'refundAmount', 'reason', 'status'];
+            const allMapped = requiredFields.every(field => columnMapping[field]);
+            
+            if (!allMapped) {
+                showToast('Please map all required fields!', 'error');
+                return;
+            }
+            
+            // Process data with mapping
+            processExcelData(excelData);
+            
+            // Hide modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('columnMappingModal'));
+            modal.hide();
+        }
+
+        // Process Excel data
+        function processExcelData(data) {
+            const previewContainer = document.getElementById('excelPreviewContainer');
+            const previewHeader = document.getElementById('excelPreviewHeader');
+            const previewBody = document.getElementById('excelPreviewBody');
+            
+            // Clear previous data
+            previewHeader.innerHTML = '';
+            previewBody.innerHTML = '';
+            
+            // Create header
+            const headerRow = document.createElement('tr');
+            
+            // Add checkbox column
+            const checkboxHeader = document.createElement('th');
+            checkboxHeader.innerHTML = '<input type="checkbox" id="selectAllExcel" onchange="toggleExcelSelection()">';
+            headerRow.appendChild(checkboxHeader);
+            
+            // Add data headers
+            Object.values(columnMapping).forEach(header => {
+                const th = document.createElement('th');
+                th.textContent = header;
+                headerRow.appendChild(th);
+            });
+            
+            previewHeader.appendChild(headerRow);
+            
+            // Create data rows
+            data.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                
+                // Add checkbox
+                const checkboxCell = document.createElement('td');
+                checkboxCell.innerHTML = `<input type="checkbox" class="excel-row-checkbox" data-index="${index}">`;
+                tr.appendChild(checkboxCell);
+                
+                // Add data cells
+                Object.values(columnMapping).forEach(header => {
+                    const td = document.createElement('td');
+                    td.textContent = row[headers.indexOf(header)] || '';
+                    tr.appendChild(td);
+                });
+                
+                previewBody.appendChild(tr);
+            });
+            
+            // Show preview container
+            previewContainer.style.display = 'block';
+            
+            // Scroll to preview
+            previewContainer.scrollIntoView({ behavior: 'smooth' });
+            
+            showToast('Excel file loaded successfully! Review the data and select rows to import.', 'success');
+        }
+
+        // Toggle Excel selection
+        function toggleExcelSelection() {
+            const selectAll = document.getElementById('selectAllExcel').checked;
+            const checkboxes = document.querySelectorAll('.excel-row-checkbox');
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAll;
+            });
+        }
+
+        // Import selected Excel data
+        function importSelectedExcelData() {
+            const checkboxes = document.querySelectorAll('.excel-row-checkbox:checked');
+            
+            if (checkboxes.length === 0) {
+                showToast('Please select at least one row to import!', 'warning');
+                return;
+            }
+            
+            let importedCount = 0;
+            
+            checkboxes.forEach(checkbox => {
+                const index = parseInt(checkbox.dataset.index);
+                const row = excelData[index];
+                
+                try {
+                    const refund = {
+                        id: Date.now() + index,
+                        orderId: row[headers.indexOf(columnMapping.orderId)],
+                        branch: row[headers.indexOf(columnMapping.branch)],
+                        orderDate: formatDateForInput(row[headers.indexOf(columnMapping.orderDate)]),
+                        refundDate: formatDateForInput(row[headers.indexOf(columnMapping.refundDate)]),
+                        basketAmount: parseFloat(row[headers.indexOf(columnMapping.basketAmount)]) || 0,
+                        refundAmount: parseFloat(row[headers.indexOf(columnMapping.refundAmount)]) || 0,
+                        reason: row[headers.indexOf(columnMapping.reason)],
+                        status: row[headers.indexOf(columnMapping.status)],
+                        notes: columnMapping.notes ? row[headers.indexOf(columnMapping.notes)] : '',
+                        attachments: []
+                    };
+                    
+                    refundsData.push(refund);
+                    importedCount++;
+                } catch (error) {
+                    console.error('Error importing row:', error);
+                }
+            });
+            
+            // Save data
+            saveData();
+            
+            // Update UI
+            renderTable();
+            updateDashboard();
+            updateKPIs();
+            updateCharts();
+            
+            // Hide preview
+            document.getElementById('excelPreviewContainer').style.display = 'none';
+            
+            // Show success message
+            showToast(`Successfully imported ${importedCount} refund records!`, 'success');
+        }
+
+        // Cancel Excel import
+        function cancelExcelImport() {
+            document.getElementById('excelPreviewContainer').style.display = 'none';
+            document.getElementById('excelFileInput').value = '';
+            excelData = null;
+        }
+
+        // Download Excel template
+        function downloadTemplate() {
+            // Create a new workbook
+            const workbook = XLSX.utils.book_new();
+            
+            // Create worksheet data
+            const wsData = [
+                expectedColumns.map(col => col.label),
+                // Add sample row
+                expectedColumns.reduce((row, col) => {
+                    switch(col.field) {
+                        case 'orderId': row.push('123456'); break;
+                        case 'branch': row.push('Al Barsha 1'); break;
+                        case 'orderDate': row.push('2025-08-30 20:25'); break;
+                        case 'refundDate': row.push('2025-08-30 21:33'); break;
+                        case 'basketAmount': row.push('17.05'); break;
+                        case 'refundAmount': row.push('15.50'); break;
+                        case 'reason': row.push('Spilled / damaged'); break;
+                        case 'status': row.push('Rejected'); break;
+                        case 'notes': row.push('Sample notes'); break;
+                        default: row.push('');
+                    }
+                    return row;
+                }, [])
+            ];
+            
+            // Create worksheet
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
+            
+            // Add worksheet to workbook
+            XLSX.utils.book_append_sheet(workbook, ws, 'Refund Data');
+            
+            // Generate Excel file and download
+            XLSX.writeFile(workbook, 'Refund_Template.xlsx');
+            
+            showToast('Template downloaded successfully!', 'success');
+        }
+
+        // Format date for input field
+        function formatDateForInput(dateStr) {
+            if (!dateStr) return '';
+            
+            // Try to parse the date
+            let date;
+            
+            if (typeof dateStr === 'string') {
+                // Check if it's already in ISO format
+                if (dateStr.includes('T')) {
+                    return dateStr;
+                }
+                
+                // Try different date formats
+                const formats = [
+                    /(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/,
+                    /(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})/,
+                    /(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2}):(\d{2})/,
+                    /(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2})/
+                ];
+                
+                for (const format of formats) {
+                    const match = dateStr.match(format);
+                    if (match) {
+                        if (format.toString().includes('yyyy-mm-dd')) {
+                            date = new Date(match[1], match[2] - 1, match[3], match[4] || 0, match[5] || 0, match[6] || 0);
+                        } else {
+                            date = new Date(match[3], match[2] - 1, match[1], match[4] || 0, match[5] || 0, match[6] || 0);
+                        }
+                        break;
+                    }
+                }
+            } else if (dateStr instanceof Date) {
+                date = dateStr;
+            }
+            
+            if (!date || isNaN(date.getTime())) {
+                return '';
+            }
+            
+            // Format as ISO string for input field
+            return date.toISOString().slice(0, 16);
         }
 
         // Add a new refund
@@ -1646,25 +2213,38 @@
 
         // Export to Excel
         function exportToExcel() {
-            // In a real application, this would generate an Excel file
-            // For demo purposes, we'll create a CSV and download it
-            let csv = 'Order ID,Branch,Order Date,Refund Date,Basket Amount,Refund Amount,Reason,Status,Notes\n';
+            // Create a new workbook
+            const workbook = XLSX.utils.book_new();
+            
+            // Create worksheet data
+            const wsData = [
+                ['Order ID', 'Branch', 'Order Date', 'Refund Date', 'Basket Amount', 'Refund Amount', 'Reason', 'Status', 'Notes']
+            ];
             
             refundsData.forEach(refund => {
                 const statusText = refund.status === 'Rejected' ? 'Rejected' : 
                                  refund.status === 'Pending' ? 'Under Review' : 'Accepted';
-                csv += `${refund.orderId},${refund.branch},${formatDateTime(refund.orderDate)},${formatDateTime(refund.refundDate)},${refund.basketAmount},${refund.refundAmount},${refund.reason},${statusText},"${refund.notes}"\n`;
+                wsData.push([
+                    refund.orderId,
+                    refund.branch,
+                    formatDateTime(refund.orderDate),
+                    formatDateTime(refund.refundDate),
+                    refund.basketAmount,
+                    refund.refundAmount,
+                    refund.reason,
+                    statusText,
+                    refund.notes
+                ]);
             });
             
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.setAttribute('href', url);
-            link.setAttribute('download', 'refund_data.csv');
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            // Create worksheet
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
+            
+            // Add worksheet to workbook
+            XLSX.utils.book_append_sheet(workbook, ws, 'Refund Data');
+            
+            // Generate Excel file and download
+            XLSX.writeFile(workbook, 'Refund_Data.xlsx');
             
             showToast('Data exported to Excel successfully!', 'success');
         }
