@@ -1,0 +1,1726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Refund Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --success-color: #4cc9f0;
+            --warning-color: #f72585;
+            --danger-color: #b5179e;
+            --light-bg: #f8f9fa;
+            --dark-text: #212529;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+        }
+        
+        .dashboard-card {
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+        
+        .metric-label {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+        
+        .kpi-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .kpi-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .kpi-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .table-container {
+            background-color: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+        
+        .status-badge {
+            font-size: 0.8rem;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        
+        .status-rejected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-accepted {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .btn-action {
+            margin: 0 3px;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+        
+        .email-template {
+            background-color: var(--light-bg);
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+        
+        .filter-section {
+            background-color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .chart-container {
+            height: 300px;
+            margin-top: 20px;
+            position: relative;
+        }
+        
+        .attachment-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .attachment-item {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #dee2e6;
+        }
+        
+        .attachment-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .attachment-remove {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary-color);
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+        
+        .upload-area.dragover {
+            border-color: var(--primary-color);
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+        
+        .top-reasons {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .reason-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: var(--light-bg);
+        }
+        
+        .reason-rank {
+            width: 30px;
+            height: 30px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+        
+        .reason-details {
+            flex-grow: 1;
+        }
+        
+        .reason-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .reason-count {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
+        .reason-percentage {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .progress {
+            height: 8px;
+            margin-top: 5px;
+        }
+        
+        .monthly-savings {
+            background: linear-gradient(135deg, #4cc9f0 0%, #4361ee 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .savings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .savings-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .savings-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .savings-chart {
+            height: 100px;
+            margin-top: 15px;
+        }
+        
+        .ratio-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .ratio-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .ratio-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .ratio-details {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+        }
+        
+        .ratio-item {
+            text-align: center;
+        }
+        
+        .ratio-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
+        .ratio-number {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        
+        .rejected-ratio {
+            color: var(--danger-color);
+        }
+        
+        .accepted-ratio {
+            color: var(--success-color);
+        }
+        
+        .action-btn {
+            border-radius: 8px;
+            padding: 8px 15px;
+            font-weight: 500;
+            margin: 0 3px;
+        }
+        
+        .edit-btn {
+            background-color: #4361ee;
+            color: white;
+        }
+        
+        .delete-btn {
+            background-color: #f72585;
+            color: white;
+        }
+        
+        .email-btn {
+            background-color: #4cc9f0;
+            color: white;
+        }
+        
+        .view-btn {
+            background-color: #7209b7;
+            color: white;
+        }
+        
+        .modal-header {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .modal-header .btn-close {
+            filter: brightness(0) invert(1);
+        }
+        
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 1px solid #ced4da;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            border-radius: 8px;
+            padding: 8px 15px;
+        }
+        
+        .btn-primary:hover {
+            background-color: #3a56d4;
+            border-color: #3a56d4;
+        }
+        
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+        }
+        
+        .custom-toast {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            min-width: 250px;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .toast-icon {
+            font-size: 1.5rem;
+            margin-right: 15px;
+        }
+        
+        .toast-success .toast-icon {
+            color: var(--success-color);
+        }
+        
+        .toast-error .toast-icon {
+            color: var(--danger-color);
+        }
+        
+        .toast-warning .toast-icon {
+            color: var(--warning-color);
+        }
+        
+        .toast-message {
+            flex-grow: 1;
+        }
+        
+        .toast-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .toast-body {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .kpi-section {
+            margin-bottom: 30px;
+        }
+        
+        .kpi-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -10px;
+        }
+        
+        .kpi-col {
+            flex: 1;
+            min-width: 300px;
+            padding: 0 10px;
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+        
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <h1 class="text-center"><i class="bi bi-shield-exclamation text-danger"></i> Refund Management System</h1>
+                <p class="text-center text-muted">Track and respond to refund requests to minimize financial losses</p>
+            </div>
+        </div>
+
+        <!-- KPI Section -->
+        <div class="kpi-section">
+            <h2 class="section-title">Key Performance Indicators</h2>
+            <div class="kpi-row">
+                <div class="kpi-col">
+                    <div class="ratio-card">
+                        <div class="ratio-title">Rejected to Accepted Ratio</div>
+                        <div class="ratio-value" id="rejectedToAcceptedRatio">0:0</div>
+                        <div class="ratio-details">
+                            <div class="ratio-item">
+                                <div class="ratio-label">Rejected</div>
+                                <div class="ratio-number rejected-ratio" id="rejectedCount">0</div>
+                            </div>
+                            <div class="ratio-item">
+                                <div class="ratio-label">Accepted</div>
+                                <div class="ratio-number accepted-ratio" id="acceptedCount">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="kpi-col">
+                    <div class="monthly-savings">
+                        <div class="savings-header">
+                            <div class="savings-title">Monthly Savings Rate</div>
+                            <div class="badge bg-light text-dark">Current Month</div>
+                        </div>
+                        <div class="savings-value" id="monthlySavings">AED 0</div>
+                        <div class="progress savings-chart">
+                            <div class="progress-bar" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-2">
+                            <span>0 AED</span>
+                            <span>Target: AED 10,000</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="kpi-col">
+                    <div class="top-reasons">
+                        <div class="ratio-title">Top 3 Refund Reasons</div>
+                        <div id="topReasonsList">
+                            <!-- Top reasons will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Metrics -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card dashboard-card bg-primary text-white">
+                    <div class="card-body text-center">
+                        <i class="bi bi-receipt fs-1"></i>
+                        <div class="metric-value" id="totalRefunds">0</div>
+                        <div class="metric-label">Total Refunds</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card dashboard-card bg-success text-white">
+                    <div class="card-body text-center">
+                        <i class="bi bi-check-circle fs-1"></i>
+                        <div class="metric-value" id="rejectedRefunds">0</div>
+                        <div class="metric-label">Rejected Refunds</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card dashboard-card bg-warning text-white">
+                    <div class="card-body text-center">
+                        <i class="bi bi-hourglass-split fs-1"></i>
+                        <div class="metric-value" id="pendingRefunds">0</div>
+                        <div class="metric-label">Under Review</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card dashboard-card bg-info text-white">
+                    <div class="card-body text-center">
+                        <i class="bi bi-currency-dollar fs-1"></i>
+                        <div class="metric-value" id="totalSavings">0</div>
+                        <div class="metric-label">Total Savings (AED)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="filter-section">
+            <h5><i class="bi bi-funnel"></i> Filter Data</h5>
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="branchFilter" class="form-label">Branch</label>
+                    <select class="form-select" id="branchFilter">
+                        <option value="">All Branches</option>
+                        <option value="Al Barsha 1">Al Barsha 1</option>
+                        <option value="Al Markaziyah">Al Markaziyah</option>
+                        <option value="Al Danah">Al Danah</option>
+                        <option value="Al Satwa">Al Satwa</option>
+                        <option value="Mohammed Bin Zayed City">Mohammed Bin Zayed City</option>
+                        <option value="Al Rawdah">Al Rawdah</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="reasonFilter" class="form-label">Reason</label>
+                    <select class="form-select" id="reasonFilter">
+                        <option value="">All Reasons</option>
+                        <option value="Spilled / damaged">Spilled / damaged</option>
+                        <option value="Wrong item sent">Wrong item sent</option>
+                        <option value="Missing or unavailable items (Main item)">Missing or unavailable items (Main item)</option>
+                        <option value="Food is overcooked/burnt">Food is overcooked/burnt</option>
+                        <option value="Food is undercooked">Food is undercooked</option>
+                        <option value="Hair in the food">Hair in the food</option>
+                        <option value="Foul Smell">Foul Smell</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="statusFilter" class="form-label">Status</label>
+                    <select class="form-select" id="statusFilter">
+                        <option value="">All Statuses</option>
+                        <option value="Rejected">Rejected</option>
+                        <option value="Pending">Under Review</option>
+                        <option value="Accepted">Accepted</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="dateFilter" class="form-label">Date</label>
+                    <input type="date" class="form-control" id="dateFilter">
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <button class="btn btn-primary" onclick="applyFilters()">
+                        <i class="bi bi-funnel-fill"></i> Apply Filters
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="resetFilters()">
+                        <i class="bi bi-arrow-clockwise"></i> Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add New Refund Form -->
+        <div class="table-container">
+            <h5><i class="bi bi-plus-circle"></i> Add New Refund</h5>
+            <form id="refundForm">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label for="orderId" class="form-label">Order ID</label>
+                        <input type="text" class="form-control" id="orderId" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="orderDate" class="form-label">Order Date</label>
+                        <input type="datetime-local" class="form-control" id="orderDate" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="refundDate" class="form-label">Refund Date</label>
+                        <input type="datetime-local" class="form-control" id="refundDate" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="branch" class="form-label">Branch</label>
+                        <select class="form-select" id="branch" required>
+                            <option value="">Select Branch</option>
+                            <option value="Al Barsha 1">Al Barsha 1</option>
+                            <option value="Al Markaziyah">Al Markaziyah</option>
+                            <option value="Al Danah">Al Danah</option>
+                            <option value="Al Satwa">Al Satwa</option>
+                            <option value="Mohammed Bin Zayed City">Mohammed Bin Zayed City</option>
+                            <option value="Al Rawdah">Al Rawdah</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-3">
+                        <label for="basketAmount" class="form-label">Basket Amount (AED)</label>
+                        <input type="number" step="0.01" class="form-control" id="basketAmount" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="refundAmount" class="form-label">Refund Amount (AED)</label>
+                        <input type="number" step="0.01" class="form-control" id="refundAmount" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="reason" class="form-label">Refund Reason</label>
+                        <select class="form-select" id="reason" required>
+                            <option value="">Select Reason</option>
+                            <option value="Spilled / damaged">Spilled / damaged</option>
+                            <option value="Wrong item sent">Wrong item sent</option>
+                            <option value="Missing or unavailable items (Main item)">Missing or unavailable items (Main item)</option>
+                            <option value="Food is overcooked/burnt">Food is overcooked/burnt</option>
+                            <option value="Food is undercooked">Food is undercooked</option>
+                            <option value="Hair in the food">Hair in the food</option>
+                            <option value="Foul Smell">Foul Smell</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-select" id="status" required>
+                            <option value="Pending">Under Review</option>
+                            <option value="Rejected">Rejected</option>
+                            <option value="Accepted">Accepted</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <label for="notes" class="form-label">Notes</label>
+                        <textarea class="form-control" id="notes" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <label class="form-label">Attachments</label>
+                        <div class="upload-area" id="uploadArea">
+                            <i class="bi bi-cloud-arrow-up fs-1"></i>
+                            <p>Drag & drop files here or click to browse</p>
+                            <input type="file" id="attachmentInput" multiple accept="image/*,.pdf" style="display: none;">
+                        </div>
+                        <div class="attachment-preview" id="attachmentPreview"></div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Save Data
+                        </button>
+                        <button type="reset" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-clockwise"></i> Reset
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Refunds Table -->
+        <div class="table-container">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5><i class="bi bi-table"></i> Refund Records</h5>
+                <div>
+                    <button class="btn btn-success" onclick="exportToExcel()">
+                        <i class="bi bi-file-earmark-excel"></i> Export Excel
+                    </button>
+                    <button class="btn btn-danger" onclick="exportToPDF()">
+                        <i class="bi bi-file-earmark-pdf"></i> Export PDF
+                    </button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover" id="refundsTable">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Branch</th>
+                            <th>Order Date</th>
+                            <th>Refund Date</th>
+                            <th>Basket Amount</th>
+                            <th>Refund Amount</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Attachments</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="refundsTableBody">
+                        <!-- Table rows will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Email Template Section -->
+        <div class="table-container mt-4">
+            <h5><i class="bi bi-envelope"></i> Email Response Template</h5>
+            <div class="email-template">
+                <p>Subject: Response to Refund Request for Order <span id="emailOrderId">[Order ID]</span></p>
+                <hr>
+                <p>Dear Careem Team,</p>
+                <p>Thank you for contacting us regarding order <strong id="emailOrderNumber">[Order ID]</strong>. After reviewing the details with the <strong id="emailBranch">[Branch Name]</strong> branch, we have confirmed that the order was delivered correctly. Therefore, we request to cancel the applied deduction as there is no eligibility for a refund.</p>
+                <p>Order Details:</p>
+                <ul>
+                    <li>Order ID: <span id="emailOrderIdDetail">[Order ID]</span></li>
+                    <li>Branch: <span id="emailBranchDetail">[Branch Name]</span></li>
+                    <li>Order Date: <span id="emailOrderDate">[Order Date]</span></li>
+                    <li>Requested Refund Amount: <span id="emailRefundAmount">[Refund Amount]</span> AED</li>
+                </ul>
+                <p>Best regards,<br>
+                Finance Review Team<br>
+                Crispy Chicken - UAE</p>
+                <div class="mt-3">
+                    <button class="btn btn-primary" onclick="sendEmail()">
+                        <i class="bi bi-send"></i> Send Email
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="table-container">
+                    <h5><i class="bi bi-pie-chart"></i> Refund Reasons Distribution</h5>
+                    <div class="chart-container">
+                        <canvas id="reasonsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="table-container">
+                    <h5><i class="bi bi-bar-chart"></i> Refunds by Branch</h5>
+                    <div class="chart-container">
+                        <canvas id="branchesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Refund Data</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm">
+                        <input type="hidden" id="editId">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="editOrderId" class="form-label">Order ID</label>
+                                <input type="text" class="form-control" id="editOrderId" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editBranch" class="form-label">Branch</label>
+                                <select class="form-select" id="editBranch" required>
+                                    <option value="Al Barsha 1">Al Barsha 1</option>
+                                    <option value="Al Markaziyah">Al Markaziyah</option>
+                                    <option value="Al Danah">Al Danah</option>
+                                    <option value="Al Satwa">Al Satwa</option>
+                                    <option value="Mohammed Bin Zayed City">Mohammed Bin Zayed City</option>
+                                    <option value="Al Rawdah">Al Rawdah</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <label for="editOrderDate" class="form-label">Order Date</label>
+                                <input type="datetime-local" class="form-control" id="editOrderDate" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editRefundDate" class="form-label">Refund Date</label>
+                                <input type="datetime-local" class="form-control" id="editRefundDate" required>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <label for="editBasketAmount" class="form-label">Basket Amount (AED)</label>
+                                <input type="number" step="0.01" class="form-control" id="editBasketAmount" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editRefundAmount" class="form-label">Refund Amount (AED)</label>
+                                <input type="number" step="0.01" class="form-control" id="editRefundAmount" required>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <label for="editReason" class="form-label">Refund Reason</label>
+                                <select class="form-select" id="editReason" required>
+                                    <option value="Spilled / damaged">Spilled / damaged</option>
+                                    <option value="Wrong item sent">Wrong item sent</option>
+                                    <option value="Missing or unavailable items (Main item)">Missing or unavailable items (Main item)</option>
+                                    <option value="Food is overcooked/burnt">Food is overcooked/burnt</option>
+                                    <option value="Food is undercooked">Food is undercooked</option>
+                                    <option value="Hair in the food">Hair in the food</option>
+                                    <option value="Foul Smell">Foul Smell</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editStatus" class="form-label">Status</label>
+                                <select class="form-select" id="editStatus" required>
+                                    <option value="Pending">Under Review</option>
+                                    <option value="Rejected">Rejected</option>
+                                    <option value="Accepted">Accepted</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <label for="editNotes" class="form-label">Notes</label>
+                                <textarea class="form-control" id="editNotes" rows="2"></textarea>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <label class="form-label">Attachments</label>
+                                <div class="upload-area" id="editUploadArea">
+                                    <i class="bi bi-cloud-arrow-up fs-1"></i>
+                                    <p>Drag & drop files here or click to browse</p>
+                                    <input type="file" id="editAttachmentInput" multiple accept="image/*,.pdf" style="display: none;">
+                                </div>
+                                <div class="attachment-preview" id="editAttachmentPreview"></div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveEdit()">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Attachments Modal -->
+    <div class="modal fade" id="viewAttachmentsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Order Attachments</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row" id="attachmentsContainer">
+                        <!-- Attachments will be displayed here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Sample data based on the provided table
+        const sampleData = [
+            {
+                id: 1,
+                orderId: "127515454",
+                branch: "Al Barsha 1",
+                orderDate: "2025-08-30T20:25",
+                refundDate: "2025-08-30T21:33",
+                basketAmount: 17.05,
+                refundAmount: 15.50,
+                reason: "Spilled / damaged",
+                status: "Rejected",
+                notes: "Verified from video, no issue found",
+                attachments: []
+            },
+            {
+                id: 2,
+                orderId: "127518108",
+                branch: "Al Markaziyah",
+                orderDate: "2025-08-30T20:40",
+                refundDate: "2025-08-30T21:16",
+                basketAmount: 19.44,
+                refundAmount: 12.00,
+                reason: "Wrong item sent",
+                status: "Rejected",
+                notes: "Order delivered correctly",
+                attachments: []
+            },
+            {
+                id: 3,
+                orderId: "127510864",
+                branch: "Al Danah",
+                orderDate: "2025-08-30T19:59",
+                refundDate: "2025-08-30T20:52",
+                basketAmount: 33.88,
+                refundAmount: 32.00,
+                reason: "Missing or unavailable items (Main item)",
+                status: "Pending",
+                notes: "Under review with branch",
+                attachments: []
+            },
+            {
+                id: 4,
+                orderId: "127513797",
+                branch: "Al Danah",
+                orderDate: "2025-08-30T20:15",
+                refundDate: "2025-08-30T20:41",
+                basketAmount: 32.00,
+                refundAmount: 25.00,
+                reason: "Missing or unavailable items (Main item)",
+                status: "Rejected",
+                notes: "Verified from video, all items delivered",
+                attachments: []
+            },
+            {
+                id: 5,
+                orderId: "127495845",
+                branch: "Al Satwa",
+                orderDate: "2025-08-30T18:32",
+                refundDate: "2025-08-30T19:59",
+                basketAmount: 23.05,
+                refundAmount: 8.00,
+                reason: "Missing or unavailable items (Main item)",
+                status: "Pending",
+                notes: "Under review",
+                attachments: []
+            }
+        ];
+
+        // Initialize data from localStorage or use sample data
+        let refundsData = JSON.parse(localStorage.getItem('refundsData')) || sampleData;
+        let currentEditId = null;
+        let currentViewId = null;
+        let reasonsChart, branchesChart;
+        let newAttachments = [];
+        let editAttachments = [];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            renderTable();
+            updateDashboard();
+            updateKPIs();
+            initializeCharts();
+            
+            // Form submission
+            document.getElementById('refundForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                addRefund();
+            });
+            
+            // Upload area click
+            document.getElementById('uploadArea').addEventListener('click', function() {
+                document.getElementById('attachmentInput').click();
+            });
+            
+            // Edit upload area click
+            document.getElementById('editUploadArea').addEventListener('click', function() {
+                document.getElementById('editAttachmentInput').click();
+            });
+            
+            // File input change
+            document.getElementById('attachmentInput').addEventListener('change', function(e) {
+                handleFileSelect(e.target.files, 'attachmentPreview');
+            });
+            
+            // Edit file input change
+            document.getElementById('editAttachmentInput').addEventListener('change', function(e) {
+                handleFileSelect(e.target.files, 'editAttachmentPreview');
+            });
+            
+            // Drag and drop for main upload area
+            const uploadArea = document.getElementById('uploadArea');
+            
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+            
+            uploadArea.addEventListener('dragleave', function() {
+                uploadArea.classList.remove('dragover');
+            });
+            
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                
+                if (e.dataTransfer.files.length) {
+                    handleFileSelect(e.dataTransfer.files, 'attachmentPreview');
+                }
+            });
+            
+            // Drag and drop for edit upload area
+            const editUploadArea = document.getElementById('editUploadArea');
+            
+            editUploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                editUploadArea.classList.add('dragover');
+            });
+            
+            editUploadArea.addEventListener('dragleave', function() {
+                editUploadArea.classList.remove('dragover');
+            });
+            
+            editUploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                editUploadArea.classList.remove('dragover');
+                
+                if (e.dataTransfer.files.length) {
+                    handleFileSelect(e.dataTransfer.files, 'editAttachmentPreview');
+                }
+            });
+        });
+
+        // Handle file selection
+        function handleFileSelect(files, previewId) {
+            const preview = document.getElementById(previewId);
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const attachment = {
+                        id: Date.now() + i,
+                        name: file.name,
+                        type: file.type,
+                        size: file.size,
+                        data: e.target.result
+                    };
+                    
+                    if (previewId === 'attachmentPreview') {
+                        newAttachments.push(attachment);
+                    } else {
+                        editAttachments.push(attachment);
+                    }
+                    
+                    const attachmentItem = document.createElement('div');
+                    attachmentItem.className = 'attachment-item';
+                    attachmentItem.dataset.id = attachment.id;
+                    
+                    if (file.type.startsWith('image/')) {
+                        attachmentItem.innerHTML = `
+                            <img src="${e.target.result}" alt="${file.name}">
+                            <div class="attachment-remove" onclick="removeAttachment(${attachment.id}, '${previewId}')">
+                                <i class="bi bi-x"></i>
+                            </div>
+                        `;
+                    } else {
+                        attachmentItem.innerHTML = `
+                            <div class="d-flex align-items-center justify-content-center h-100">
+                                <i class="bi bi-file-earmark-pdf fs-1"></i>
+                            </div>
+                            <div class="attachment-remove" onclick="removeAttachment(${attachment.id}, '${previewId}')">
+                                <i class="bi bi-x"></i>
+                            </div>
+                        `;
+                    }
+                    
+                    preview.appendChild(attachmentItem);
+                };
+                
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Remove attachment
+        function removeAttachment(id, previewId) {
+            const attachmentItem = document.querySelector(`.attachment-item[data-id="${id}"]`);
+            if (attachmentItem) {
+                attachmentItem.remove();
+            }
+            
+            if (previewId === 'attachmentPreview') {
+                newAttachments = newAttachments.filter(att => att.id !== id);
+            } else {
+                editAttachments = editAttachments.filter(att => att.id !== id);
+            }
+        }
+
+        // Add a new refund
+        function addRefund() {
+            const orderId = document.getElementById('orderId').value;
+            const orderDate = document.getElementById('orderDate').value;
+            const refundDate = document.getElementById('refundDate').value;
+            const branch = document.getElementById('branch').value;
+            const basketAmount = parseFloat(document.getElementById('basketAmount').value);
+            const refundAmount = parseFloat(document.getElementById('refundAmount').value);
+            const reason = document.getElementById('reason').value;
+            const status = document.getElementById('status').value;
+            const notes = document.getElementById('notes').value;
+
+            const newRefund = {
+                id: Date.now(),
+                orderId,
+                orderDate,
+                refundDate,
+                branch,
+                basketAmount,
+                refundAmount,
+                reason,
+                status,
+                notes,
+                attachments: [...newAttachments]
+            };
+
+            refundsData.push(newRefund);
+            saveData();
+            renderTable();
+            updateDashboard();
+            updateKPIs();
+            updateCharts();
+            
+            // Reset form
+            document.getElementById('refundForm').reset();
+            document.getElementById('attachmentPreview').innerHTML = '';
+            newAttachments = [];
+            
+            // Show success message
+            showToast('Data added successfully!', 'success');
+        }
+
+        // Render the refunds table
+        function renderTable(data = refundsData) {
+            const tableBody = document.getElementById('refundsTableBody');
+            tableBody.innerHTML = '';
+
+            data.forEach(refund => {
+                const row = document.createElement('tr');
+                
+                let statusClass, statusText;
+                if (refund.status === 'Rejected') {
+                    statusClass = 'status-rejected';
+                    statusText = 'Rejected';
+                } else if (refund.status === 'Pending') {
+                    statusClass = 'status-pending';
+                    statusText = 'Under Review';
+                } else {
+                    statusClass = 'status-accepted';
+                    statusText = 'Accepted';
+                }
+                
+                row.innerHTML = `
+                    <td>${refund.orderId}</td>
+                    <td>${refund.branch}</td>
+                    <td>${formatDateTime(refund.orderDate)}</td>
+                    <td>${formatDateTime(refund.refundDate)}</td>
+                    <td>${refund.basketAmount.toFixed(2)}</td>
+                    <td>${refund.refundAmount.toFixed(2)}</td>
+                    <td>${refund.reason}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>
+                        ${refund.attachments && refund.attachments.length > 0 ? 
+                            `<button class="btn btn-sm action-btn view-btn" onclick="viewAttachments(${refund.id})">
+                                <i class="bi bi-paperclip"></i> ${refund.attachments.length}
+                            </button>` : 
+                            '<span class="text-muted">None</span>'
+                        }
+                    </td>
+                    <td>
+                        <button class="btn btn-sm action-btn edit-btn" onclick="editRefund(${refund.id})" title="Edit">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm action-btn delete-btn" onclick="deleteRefund(${refund.id})" title="Delete">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                        <button class="btn btn-sm action-btn email-btn" onclick="prepareEmail(${refund.id})" title="Send Email">
+                            <i class="bi bi-envelope"></i>
+                        </button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Update dashboard metrics
+        function updateDashboard() {
+            const totalRefunds = refundsData.length;
+            const rejectedRefunds = refundsData.filter(r => r.status === 'Rejected').length;
+            const pendingRefunds = refundsData.filter(r => r.status === 'Pending').length;
+            const acceptedRefunds = refundsData.filter(r => r.status === 'Accepted').length;
+            const totalSavings = refundsData
+                .filter(r => r.status === 'Rejected')
+                .reduce((sum, refund) => sum + refund.refundAmount, 0);
+
+            document.getElementById('totalRefunds').textContent = totalRefunds;
+            document.getElementById('rejectedRefunds').textContent = rejectedRefunds;
+            document.getElementById('pendingRefunds').textContent = pendingRefunds;
+            document.getElementById('totalSavings').textContent = totalSavings.toFixed(2);
+        }
+
+        // Update KPIs
+        function updateKPIs() {
+            // Rejected to Accepted Ratio
+            const rejectedCount = refundsData.filter(r => r.status === 'Rejected').length;
+            const acceptedCount = refundsData.filter(r => r.status === 'Accepted').length;
+            document.getElementById('rejectedToAcceptedRatio').textContent = `${rejectedCount}:${acceptedCount}`;
+            document.getElementById('rejectedCount').textContent = rejectedCount;
+            document.getElementById('acceptedCount').textContent = acceptedCount;
+            
+            // Monthly Savings Rate
+            const currentMonth = new Date().getMonth();
+            const currentYear = new Date().getFullYear();
+            const monthlyRefunds = refundsData.filter(r => {
+                const refundDate = new Date(r.refundDate);
+                return refundDate.getMonth() === currentMonth && refundDate.getFullYear() === currentYear;
+            });
+            
+            const monthlySavings = monthlyRefunds
+                .filter(r => r.status === 'Rejected')
+                .reduce((sum, refund) => sum + refund.refundAmount, 0);
+            
+            document.getElementById('monthlySavings').textContent = `AED ${monthlySavings.toFixed(2)}`;
+            
+            // Update progress bar (assuming target is 10,000 AED)
+            const progressPercent = Math.min(100, (monthlySavings / 10000) * 100);
+            document.querySelector('.savings-chart .progress-bar').style.width = `${progressPercent}%`;
+            document.querySelector('.savings-chart .progress-bar').setAttribute('aria-valuenow', progressPercent);
+            
+            // Top 3 Refund Reasons
+            const reasonCounts = {};
+            refundsData.forEach(refund => {
+                reasonCounts[refund.reason] = (reasonCounts[refund.reason] || 0) + 1;
+            });
+            
+            const sortedReasons = Object.entries(reasonCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3);
+            
+            const totalRefundsCount = refundsData.length;
+            const topReasonsList = document.getElementById('topReasonsList');
+            topReasonsList.innerHTML = '';
+            
+            sortedReasons.forEach((reason, index) => {
+                const percentage = totalRefundsCount > 0 ? ((reason[1] / totalRefundsCount) * 100).toFixed(1) : 0;
+                
+                const reasonItem = document.createElement('div');
+                reasonItem.className = 'reason-item';
+                reasonItem.innerHTML = `
+                    <div class="reason-rank">${index + 1}</div>
+                    <div class="reason-details">
+                        <div class="reason-name">${reason[0]}</div>
+                        <div class="reason-count">${reason[1]} refunds <span class="reason-percentage">(${percentage}%)</span></div>
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" style="width: ${percentage}%" aria-valuenow="${percentage}" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                `;
+                
+                topReasonsList.appendChild(reasonItem);
+            });
+        }
+
+        // Initialize charts
+        function initializeCharts() {
+            // Reasons chart
+            const reasonsCtx = document.getElementById('reasonsChart').getContext('2d');
+            const reasonCounts = {};
+            
+            refundsData.forEach(refund => {
+                reasonCounts[refund.reason] = (reasonCounts[refund.reason] || 0) + 1;
+            });
+            
+            reasonsChart = new Chart(reasonsCtx, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(reasonCounts),
+                    datasets: [{
+                        data: Object.values(reasonCounts),
+                        backgroundColor: [
+                            '#FF6384',
+                            '#36A2EB',
+                            '#FFCE56',
+                            '#4BC0C0',
+                            '#9966FF',
+                            '#FF9F40',
+                            '#8AC926'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+
+            // Branches chart
+            const branchesCtx = document.getElementById('branchesChart').getContext('2d');
+            const branchCounts = {};
+            
+            refundsData.forEach(refund => {
+                branchCounts[refund.branch] = (branchCounts[refund.branch] || 0) + 1;
+            });
+            
+            branchesChart = new Chart(branchesCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(branchCounts),
+                    datasets: [{
+                        label: 'Number of Refunds',
+                        data: Object.values(branchCounts),
+                        backgroundColor: '#36A2EB'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update charts
+        function updateCharts() {
+            // Update reasons chart
+            const reasonCounts = {};
+            refundsData.forEach(refund => {
+                reasonCounts[refund.reason] = (reasonCounts[refund.reason] || 0) + 1;
+            });
+            
+            reasonsChart.data.labels = Object.keys(reasonCounts);
+            reasonsChart.data.datasets[0].data = Object.values(reasonCounts);
+            reasonsChart.update();
+
+            // Update branches chart
+            const branchCounts = {};
+            refundsData.forEach(refund => {
+                branchCounts[refund.branch] = (branchCounts[refund.branch] || 0) + 1;
+            });
+            
+            branchesChart.data.labels = Object.keys(branchCounts);
+            branchesChart.data.datasets[0].data = Object.values(branchCounts);
+            branchesChart.update();
+        }
+
+        // Edit a refund
+        function editRefund(id) {
+            const refund = refundsData.find(r => r.id === id);
+            if (!refund) return;
+
+            currentEditId = id;
+            editAttachments = [...refund.attachments];
+            
+            document.getElementById('editOrderId').value = refund.orderId;
+            document.getElementById('editBranch').value = refund.branch;
+            document.getElementById('editOrderDate').value = refund.orderDate;
+            document.getElementById('editRefundDate').value = refund.refundDate;
+            document.getElementById('editBasketAmount').value = refund.basketAmount;
+            document.getElementById('editRefundAmount').value = refund.refundAmount;
+            document.getElementById('editReason').value = refund.reason;
+            document.getElementById('editStatus').value = refund.status;
+            document.getElementById('editNotes').value = refund.notes;
+            
+            // Display existing attachments
+            const editAttachmentPreview = document.getElementById('editAttachmentPreview');
+            editAttachmentPreview.innerHTML = '';
+            
+            refund.attachments.forEach(attachment => {
+                const attachmentItem = document.createElement('div');
+                attachmentItem.className = 'attachment-item';
+                attachmentItem.dataset.id = attachment.id;
+                
+                if (attachment.type.startsWith('image/')) {
+                    attachmentItem.innerHTML = `
+                        <img src="${attachment.data}" alt="${attachment.name}">
+                        <div class="attachment-remove" onclick="removeAttachment(${attachment.id}, 'editAttachmentPreview')">
+                            <i class="bi bi-x"></i>
+                        </div>
+                    `;
+                } else {
+                    attachmentItem.innerHTML = `
+                        <div class="d-flex align-items-center justify-content-center h-100">
+                            <i class="bi bi-file-earmark-pdf fs-1"></i>
+                        </div>
+                        <div class="attachment-remove" onclick="removeAttachment(${attachment.id}, 'editAttachmentPreview')">
+                            <i class="bi bi-x"></i>
+                        </div>
+                    `;
+                }
+                
+                editAttachmentPreview.appendChild(attachmentItem);
+            });
+            
+            const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+            editModal.show();
+        }
+
+        // Save edited refund
+        function saveEdit() {
+            const refundIndex = refundsData.findIndex(r => r.id === currentEditId);
+            if (refundIndex === -1) return;
+
+            refundsData[refundIndex] = {
+                id: currentEditId,
+                orderId: document.getElementById('editOrderId').value,
+                branch: document.getElementById('editBranch').value,
+                orderDate: document.getElementById('editOrderDate').value,
+                refundDate: document.getElementById('editRefundDate').value,
+                basketAmount: parseFloat(document.getElementById('editBasketAmount').value),
+                refundAmount: parseFloat(document.getElementById('editRefundAmount').value),
+                reason: document.getElementById('editReason').value,
+                status: document.getElementById('editStatus').value,
+                notes: document.getElementById('editNotes').value,
+                attachments: [...editAttachments]
+            };
+
+            saveData();
+            renderTable();
+            updateDashboard();
+            updateKPIs();
+            updateCharts();
+            
+            const editModal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
+            editModal.hide();
+            
+            showToast('Changes saved successfully!', 'success');
+        }
+
+        // Delete a refund
+        function deleteRefund(id) {
+            if (confirm('Are you sure you want to delete this record?')) {
+                refundsData = refundsData.filter(r => r.id !== id);
+                saveData();
+                renderTable();
+                updateDashboard();
+                updateKPIs();
+                updateCharts();
+                showToast('Record deleted successfully!', 'success');
+            }
+        }
+
+        // Prepare email for a refund
+        function prepareEmail(id) {
+            const refund = refundsData.find(r => r.id === id);
+            if (!refund) return;
+
+            document.getElementById('emailOrderId').textContent = refund.orderId;
+            document.getElementById('emailOrderNumber').textContent = refund.orderId;
+            document.getElementById('emailBranch').textContent = refund.branch;
+            document.getElementById('emailOrderIdDetail').textContent = refund.orderId;
+            document.getElementById('emailBranchDetail').textContent = refund.branch;
+            document.getElementById('emailOrderDate').textContent = formatDateTime(refund.orderDate);
+            document.getElementById('emailRefundAmount').textContent = refund.refundAmount.toFixed(2);
+            
+            // Scroll to email section
+            document.querySelector('.email-template').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // View attachments
+        function viewAttachments(id) {
+            const refund = refundsData.find(r => r.id === id);
+            if (!refund || !refund.attachments || refund.attachments.length === 0) return;
+            
+            currentViewId = id;
+            const attachmentsContainer = document.getElementById('attachmentsContainer');
+            attachmentsContainer.innerHTML = '';
+            
+            refund.attachments.forEach(attachment => {
+                const col = document.createElement('div');
+                col.className = 'col-md-4 mb-3';
+                
+                if (attachment.type.startsWith('image/')) {
+                    col.innerHTML = `
+                        <div class="card">
+                            <img src="${attachment.data}" class="card-img-top" alt="${attachment.name}">
+                            <div class="card-body">
+                                <h6 class="card-title">${attachment.name}</h6>
+                                <a href="${attachment.data}" download="${attachment.name}" class="btn btn-sm btn-primary">Download</a>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    col.innerHTML = `
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <i class="bi bi-file-earmark-pdf fs-1"></i>
+                                <h6 class="card-title">${attachment.name}</h6>
+                                <a href="${attachment.data}" download="${attachment.name}" class="btn btn-sm btn-primary">Download</a>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                attachmentsContainer.appendChild(col);
+            });
+            
+            const viewAttachmentsModal = new bootstrap.Modal(document.getElementById('viewAttachmentsModal'));
+            viewAttachmentsModal.show();
+        }
+
+        // Send email (simulated)
+        function sendEmail() {
+            showToast('Email sent successfully!', 'success');
+            
+            // In a real application, this would send the email via an API
+            // For demo purposes, we'll just show a toast notification
+        }
+
+        // Apply filters
+        function applyFilters() {
+            const branchFilter = document.getElementById('branchFilter').value;
+            const reasonFilter = document.getElementById('reasonFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const dateFilter = document.getElementById('dateFilter').value;
+
+            let filteredData = refundsData;
+
+            if (branchFilter) {
+                filteredData = filteredData.filter(r => r.branch === branchFilter);
+            }
+
+            if (reasonFilter) {
+                filteredData = filteredData.filter(r => r.reason === reasonFilter);
+            }
+
+            if (statusFilter) {
+                filteredData = filteredData.filter(r => r.status === statusFilter);
+            }
+
+            if (dateFilter) {
+                filteredData = filteredData.filter(r => {
+                    const orderDate = new Date(r.orderDate).toISOString().split('T')[0];
+                    return orderDate === dateFilter;
+                });
+            }
+
+            renderTable(filteredData);
+        }
+
+        // Reset filters
+        function resetFilters() {
+            document.getElementById('branchFilter').value = '';
+            document.getElementById('reasonFilter').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('dateFilter').value = '';
+            
+            renderTable();
+        }
+
+        // Export to Excel
+        function exportToExcel() {
+            // In a real application, this would generate an Excel file
+            // For demo purposes, we'll create a CSV and download it
+            let csv = 'Order ID,Branch,Order Date,Refund Date,Basket Amount,Refund Amount,Reason,Status,Notes\n';
+            
+            refundsData.forEach(refund => {
+                const statusText = refund.status === 'Rejected' ? 'Rejected' : 
+                                 refund.status === 'Pending' ? 'Under Review' : 'Accepted';
+                csv += `${refund.orderId},${refund.branch},${formatDateTime(refund.orderDate)},${formatDateTime(refund.refundDate)},${refund.basketAmount},${refund.refundAmount},${refund.reason},${statusText},"${refund.notes}"\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'refund_data.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showToast('Data exported to Excel successfully!', 'success');
+        }
+
+        // Export to PDF
+        function exportToPDF() {
+            // In a real application, this would generate a PDF file
+            // For demo purposes, we'll show a toast notification
+            showToast('PDF export feature will be available soon!', 'warning');
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('refundsData', JSON.stringify(refundsData));
+        }
+
+        // Format date and time
+        function formatDateTime(dateTimeStr) {
+            const date = new Date(dateTimeStr);
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toastContainer = document.querySelector('.toast-container');
+            
+            const toast = document.createElement('div');
+            toast.className = `custom-toast toast-${type}`;
+            
+            let icon;
+            if (type === 'success') {
+                icon = '<i class="bi bi-check-circle-fill toast-icon"></i>';
+            } else if (type === 'error') {
+                icon = '<i class="bi bi-x-circle-fill toast-icon"></i>';
+            } else {
+                icon = '<i class="bi bi-exclamation-triangle-fill toast-icon"></i>';
+            }
+            
+            toast.innerHTML = `
+                ${icon}
+                <div class="toast-message">
+                    <div class="toast-title">${type.charAt(0).toUpperCase() + type.slice(1)}</div>
+                    <div class="toast-body">${message}</div>
+                </div>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => {
+                    toastContainer.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
