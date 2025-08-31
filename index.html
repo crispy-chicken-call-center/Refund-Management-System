@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Careem Refund Response System</title>
+    <title>نظام الرد على تعويضات كريم</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
@@ -21,8 +21,7 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
+            background-color: var(--light-bg);
             color: #333;
         }
         
@@ -32,45 +31,20 @@
             padding: 2rem 0;
             margin-bottom: 2rem;
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .main-header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -10%;
-            width: 300px;
-            height: 300px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 50%;
         }
         
         .stats-card {
-            border-radius: 15px;
+            border-radius: 12px;
             box-shadow: var(--card-shadow);
-            transition: all 0.3s ease;
+            transition: transform 0.3s, box-shadow 0.3s;
             border: none;
             margin-bottom: 1.5rem;
             height: 100%;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .stats-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
         }
         
         .stats-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 20px rgba(0,0,0,0.15);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
         }
         
         .stats-card .card-body {
@@ -88,93 +62,51 @@
             font-weight: 700;
             margin-bottom: 0;
             color: var(--primary-color);
-            font-size: 2rem;
         }
         
         .stats-card .icon {
             font-size: 2.5rem;
             opacity: 0.8;
-            transition: transform 0.3s ease;
-        }
-        
-        .stats-card:hover .icon {
-            transform: scale(1.1);
         }
         
         .section-card {
             background: white;
-            border-radius: 15px;
+            border-radius: 12px;
             box-shadow: var(--card-shadow);
             padding: 1.5rem;
             margin-bottom: 2rem;
-            transition: all 0.3s ease;
-        }
-        
-        .section-card:hover {
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
         }
         
         .upload-area {
             border: 2px dashed #ddd;
-            border-radius: 15px;
+            border-radius: 12px;
             padding: 3rem;
             text-align: center;
-            transition: all 0.3s ease;
+            transition: all 0.3s;
             cursor: pointer;
             background: #fafafa;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .upload-area::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: linear-gradient(45deg, transparent, rgba(57, 73, 171, 0.1), transparent);
-            transform: translateX(-100%);
-            transition: transform 0.6s ease;
-        }
-        
-        .upload-area:hover::before {
-            transform: translateX(100%);
         }
         
         .upload-area:hover {
             border-color: var(--secondary-color);
             background: #f0f4ff;
-            transform: scale(1.02);
         }
         
         .upload-area.dragover {
             border-color: var(--primary-color);
             background: #e8eaf6;
-            transform: scale(1.05);
-        }
-        
-        .upload-area i {
-            font-size: 3rem;
-            color: var(--primary-color);
-            transition: all 0.3s ease;
-        }
-        
-        .upload-area:hover i {
-            transform: scale(1.1) rotate(5deg);
         }
         
         .table-container {
             background: white;
-            border-radius: 15px;
+            border-radius: 12px;
             box-shadow: var(--card-shadow);
             padding: 1.5rem;
             margin-bottom: 2rem;
-            overflow: hidden;
         }
         
         .table thead th {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background-color: var(--primary-color);
             color: white;
             border: none;
             font-weight: 600;
@@ -182,18 +114,14 @@
             position: sticky;
             top: 0;
             z-index: 10;
-            padding: 1rem;
         }
         
         .table tbody tr {
-            transition: all 0.2s ease;
-            cursor: pointer;
+            transition: background-color 0.2s;
         }
         
         .table tbody tr:hover {
-            background: linear-gradient(90deg, #f8f9ff, #ffffff);
-            transform: scale(1.01);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            background-color: #f8f9ff;
         }
         
         .status-badge {
@@ -201,30 +129,25 @@
             padding: 0.35rem 0.7rem;
             border-radius: 20px;
             font-weight: 600;
-            transition: all 0.2s ease;
-        }
-        
-        .status-badge:hover {
-            transform: scale(1.05);
         }
         
         .status-pending {
-            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            background-color: #fff3cd;
             color: #856404;
         }
         
         .status-responded {
-            background: linear-gradient(135deg, #d1ecf1, #74b9ff);
+            background-color: #d1ecf1;
             color: #0c5460;
         }
         
         .status-resolved {
-            background: linear-gradient(135deg, #d4edda, #55efc4);
+            background-color: #d4edda;
             color: #155724;
         }
         
         .status-rejected {
-            background: linear-gradient(135deg, #f8d7da, #ff7675);
+            background-color: #f8d7da;
             color: #721c24;
         }
         
@@ -235,130 +158,105 @@
             font-size: 0.75rem;
             font-weight: 600;
             margin-left: 0.5rem;
-            transition: all 0.2s ease;
-        }
-        
-        .reason-tag:hover {
-            transform: scale(1.05);
         }
         
         .reason-spilled {
-            background: linear-gradient(135deg, #ffebee, #ffcdd2);
+            background-color: #ffebee;
             color: #c62828;
         }
         
         .reason-wrong {
-            background: linear-gradient(135deg, #e8eaf6, #c5cae9);
+            background-color: #e8eaf6;
             color: #3949ab;
         }
         
         .reason-missing {
-            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            background-color: #e8f5e9;
             color: #2e7d32;
         }
         
         .reason-overcooked {
-            background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+            background-color: #fff3e0;
             color: #e65100;
         }
         
         .reason-undercooked {
-            background: linear-gradient(135deg, #fce4ec, #f8bbd0);
+            background-color: #fce4ec;
             color: #c2185b;
         }
         
         .reason-hair {
-            background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+            background-color: #f3e5f5;
             color: #7b1fa2;
         }
         
         .reason-smell {
-            background: linear-gradient(135deg, #efebe9, #d7ccc8);
+            background-color: #efebe9;
             color: #5d4037;
         }
         
         .action-btn {
             padding: 0.3rem 0.6rem;
-            border-radius: 8px;
+            border-radius: 6px;
             border: none;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.2s;
             margin: 0.1rem;
             font-size: 0.85rem;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .action-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: rgba(255,255,255,0.2);
-            transition: left 0.3s ease;
-        }
-        
-        .action-btn:hover::before {
-            left: 0;
         }
         
         .action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transform: scale(1.05);
         }
         
         .btn-view {
-            background: linear-gradient(135deg, var(--info-color), #039be5);
+            background-color: var(--info-color);
             color: white;
         }
         
         .btn-respond {
-            background: linear-gradient(135deg, var(--warning-color), #ff9800);
+            background-color: var(--warning-color);
             color: white;
         }
         
         .btn-template {
-            background: linear-gradient(135deg, var(--success-color), #4caf50);
+            background-color: var(--success-color);
             color: white;
         }
         
         .modal-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background-color: var(--primary-color);
             color: white;
         }
         
         .modal-body {
-            background: #f8f9fa;
+            background-color: #f8f9fa;
         }
         
         .template-container {
             background: white;
             border: 1px solid #ddd;
-            border-radius: 10px;
+            border-radius: 8px;
             padding: 1.5rem;
             margin-top: 1rem;
             position: relative;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
         
         .copy-btn {
             position: absolute;
             top: 10px;
             left: 10px;
-            background: linear-gradient(135deg, var(--secondary-color), #5c6bc0);
+            background-color: var(--secondary-color);
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 5px;
             padding: 0.3rem 0.8rem;
             font-size: 0.85rem;
-            transition: all 0.3s ease;
+            transition: all 0.3s;
         }
         
         .copy-btn:hover {
-            background: linear-gradient(135deg, var(--primary-color), #3949ab);
-            transform: translateY(-2px);
+            background-color: var(--primary-color);
         }
         
         .template-content {
@@ -368,17 +266,12 @@
             margin-top: 1rem;
             background: #f8f9fa;
             padding: 1rem;
-            border-radius: 8px;
+            border-radius: 5px;
             border: 1px solid #e9ecef;
-            transition: all 0.3s ease;
-        }
-        
-        .template-content:hover {
-            background: #f1f3f4;
         }
         
         .footer {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background-color: var(--primary-color);
             color: white;
             text-align: center;
             padding: 1.5rem 0;
@@ -393,10 +286,10 @@
         }
         
         .custom-toast {
-            background: linear-gradient(135deg, var(--success-color), #4caf50);
+            background-color: var(--success-color);
             color: white;
             padding: 1rem;
-            border-radius: 10px;
+            border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             display: flex;
             align-items: center;
@@ -418,64 +311,37 @@
         .custom-toast i {
             font-size: 1.5rem;
             margin-left: 0.8rem;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
         }
         
         .filter-section {
             background: white;
-            border-radius: 15px;
+            border-radius: 12px;
             box-shadow: var(--card-shadow);
             padding: 1.5rem;
             margin-bottom: 2rem;
         }
         
         .filter-btn {
-            background: linear-gradient(135deg, var(--secondary-color), #5c6bc0);
+            background-color: var(--secondary-color);
             color: white;
             border: none;
             padding: 0.5rem 1rem;
-            border-radius: 8px;
+            border-radius: 6px;
             margin-left: 0.5rem;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .filter-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: rgba(255,255,255,0.2);
-            transition: left 0.3s ease;
-        }
-        
-        .filter-btn:hover::before {
-            left: 0;
+            transition: all 0.3s;
         }
         
         .filter-btn:hover {
-            background: linear-gradient(135deg, var(--primary-color), #3949ab);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            background-color: var(--primary-color);
         }
         
         .filter-btn.active {
-            background: linear-gradient(135deg, var(--primary-color), #3949ab);
+            background-color: var(--primary-color);
         }
         
         .adjustment-amount {
             font-weight: 700;
             color: var(--danger-color);
-            font-size: 1.1rem;
         }
         
         .search-box {
@@ -483,15 +349,7 @@
         }
         
         .search-box input {
-            padding-left: 45px;
-            border-radius: 25px;
-            border: 2px solid #e0e0e0;
-            transition: all 0.3s ease;
-        }
-        
-        .search-box input:focus {
-            border-color: var(--secondary-color);
-            box-shadow: 0 0 0 0.2rem rgba(57, 73, 171, 0.25);
+            padding-left: 40px;
         }
         
         .search-box i {
@@ -500,29 +358,11 @@
             top: 50%;
             transform: translateY(-50%);
             color: #6c757d;
-            transition: color 0.3s ease;
-        }
-        
-        .search-box input:focus + i {
-            color: var(--secondary-color);
         }
         
         .chart-container {
             height: 300px;
             margin-top: 1rem;
-            position: relative;
-        }
-        
-        .chart-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
-            border-radius: 10px;
-            pointer-events: none;
         }
         
         .loading-spinner {
@@ -532,11 +372,10 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7);
+            background-color: rgba(0, 0, 0, 0.5);
             z-index: 9999;
             justify-content: center;
             align-items: center;
-            backdrop-filter: blur(5px);
         }
         
         .loading-spinner.show {
@@ -546,15 +385,8 @@
         .spinner-content {
             background: white;
             padding: 2rem;
-            border-radius: 15px;
+            border-radius: 10px;
             text-align: center;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-            animation: bounce 1s infinite;
-        }
-        
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
         }
         
         .progress-container {
@@ -563,59 +395,40 @@
         }
         
         .btn-primary-custom {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background-color: var(--primary-color);
             color: white;
             border: none;
             padding: 0.75rem 1.5rem;
-            border-radius: 10px;
+            border-radius: 8px;
             font-weight: 500;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .btn-primary-custom::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: rgba(255,255,255,0.2);
-            transition: left 0.3s ease;
-        }
-        
-        .btn-primary-custom:hover::before {
-            left: 0;
+            transition: all 0.3s;
         }
         
         .btn-primary-custom:hover {
+            background-color: var(--secondary-color);
             transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
         }
         
         .form-control:focus, .form-select:focus {
             border-color: var(--secondary-color);
             box-shadow: 0 0 0 0.2rem rgba(57, 73, 171, 0.25);
-            border-radius: 8px;
         }
         
         .dataTables_wrapper .dataTables_filter input {
             border: 1px solid #ddd;
-            border-radius: 8px;
+            border-radius: 6px;
             padding: 0.5rem;
         }
         
         .dataTables_wrapper .dataTables_length select {
             border: 1px solid #ddd;
-            border-radius: 8px;
+            border-radius: 6px;
             padding: 0.5rem;
         }
         
         .table-responsive {
             max-height: 600px;
             overflow-y: auto;
-            border-radius: 10px;
         }
         
         .summary-stats {
@@ -626,94 +439,17 @@
         
         .summary-stat {
             text-align: center;
-            padding: 1rem;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-        }
-        
-        .summary-stat:hover {
-            background: rgba(57, 73, 171, 0.05);
-            transform: translateY(-2px);
         }
         
         .summary-stat h4 {
             color: var(--primary-color);
             margin: 0;
-            font-size: 1.5rem;
         }
         
         .summary-stat p {
             color: #666;
             margin: 0;
             font-size: 0.9rem;
-        }
-        
-        .activity-feed {
-            max-height: 300px;
-            overflow-y: auto;
-            padding: 1rem;
-            background: #f8f9fa;
-            border-radius: 10px;
-        }
-        
-        .activity-item {
-            padding: 0.75rem;
-            margin-bottom: 0.5rem;
-            background: white;
-            border-radius: 8px;
-            border-left: 4px solid var(--secondary-color);
-            transition: all 0.3s ease;
-        }
-        
-        .activity-item:hover {
-            transform: translateX(5px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        
-        .activity-time {
-            font-size: 0.8rem;
-            color: #666;
-        }
-        
-        .expandable-row {
-            cursor: pointer;
-        }
-        
-        .expandable-row:hover {
-            background: rgba(57, 73, 171, 0.05);
-        }
-        
-        .expanded-content {
-            display: none;
-            background: #f8f9fa;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-top: 0.5rem;
-            animation: slideDown 0.3s ease;
-        }
-        
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .pulse-animation {
-            animation: pulse 2s infinite;
-        }
-        
-        .fade-in {
-            animation: fadeIn 0.5s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -722,9 +458,9 @@
     <div class="loading-spinner" id="loadingSpinner">
         <div class="spinner-content">
             <div class="spinner-border text-primary mb-3" role="status">
-                <span class="visually-hidden">Loading...</span>
+                <span class="visually-hidden">جاري التحميل...</span>
             </div>
-            <p>Processing...</p>
+            <p>جاري المعالجة...</p>
         </div>
     </div>
 
@@ -733,13 +469,11 @@
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-md-6">
-                    <h1 class="mb-0 fade-in">
-                        <i class="bi bi-shield-check me-2"></i>Careem Refund Response System
-                    </h1>
-                    <p class="mb-0 mt-2 opacity-75 fade-in">Manage refund claims and prove their invalidity</p>
+                    <h1 class="mb-0"><i class="bi bi-shield-check me-2"></i>نظام الرد على تعويضات كريم</h1>
+                    <p class="mb-0 mt-2 opacity-75">إدارة الردود على ادعاءات التعويض وإثبات عدم صحتها</p>
                 </div>
                 <div class="col-md-6 text-md-start mt-3 mt-md-0">
-                    <div class="d-flex align-items-center justify-content-md-end fade-in">
+                    <div class="d-flex align-items-center justify-content-md-end">
                         <div class="me-3">
                             <i class="bi bi-calendar3 me-1"></i>
                             <span id="currentDate"></span>
@@ -757,11 +491,11 @@
     <div class="container">
         <!-- Statistics Cards -->
         <div class="row">
-            <div class="col-md-3 col-sm-6 fade-in">
+            <div class="col-md-3 col-sm-6">
                 <div class="card stats-card">
                     <div class="card-body d-flex justify-content-between align-items-center">
                         <div>
-                            <h5>Total Cases</h5>
+                            <h5>إجمالي الحالات</h5>
                             <h3 id="totalCases">0</h3>
                         </div>
                         <div class="icon text-primary">
@@ -770,11 +504,11 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 fade-in" style="animation-delay: 0.1s">
+            <div class="col-md-3 col-sm-6">
                 <div class="card stats-card">
                     <div class="card-body d-flex justify-content-between align-items-center">
                         <div>
-                            <h5>Pending</h5>
+                            <h5>قيد الانتظار</h5>
                             <h3 id="pendingCases">0</h3>
                         </div>
                         <div class="icon text-warning">
@@ -783,11 +517,11 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 fade-in" style="animation-delay: 0.2s">
+            <div class="col-md-3 col-sm-6">
                 <div class="card stats-card">
                     <div class="card-body d-flex justify-content-between align-items-center">
                         <div>
-                            <h5>Responded</h5>
+                            <h5>تم الرد</h5>
                             <h3 id="respondedCases">0</h3>
                         </div>
                         <div class="icon text-info">
@@ -796,11 +530,11 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 fade-in" style="animation-delay: 0.3s">
+            <div class="col-md-3 col-sm-6">
                 <div class="card stats-card">
                     <div class="card-body d-flex justify-content-between align-items-center">
                         <div>
-                            <h5>Resolved</h5>
+                            <h5>تم الحل</h5>
                             <h3 id="resolvedCases">0</h3>
                         </div>
                         <div class="icon text-success">
@@ -812,26 +546,24 @@
         </div>
 
         <!-- Summary Statistics -->
-        <div class="section-card fade-in" style="animation-delay: 0.4s">
-            <h5 class="mb-3">
-                <i class="bi bi-graph-up me-2"></i>Summary Statistics
-            </h5>
+        <div class="section-card">
+            <h5 class="mb-3"><i class="bi bi-graph-up me-2"></i>ملخص الإحصائيات</h5>
             <div class="summary-stats">
                 <div class="summary-stat">
                     <h4 id="totalDeducted">0 AED</h4>
-                    <p>Total Deducted</p>
+                    <p>إجمالي المبالغ المخصومة</p>
                 </div>
                 <div class="summary-stat">
                     <h4 id="totalSaved">0 AED</h4>
-                    <p>Amount Saved</p>
+                    <p>المبالغ التي تم حفظها</p>
                 </div>
                 <div class="summary-stat">
                     <h4 id="avgDeduction">0 AED</h4>
-                    <p>Average Deduction</p>
+                    <p>متوسط الخصم</p>
                 </div>
                 <div class="summary-stat">
                     <h4 id="successRate">0%</h4>
-                    <p>Success Rate</p>
+                    <p>نسبة النجاح</p>
                 </div>
             </div>
             <div class="row">
@@ -848,60 +580,46 @@
             </div>
         </div>
 
-        <!-- Recent Activity -->
-        <div class="section-card fade-in" style="animation-delay: 0.5s">
-            <h5 class="mb-3">
-                <i class="bi bi-activity me-2"></i>Recent Activity
-            </h5>
-            <div class="activity-feed" id="activityFeed">
-                <!-- Activity items will be populated here -->
-            </div>
-        </div>
-
         <!-- Data Import Section -->
-        <div class="section-card fade-in" style="animation-delay: 0.6s">
+        <div class="section-card">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="mb-0">
-                    <i class="bi bi-cloud-upload me-2"></i>Import Data
-                </h5>
+                <h5 class="mb-0"><i class="bi bi-cloud-upload me-2"></i>استيراد البيانات</h5>
                 <div>
                     <button class="btn btn-primary-custom" onclick="downloadTemplate()">
-                        <i class="bi bi-download me-1"></i>Download Excel Template
+                        <i class="bi bi-download me-1"></i>تحميل قالب Excel
                     </button>
                 </div>
             </div>
             
             <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-                <i class="bi bi-cloud-arrow-up"></i>
-                <h5 class="mt-3">Drag & Drop Excel File Here</h5>
-                <p class="text-muted">or click to browse</p>
+                <i class="bi bi-cloud-arrow-up" style="font-size: 3rem; color: var(--primary-color);"></i>
+                <h5 class="mt-3">اسحب وأفلت ملف Excel هنا</h5>
+                <p class="text-muted">أو انقر لاختيار الملف</p>
                 <div class="progress-container" id="progressContainer">
                     <div class="progress">
                         <div class="progress-bar progress-bar-striped progress-bar-animated" 
                              role="progressbar" style="width: 0%"></div>
                     </div>
-                    <small class="text-muted mt-1 d-block">Processing...</small>
+                    <small class="text-muted mt-1 d-block">جاري المعالجة...</small>
                 </div>
             </div>
             <input type="file" id="fileInput" accept=".xlsx, .xls" onchange="handleFileUpload(event)" style="display: none;">
         </div>
 
         <!-- Filters Section -->
-        <div class="section-card fade-in" style="animation-delay: 0.7s">
+        <div class="section-card">
             <div class="row align-items-center">
                 <div class="col-md-6">
-                    <h5 class="mb-0">
-                        <i class="bi bi-funnel-fill me-2"></i>Filter Data
-                    </h5>
+                    <h5 class="mb-0"><i class="bi bi-funnel-fill me-2"></i>تصفية البيانات</h5>
                 </div>
                 <div class="col-md-6 text-md-start mt-3 mt-md-0">
                     <div class="d-flex align-items-center justify-content-md-end">
                         <div class="search-box me-3">
                             <i class="bi bi-search"></i>
-                            <input type="text" class="form-control" id="searchInput" placeholder="Search...">
+                            <input type="text" class="form-control" id="searchInput" placeholder="بحث...">
                         </div>
                         <button class="btn btn-primary-custom" onclick="exportData()">
-                            <i class="bi bi-file-earmark-excel me-1"></i>Export
+                            <i class="bi bi-file-earmark-excel me-1"></i>تصدير
                         </button>
                     </div>
                 </div>
@@ -909,44 +627,30 @@
             <div class="row mt-3">
                 <div class="col-md-12">
                     <div class="d-flex flex-wrap">
-                        <button class="filter-btn active" data-filter="all">
-                            <i class="bi bi-grid-3x3-gap me-1"></i>All
-                        </button>
-                        <button class="filter-btn" data-filter="pending">
-                            <i class="bi bi-hourglass me-1"></i>Pending
-                        </button>
-                        <button class="filter-btn" data-filter="responded">
-                            <i class="bi bi-reply me-1"></i>Responded
-                        </button>
-                        <button class="filter-btn" data-filter="resolved">
-                            <i class="bi bi-check-circle me-1"></i>Resolved
-                        </button>
-                        <button class="filter-btn" data-filter="spilled">
-                            <i class="bi bi-droplet me-1"></i>Spilled/Damaged
-                        </button>
-                        <button class="filter-btn" data-filter="wrong">
-                            <i class="bi bi-x-circle me-1"></i>Wrong Item
-                        </button>
-                        <button class="filter-btn" data-filter="missing">
-                            <i class="bi bi-box-seam me-1"></i>Missing Item
-                        </button>
+                        <button class="filter-btn active" data-filter="all">الكل</button>
+                        <button class="filter-btn" data-filter="pending">قيد الانتظار</button>
+                        <button class="filter-btn" data-filter="responded">تم الرد</button>
+                        <button class="filter-btn" data-filter="resolved">تم الحل</button>
+                        <button class="filter-btn" data-filter="spilled">انسكاب/تلف</button>
+                        <button class="filter-btn" data-filter="wrong">طلب خاطئ</button>
+                        <button class="filter-btn" data-filter="missing">عنصر مفقود</button>
+                        <button class="filter-btn" data-filter="overcooked">طعام محروق</button>
+                        <button class="filter-btn" data-filter="undercooked">طعام نيء</button>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Cases Table -->
-        <div class="section-card fade-in" style="animation-delay: 0.8s">
+        <div class="section-card">
             <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="mb-0">
-                    <i class="bi bi-table me-2"></i>Cases List
-                </h5>
+                <h5 class="mb-0"><i class="bi bi-table me-2"></i>قائمة الحالات</h5>
                 <div>
                     <button class="btn btn-outline-secondary btn-sm me-2" onclick="refreshData()">
-                        <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                        <i class="bi bi-arrow-clockwise me-1"></i>تحديث
                     </button>
                     <button class="btn btn-outline-primary btn-sm" onclick="printReport()">
-                        <i class="bi bi-printer me-1"></i>Print Report
+                        <i class="bi bi-printer me-1"></i>طباعة
                     </button>
                 </div>
             </div>
@@ -955,14 +659,14 @@
                 <table class="table table-hover" id="casesTable">
                     <thead>
                         <tr>
-                            <th>Status</th>
-                            <th>Branch</th>
-                            <th>Order Date</th>
-                            <th>Refund Date</th>
-                            <th>Basket Amount</th>
-                            <th>Refund Amount</th>
-                            <th>Reason</th>
-                            <th>Actions</th>
+                            <th>الحالة</th>
+                            <th>الفرع</th>
+                            <th>تاريخ الطلب</th>
+                            <th>تاريخ التعويض</th>
+                            <th>قيمة السلة</th>
+                            <th>مبلغ التعويض</th>
+                            <th>سبب التعويض</th>
+                            <th>الإجراءات</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -979,62 +683,62 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="caseDetailsModalLabel">
-                        <i class="bi bi-info-circle-fill me-2"></i>Case Details
+                        <i class="bi bi-info-circle-fill me-2"></i>تفاصيل الحالة
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label class="form-label"><strong>Branch:</strong></label>
+                            <label class="form-label"><strong>الفرع:</strong></label>
                             <span id="detailsBranch" class="form-control-plaintext"></span>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label"><strong>Order Date:</strong></label>
+                            <label class="form-label"><strong>تاريخ الطلب:</strong></label>
                             <span id="detailsOrderDate" class="form-control-plaintext"></span>
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label class="form-label"><strong>Refund Date:</strong></label>
+                            <label class="form-label"><strong>تاريخ التعويض:</strong></label>
                             <span id="detailsRefundDate" class="form-control-plaintext"></span>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label"><strong>Basket Amount:</strong></label>
+                            <label class="form-label"><strong>قيمة السلة:</strong></label>
                             <span id="detailsBasketAmount" class="form-control-plaintext"></span>
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label class="form-label"><strong>Refund Amount:</strong></label>
+                            <label class="form-label"><strong>مبلغ التعويض:</strong></label>
                             <span id="detailsRefundAmount" class="form-control-plaintext"></span>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label"><strong>Reason:</strong></label>
+                            <label class="form-label"><strong>سبب التعويض:</strong></label>
                             <span id="detailsReason" class="form-control-plaintext"></span>
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label class="form-label"><strong>Status:</strong></label>
+                            <label class="form-label"><strong>الحالة:</strong></label>
                             <span id="detailsStatus" class="form-control-plaintext"></span>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label"><strong>Response Date:</strong></label>
+                            <label class="form-label"><strong>تاريخ الرد:</strong></label>
                             <span id="detailsResponseDate" class="form-control-plaintext"></span>
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-12">
-                            <label class="form-label"><strong>Notes:</strong></label>
-                            <textarea class="form-control" id="detailsNotes" rows="3" placeholder="Add notes about this case..."></textarea>
+                            <label class="form-label"><strong>ملاحظات:</strong></label>
+                            <textarea class="form-control" id="detailsNotes" rows="3" placeholder="أضف ملاحظات حول هذه الحالة..."></textarea>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
                     <button type="button" class="btn btn-primary" onclick="saveCaseDetails()">
-                        <i class="bi bi-save me-1"></i>Save Changes
+                        <i class="bi bi-save me-1"></i>حفظ التغييرات
                     </button>
                 </div>
             </div>
@@ -1047,29 +751,892 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="responseModalLabel">
-                        <i class="bi bi-envelope-paper-fill me-2"></i>Response Template
+                        <i class="bi bi-envelope-paper-fill me-2"></i>نموذج الرد
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label class="form-label"><strong>Response Type:</strong></label>
+                            <label class="form-label"><strong>نوع الرد:</strong></label>
                             <select class="form-select" id="responseType" onchange="updateResponseTemplate()">
-                                <option value="video">Video Evidence</option>
-                                <option value="witness">Witness Testimony</option>
-                                <option value="evidence">Other Evidence</option>
-                                <option value="policy">Company Policy</option>
+                                <option value="video">دليل فيديو</option>
+                                <option value="witness">شهادة شهود</option>
+                                <option value="evidence">أدلة أخرى</option>
+                                <option value="policy">سياسة الشركة</option>
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label"><strong>Branch:</strong></label>
+                            <label class="form-label"><strong>الفرع:</strong></label>
                             <span id="responseBranch" class="form-control-plaintext"></span>
                         </div>
                     </div>
                     
                     <div class="template-container">
                         <button class="copy-btn" onclick="copyResponseTemplate()">
-                            <i class="bi bi-clipboard me-1"></i>Copy Text
+                            <i class="bi bi-clipboard me-1"></i>نسخ النص
                         </button>
-                        <div
+                        <div class="template-content" id="responseContent"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                    <button type="button" class="btn btn-primary" onclick="sendResponse()">
+                        <i class="bi bi-send-fill me-1"></i>إرسال الرد
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p class="mb-0">© 2025 نظام الرد على تعويضات كريم - جميع الحقوق محفوظة</p>
+            <p class="mb-0 mt-1 opacity-75">تم تطويره بواسطة فريق إدارة المطاعم</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    
+    <script>
+        // Global variables
+        let cases = [];
+        let dataTable;
+        let reasonsChart;
+        let branchesChart;
+        let currentCase = null;
+
+        // Response templates
+        const responseTemplates = {
+            video: {
+                title: "رد على طلب التعويض - دليل فيديو",
+                content: `السادة فريق كريم المحترم،
+
+تحية طيبة وبعد،
+
+نود إعلامكم بخصوص طلب التعويض رقم [رقم الحالة] من فرع [الفرع]، والذي تم تقديمه في تاريخ [تاريخ التعويض].
+
+بعد مراجعة دقيقة للطلب والتحقق من التفاصيل، نؤكد أن الطلب رقم [رقم الطلب] قد تم إعداده وتسليمه للسائق بالكامل وبشكل صحيح في التاريخ المحدد [تاريخ الطلب].
+
+نرفق لكم أدلة دامغة تثبت صحة ادعاءاتنا:
+1. تسجيل فيديو واضح يوضح عملية التسليم بالكامل
+2. التسجيل يظهر التوقيت الدقيق لعملية التسليم
+3. تأكيد استلام السائق للطلب كاملاً وبجميع العناصر المطلوبة
+4. عدم وجود أي تلف أو عيب في الطلب عند التسليم
+
+نظرًا للأدلة المقدمة، نطلب منكم إعادة النظر في هذا الطلب ورفض التعويض المطلوب، حيث أن الطلب تم تسليمه بشكل صحيح وكامل وفقًا للمعايير المطلوبة.
+
+نشكر لكم تعاونكم وننتظر ردكم العاجل.
+
+مع خالص التقدير،
+فريق إدارة [الفرع]
+هاتف: [رقم الهاتف]
+البريد الإلكتروني: [البريد الإلكتروني]`
+            },
+            witness: {
+                title: "رد على طلب التعويض - شهادة شهود",
+                content: `السادة فريق كريم المحترم،
+
+تحية طيبة وبعد،
+
+بخصوص طلب التعويض رقم [رقم الحالة] من فرع [الفرع]، نود توضيح النقاط التالية:
+
+الطلب رقم [رقم الطلب] تم تسليمه للسائق في التاريخ [تاريخ الطلب]، وقد شهد على ذلك:
+- السائق [اسم السائق] الذي استلم الطلب شخصيًا
+- العميل [اسم العميل] الذي كان حاضرًا وقت التسليم
+- موظف المطعم [اسم الموظف] الذي قام بتجهيز الطلب
+
+نرفق لكم شهادات موقعة من الشهود تؤكد أن:
+1. الطلب تم تسليمه كاملاً وبجميع العناصر المطلوبة
+2. لم يحدث أي تلف أو ضرر بالطلب أثناء التسليم
+3. العميل استلم الطلب راضيًا دون أي اعتراضات
+4. تم تسليم الطلب في الوقت المحدد دون أي تأخير
+
+بناءًا على هذه الشهادات، نطلب منكم إلغاء طلب التعويض، حيث أن الأدلة تثبت عدم وجود أي مبرر للتعويض.
+
+نتطلع إلى حل عادل لهذه المسألة.
+
+مع خالص التقدير،
+فريق إدارة [الفرع]
+هاتف: [رقم الهاتف]
+البريد الإلكتروني: [البريد الإلكتروني]`
+            },
+            evidence: {
+                title: "رد على طلب التعويض - أدلة أخرى",
+                content: `السادة فريق كريم المحترم،
+
+تحية طيبة وبعد،
+
+نود الرد على طلب التعويض رقم [رقم الحالة] المتعلق بالطلب رقم [رقم الطلب] من فرع [الفرع].
+
+بعد التحقيق في هذا الطلب، وجدنا الأدلة التالية تثبت عدم صحة ادعاءات العميل:
+
+1. **سجل الطلب**: يظهر أن الطلب تم تجهيزه وتسليمه في الوقت المحدد [تاريخ الطلب]
+2. **إيصال الاستلام**: يوجد إيصال موقع من السائق يؤكد استلام الطلب كاملاً
+3. **سجل الكاميرات**: تسجيلات الكاميرات الأمنية تظهر عملية التسليم بوضوح
+4. **تقرير الجودة**: تقرير فحص الجودة يؤكد أن جميع العناصر كانت مطابقة للمواصفات
+5. **سجل الوقت**: سجل العمل يثبت أن الطلب تم إعداده في الوقت المحدد دون أي تأخير
+
+نظرًا لهذه الأدلة القاطعة، نؤكد أن طلب التعويض غير مبرر ونطلب رفضه.
+
+نحن على استعداد تام لتقديم أي أدلة إضافية تطلبونها لإثبات صحة موقفنا.
+
+نشكر تفهمكم وتعاونكم.
+
+مع خالص التقدير،
+فريق إدارة [الفرع]
+هاتف: [رقم الهاتف]
+البريد الإلكتروني: [البريد الإلكتروني]`
+            },
+            policy: {
+                title: "رد على طلب التعويض - سياسة الشركة",
+                content: `السادة فريق كريم المحترم،
+
+تحية طيبة وبعد،
+
+بخصوص طلب التعويض رقم [رقم الحالة] من فرع [الفرع]، نود توضيح سياسة الشركة في مثل هذه الحالات:
+
+سياسة شركتنا واضحة فيما يخص التعويضات:
+1. يتم التعويض فقط في حالة وجود خطأ واضح من جانب المطعم
+2. يجب تقديم طلب التعويض خلال 24 ساعة من وقت استلام الطلب
+3. يجب إثبات وجود تلف أو عيب في الطلب وقت التسليم
+4. يتم فحص جميع الطلبات قبل تسليمها للتأكد من جودتها
+
+في حالة الطلب رقم [رقم الطلب]:
+- تم فحص الطلب بعناية قبل تسليمه
+- تم تسليمه للسائق في التاريخ [تاريخ الطلب] دون أي مشاكل
+- لم يتم الإبلاغ عن أي مشاكل وقت التسليم
+- لا يوجد أي دليل على وجود تلف أو عيب في الطلب
+
+بناءًا على سياسة الشركة والأدلة المتوفرة، نعتبر أن هذا الطلب لا يستحق تعويضًا.
+
+نحن ملتزمون بجودة خدمتنا وسنكون سعداء بالتعاون معكم في حل هذه المسألة.
+
+مع خالص التقدير،
+فريق إدارة [الفرع]
+هاتف: [رقم الهاتف]
+البريد الإلكتروني: [البريد الإلكتروني]`
+            }
+        };
+
+        // Initialize the application
+        $(document).ready(function() {
+            updateDateTime();
+            initializeCharts();
+            initializeDataTable();
+            setupEventListeners();
+            loadSampleData();
+        });
+
+        // Update date and time
+        function updateDateTime() {
+            const now = new Date();
+            const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+            const timeOptions = { hour: '2-digit', minute: '2-digit' };
+            
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('ar-SA', dateOptions);
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString('ar-SA', timeOptions);
+        }
+        
+        setInterval(updateDateTime, 60000);
+
+        // Initialize charts
+        function initializeCharts() {
+            // Reasons Chart
+            const reasonsCtx = document.getElementById('reasonsChart').getContext('2d');
+            reasonsChart = new Chart(reasonsCtx, {
+                type: 'pie',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        data: [],
+                        backgroundColor: [
+                            '#c62828',
+                            '#3949ab',
+                            '#2e7d32',
+                            '#e65100',
+                            '#c2185b',
+                            '#7b1fa2',
+                            '#5d4037'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        title: {
+                            display: true,
+                            text: 'توزيع الحالات حسب السبب'
+                        }
+                    }
+                }
+            });
+
+            // Branches Chart
+            const branchesCtx = document.getElementById('branchesChart').getContext('2d');
+            branchesChart = new Chart(branchesCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'عدد الحالات',
+                        data: [],
+                        backgroundColor: '#3949ab'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'الحالات حسب الفرع'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize DataTable
+        function initializeDataTable() {
+            dataTable = $('#casesTable').DataTable({
+                data: [],
+                columns: [
+                    {
+                        data: 'status',
+                        render: function(data) {
+                            const statusMap = {
+                                'pending': '<span class="status-badge status-pending">قيد الانتظار</span>',
+                                'responded': '<span class="status-badge status-responded">تم الرد</span>',
+                                'resolved': '<span class="status-badge status-resolved">تم الحل</span>',
+                                'rejected': '<span class="status-badge status-rejected">مرفوض</span>'
+                            };
+                            return statusMap[data] || data;
+                        }
+                    },
+                    { data: 'branch' },
+                    {
+                        data: 'orderDate',
+                        render: function(data) {
+                            return new Date(data).toLocaleString('ar-SA');
+                        }
+                    },
+                    {
+                        data: 'refundDate',
+                        render: function(data) {
+                            return new Date(data).toLocaleString('ar-SA');
+                        }
+                    },
+                    {
+                        data: 'basketAmount',
+                        render: function(data) {
+                            return 'AED ' + data.toFixed(2);
+                        }
+                    },
+                    {
+                        data: 'refundAmount',
+                        render: function(data) {
+                            return '- AED ' + data.toFixed(2);
+                        }
+                    },
+                    {
+                        data: 'reason',
+                        render: function(data) {
+                            const reasonMap = {
+                                'Spilled / damaged': '<span class="reason-tag reason-spilled">انسكاب/تلف</span>',
+                                'Wrong item sent': '<span class="reason-tag reason-wrong">طلب خاطئ</span>',
+                                'Missing or unavailable items (Main item)': '<span class="reason-tag reason-missing">عنصر مفقود</span>',
+                                'Food is overcooked/burnt': '<span class="reason-tag reason-overcooked">طعام محروق</span>',
+                                'Food is undercooked': '<span class="reason-tag reason-undercooked">طعام نيء</span>',
+                                'Hair in the food': '<span class="reason-tag reason-hair">شعر في الطعام</span>',
+                                'Foul Smell': '<span class="reason-tag reason-smell">رائحة كريهة</span>'
+                            };
+                            return reasonMap[data] || data;
+                        }
+                    },
+                    {
+                        data: null,
+                        render: function(data, type, row) {
+                            return `
+                                <button class="action-btn btn-view" onclick="viewCaseDetails(${row.id})" title="عرض التفاصيل">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="action-btn btn-respond" onclick="openResponseModal(${row.id})" title="رد">
+                                    <i class="bi bi-reply"></i>
+                                </button>
+                                <button class="action-btn btn-template" onclick="generateResponse(${row.id})" title="إنشاء رد">
+                                    <i class="bi bi-envelope"></i>
+                                </button>
+                            `;
+                        }
+                    }
+                ],
+                pageLength: 10,
+                responsive: true,
+                dom: '<"row"<"col-sm-6"l><"col-sm-6"f>>' +
+                     '<"row"<"col-sm-12"tr>>' +
+                     '<"row"<"col-sm-5"i><"col-sm-7"p>>',
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/ar.json'
+                }
+            });
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Filter buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const filter = this.getAttribute('data-filter');
+                    filterTable(filter);
+                });
+            });
+
+            // Search input
+            document.getElementById('searchInput').addEventListener('input', function() {
+                dataTable.search(this.value).draw();
+            });
+
+            // Drag and drop
+            const uploadArea = document.querySelector('.upload-area');
+            
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragover');
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    processExcelFile(files[0]);
+                }
+            });
+        }
+
+        // Load sample data
+        function loadSampleData() {
+            const sampleData = [
+                {
+                    id: 1,
+                    branch: 'Al Barsha 1',
+                    orderDate: '2025-08-30T20:25',
+                    refundDate: '2025-08-30T21:33',
+                    basketAmount: 17.05,
+                    refundAmount: 15.50,
+                    reason: 'Spilled / damaged',
+                    status: 'pending',
+                    responseDate: null,
+                    notes: ''
+                },
+                {
+                    id: 2,
+                    branch: 'Al Barsha 1',
+                    orderDate: '2025-08-29T23:47',
+                    refundDate: '2025-08-30T00:29',
+                    basketAmount: 20.35,
+                    refundAmount: 18.50,
+                    reason: 'Spilled / damaged',
+                    status: 'responded',
+                    responseDate: '2025-08-30T10:00',
+                    notes: 'تم الرد بالأدلة'
+                },
+                {
+                    id: 3,
+                    branch: 'Al Danah',
+                    orderDate: '2025-08-30T19:59',
+                    refundDate: '2025-08-30T20:52',
+                    basketAmount: 33.88,
+                    refundAmount: 32.00,
+                    reason: 'Missing or unavailable items (Main item)',
+                    status: 'resolved',
+                    responseDate: '2025-08-30T14:00',
+                    notes: 'تم رفض التعويض'
+                },
+                {
+                    id: 4,
+                    branch: 'Al Markaziyah',
+                    orderDate: '2025-08-30T18:40',
+                    refundDate: '2025-08-30T19:16',
+                    basketAmount: 19.44,
+                    refundAmount: 12.00,
+                    reason: 'Wrong item sent',
+                    status: 'pending',
+                    responseDate: null,
+                    notes: ''
+                },
+                {
+                    id: 5,
+                    branch: 'Al Rawdah',
+                    orderDate: '2025-08-30T12:57',
+                    refundDate: '2025-08-30T14:20',
+                    basketAmount: 141.95,
+                    refundAmount: 138.00,
+                    reason: 'Wrong item sent',
+                    status: 'resolved',
+                    responseDate: '2025-08-30T16:00',
+                    notes: 'تم تقديم الفيديو'
+                }
+            ];
+
+            cases = sampleData;
+            updateDataTable();
+            updateStatistics();
+            updateCharts();
+        }
+
+        // Update DataTable
+        function updateDataTable() {
+            dataTable.clear();
+            dataTable.rows.add(cases);
+            dataTable.draw();
+        }
+
+        // Update statistics
+        function updateStatistics() {
+            const totalCases = cases.length;
+            const pendingCases = cases.filter(c => c.status === 'pending').length;
+            const respondedCases = cases.filter(c => c.status === 'responded').length;
+            const resolvedCases = cases.filter(c => c.status === 'resolved').length;
+            
+            const totalDeducted = cases.reduce((sum, c) => sum + c.refundAmount, 0);
+            const totalSaved = cases
+                .filter(c => c.status === 'resolved')
+                .reduce((sum, c) => sum + c.refundAmount, 0);
+            const avgDeduction = totalCases > 0 ? totalDeducted / totalCases : 0;
+            const successRate = totalCases > 0 ? (resolvedCases / totalCases * 100) : 0;
+
+            document.getElementById('totalCases').textContent = totalCases;
+            document.getElementById('pendingCases').textContent = pendingCases;
+            document.getElementById('respondedCases').textContent = respondedCases;
+            document.getElementById('resolvedCases').textContent = resolvedCases;
+            document.getElementById('totalDeducted').textContent = totalDeducted.toFixed(2) + ' AED';
+            document.getElementById('totalSaved').textContent = totalSaved.toFixed(2) + ' AED';
+            document.getElementById('avgDeduction').textContent = avgDeduction.toFixed(2) + ' AED';
+            document.getElementById('successRate').textContent = successRate.toFixed(1) + '%';
+        }
+
+        // Update charts
+        function updateCharts() {
+            // Update reasons chart
+            const reasonCounts = {};
+            cases.forEach(c => {
+                reasonCounts[c.reason] = (reasonCounts[c.reason] || 0) + 1;
+            });
+            
+            reasonsChart.data.labels = Object.keys(reasonCounts);
+            reasonsChart.data.datasets[0].data = Object.values(reasonCounts);
+            reasonsChart.update();
+
+            // Update branches chart
+            const branchCounts = {};
+            cases.forEach(c => {
+                branchCounts[c.branch] = (branchCounts[c.branch] || 0) + 1;
+            });
+            
+            branchesChart.data.labels = Object.keys(branchCounts);
+            branchesChart.data.datasets[0].data = Object.values(branchCounts);
+            branchesChart.update();
+        }
+
+        // Filter table
+        function filterTable(filter) {
+            if (filter === 'all') {
+                dataTable.search('').draw();
+                return;
+            }
+
+            const filteredData = cases.filter(c => {
+                if (filter === 'pending' || filter === 'responded' || filter === 'resolved' || filter === 'rejected') {
+                    return c.status === filter;
+                }
+                return c.reason.toLowerCase().includes(filter);
+            });
+
+            dataTable.clear();
+            dataTable.rows.add(filteredData);
+            dataTable.draw();
+        }
+
+        // View case details
+        function viewCaseDetails(id) {
+            const caseData = cases.find(c => c.id === id);
+            if (!caseData) return;
+
+            currentCase = caseData;
+
+            document.getElementById('detailsBranch').textContent = caseData.branch;
+            document.getElementById('detailsOrderDate').textContent = new Date(caseData.orderDate).toLocaleString('ar-SA');
+            document.getElementById('detailsRefundDate').textContent = new Date(caseData.refundDate).toLocaleString('ar-SA');
+            document.getElementById('detailsBasketAmount').textContent = 'AED ' + caseData.basketAmount.toFixed(2);
+            document.getElementById('detailsRefundAmount').textContent = '- AED ' + caseData.refundAmount.toFixed(2);
+            document.getElementById('detailsReason').textContent = caseData.reason;
+            document.getElementById('detailsStatus').textContent = getStatusText(caseData.status);
+            document.getElementById('detailsResponseDate').textContent = caseData.responseDate ? 
+                new Date(caseData.responseDate).toLocaleString('ar-SA') : 'لم يتم الرد بعد';
+            document.getElementById('detailsNotes').value = caseData.notes || '';
+
+            const modal = new bootstrap.Modal(document.getElementById('caseDetailsModal'));
+            modal.show();
+        }
+
+        // Get status text
+        function getStatusText(status) {
+            const statusMap = {
+                'pending': 'قيد الانتظار',
+                'responded': 'تم الرد',
+                'resolved': 'تم الحل',
+                'rejected': 'مرفوض'
+            };
+            return statusMap[status] || status;
+        }
+
+        // Save case details
+        function saveCaseDetails() {
+            if (!currentCase) return;
+
+            currentCase.notes = document.getElementById('detailsNotes').value;
+            
+            // Update the case in the array
+            const index = cases.findIndex(c => c.id === currentCase.id);
+            if (index !== -1) {
+                cases[index] = currentCase;
+            }
+
+            updateDataTable();
+            showToast('تم حفظ التغييرات بنجاح!', 'success');
+            
+            const modal = bootstrap.Modal.getInstance(document.getElementById('caseDetailsModal'));
+            modal.hide();
+        }
+
+        // Open response modal
+        function openResponseModal(id) {
+            const caseData = cases.find(c => c.id === id);
+            if (!caseData) return;
+
+            currentCase = caseData;
+
+            document.getElementById('responseBranch').textContent = caseData.branch;
+            document.getElementById('responseType').value = 'video';
+            
+            updateResponseTemplate();
+
+            const modal = new bootstrap.Modal(document.getElementById('responseModal'));
+            modal.show();
+        }
+
+        // Update response template
+        function updateResponseTemplate() {
+            if (!currentCase) return;
+
+            const type = document.getElementById('responseType').value;
+            const template = responseTemplates[type];
+            
+            let content = template.content;
+            content = content.replace('[رقم الحالة]', currentCase.id);
+            content = content.replace('[الفرع]', currentCase.branch);
+            content = content.replace('[رقم الطلب]', currentCase.id);
+            content = content.replace('[تاريخ الطلب]', new Date(currentCase.orderDate).toLocaleDateString('ar-SA'));
+            content = content.replace('[تاريخ التعويض]', new Date(currentCase.refundDate).toLocaleDateString('ar-SA'));
+            content = content.replace('[رقم الهاتف]', '+971-XX-XXX-XXXX');
+            content = content.replace('[البريد الإلكتروني]', 'restaurant@example.com');
+
+            // Replace placeholders with actual data
+            content = content.replace('[اسم السائق]', 'أحمد محمد');
+            content = content.replace('[اسم العميل]', 'علي أحمد');
+            content = content.replace('[اسم الموظف]', 'محمد علي');
+
+            document.getElementById('responseContent').textContent = content;
+        }
+
+        // Copy response template
+        function copyResponseTemplate() {
+            const content = document.getElementById('responseContent').textContent;
+            navigator.clipboard.writeText(content).then(() => {
+                showToast('تم نسخ النص بنجاح!', 'success');
+            }).catch(err => {
+                showToast('فشل نسخ النص، يرجى النسخ يدويًا', 'danger');
+            });
+        }
+
+        // Generate response
+        function generateResponse(id) {
+            const caseData = cases.find(c => c.id === id);
+            if (!caseData) return;
+
+            // Update case status
+            caseData.status = 'responded';
+            caseData.responseDate = new Date().toISOString();
+            
+            const index = cases.findIndex(c => c.id === id);
+            if (index !== -1) {
+                cases[index] = caseData;
+            }
+
+            updateDataTable();
+            updateStatistics();
+            showToast('تم إنشاء الرد بنجاح!', 'success');
+        }
+
+        // Send response
+        function sendResponse() {
+            if (!currentCase) return;
+
+            // Update case status
+            currentCase.status = 'responded';
+            currentCase.responseDate = new Date().toISOString();
+            
+            const index = cases.findIndex(c => c.id === currentCase.id);
+            if (index !== -1) {
+                cases[index] = currentCase;
+            }
+
+            updateDataTable();
+            updateStatistics();
+            showToast('تم إرسال الرد بنجاح!', 'success');
+            
+            const modal = bootstrap.Modal.getInstance(document.getElementById('responseModal'));
+            modal.hide();
+        }
+
+        // Handle file upload
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                processExcelFile(file);
+            }
+        }
+
+        // Process Excel file
+        function processExcelFile(file) {
+            showLoading();
+
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheetName = workbook.SheetNames[0];
+                    const sheet = workbook.Sheets[sheetName];
+                    const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+
+                    // Validate required columns
+                    const requiredColumns = ['Branch', 'Order Date', 'Refund Date', 'Basket Amount', 'Refund Amount', 'Reason', 'Status'];
+                    const firstRow = jsonData[0] || {};
+                    const missingColumns = requiredColumns.filter(col => !(col in firstRow));
+                    
+                    if (missingColumns.length > 0) {
+                        showToast(`الأعمدة المطلوبة مفقودة: ${missingColumns.join(', ')}`, 'danger');
+                        hideLoading();
+                        return;
+                    }
+
+                    // Process data
+                    let addedCount = 0;
+                    const maxId = cases.length > 0 ? Math.max(...cases.map(c => c.id)) : 0;
+                    let newId = maxId + 1;
+
+                    jsonData.forEach(row => {
+                        const newCase = {
+                            id: newId++,
+                            branch: row['Branch'],
+                            orderDate: parseDate(row['Order Date']),
+                            refundDate: parseDate(row['Refund Date']),
+                            basketAmount: parseFloat(row['Basket Amount']) || 0,
+                            refundAmount: parseFloat(row['Refund Amount']) || 0,
+                            reason: row['Reason'],
+                            status: row['Status'].toLowerCase(),
+                            responseDate: null,
+                            notes: row['Notes'] || ''
+                        };
+
+                        cases.push(newCase);
+                        addedCount++;
+                    });
+
+                    updateDataTable();
+                    updateStatistics();
+                    updateCharts();
+
+                    showToast(`تم استيراد ${addedCount} حالة بنجاح!`, 'success');
+                } catch (err) {
+                    console.error('Error processing Excel file:', err);
+                    showToast('خطأ في معالجة ملف Excel', 'danger');
+                } finally {
+                    hideLoading();
+                }
+            };
+
+            reader.readAsArrayBuffer(file);
+            event.target.value = '';
+        }
+
+        // Parse date
+        function parseDate(dateValue) {
+            if (!dateValue) return new Date().toISOString();
+            
+            if (typeof dateValue === 'number') {
+                const excelDate = new Date((dateValue - 25569) * 86400 * 1000);
+                return excelDate.toISOString();
+            }
+            
+            const date = new Date(dateValue);
+            return isNaN(date.getTime()) ? new Date().toISOString() : date.toISOString();
+        }
+
+        // Download template
+        function downloadTemplate() {
+            const template = [{
+                'Branch': 'Al Barsha 1',
+                'Order Date': '30 Aug 2025, 08:25 PM',
+                'Refund Date': '30 Aug 2025, 09:33 PM',
+                'Basket Amount': 17.05,
+                'Refund Amount': 15.50,
+                'Reason': 'Spilled / damaged',
+                'Status': 'Pending',
+                'Notes': ''
+            }];
+
+            const ws = XLSX.utils.json_to_sheet(template);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Template');
+
+            XLSX.writeFile(wb, 'Refund_Cases_Template.xlsx');
+            showToast('تم تحميل القالب بنجاح!', 'success');
+        }
+
+        // Export data
+        function exportData() {
+            showLoading();
+
+            setTimeout(() => {
+                const ws = XLSX.utils.json_to_sheet(cases.map(c => ({
+                    'ID': c.id,
+                    'Branch': c.branch,
+                    'Order Date': new Date(c.orderDate).toLocaleString('ar-SA'),
+                    'Refund Date': new Date(c.refundDate).toLocaleString('ar-SA'),
+                    'Basket Amount': c.basketAmount,
+                    'Refund Amount': c.refundAmount,
+                    'Reason': c.reason,
+                    'Status': c.status,
+                    'Response Date': c.responseDate ? new Date(c.responseDate).toLocaleString('ar-SA') : '',
+                    'Notes': c.notes
+                })));
+
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Refund_Cases');
+
+                const date = new Date().toISOString().split('T')[0];
+                XLSX.writeFile(wb, `Refund_Cases_${date}.xlsx`);
+
+                hideLoading();
+                showToast('تم تصدير البيانات بنجاح!', 'success');
+            }, 1000);
+        }
+
+        // Refresh data
+        function refreshData() {
+            showLoading();
+
+            setTimeout(() => {
+                updateDataTable();
+                updateStatistics();
+                updateCharts();
+                hideLoading();
+                showToast('تم تحديث البيانات بنجاح!', 'success');
+            }, 1000);
+        }
+
+        // Print report
+        function printReport() {
+            showToast('جاري تجهيز التقرير للطباعة...', 'info');
+            
+            setTimeout(() => {
+                window.print();
+            }, 1000);
+        }
+
+        // Show loading
+        function showLoading() {
+            document.getElementById('loadingSpinner').classList.add('show');
+        }
+
+        // Hide loading
+        function hideLoading() {
+            document.getElementById('loadingSpinner').classList.remove('show');
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toastContainer = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'custom-toast';
+            
+            if (type === 'danger') {
+                toast.style.backgroundColor = 'var(--danger-color)';
+            } else if (type === 'warning') {
+                toast.style.backgroundColor = 'var(--warning-color)';
+            } else if (type === 'info') {
+                toast.style.backgroundColor = 'var(--info-color)';
+            }
+            
+            const icon = type === 'success' ? 'bi-check-circle-fill' : 
+                        type === 'danger' ? 'bi-exclamation-triangle-fill' :
+                        type === 'warning' ? 'bi-exclamation-triangle-fill' : 'bi-info-circle-fill';
+            
+            toast.innerHTML = `
+                <i class="bi ${icon}"></i>
+                <span>${message}</span>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
