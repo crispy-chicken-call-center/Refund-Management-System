@@ -1,468 +1,672 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Refund Management System</title>
-    
-    <!-- Bootstrap CSS -->
+    <title>نظام الرد على تعويضات كريم</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
-    
-    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-    
-    <!-- Custom CSS -->
     <style>
         :root {
-            --primary-color: #2563eb;
-            --success-color: #16a34a;
-            --danger-color: #dc2626;
-            --warning-color: #f59e0b;
-            --info-color: #0ea5e9;
-            --light-bg: #f8fafc;
-            --dark-text: #1e293b;
-            --border-color: #e2e8f0;
+            --primary-color: #1a237e;
+            --secondary-color: #3949ab;
+            --success-color: #2e7d32;
+            --danger-color: #c62828;
+            --warning-color: #f57c00;
+            --info-color: #0277bd;
+            --light-bg: #f5f5f5;
+            --card-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--light-bg);
-            color: var(--dark-text);
+            color: #333;
         }
-
-        /* Header Styles */
+        
         .main-header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, #1e40af 100%);
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
             padding: 2rem 0;
             margin-bottom: 2rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
-
-        /* KPI Cards */
-        .kpi-card {
-            background: white;
+        
+        .stats-card {
             border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s, box-shadow 0.2s;
-            border: 1px solid var(--border-color);
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: none;
+            margin-bottom: 1.5rem;
             height: 100%;
         }
-
-        .kpi-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
         }
-
-        .kpi-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
+        
+        .stats-card .card-body {
+            padding: 1.5rem;
         }
-
-        .kpi-icon.primary { background-color: rgba(37, 99, 235, 0.1); color: var(--primary-color); }
-        .kpi-icon.success { background-color: rgba(22, 163, 74, 0.1); color: var(--success-color); }
-        .kpi-icon.danger { background-color: rgba(220, 38, 38, 0.1); color: var(--danger-color); }
-        .kpi-icon.warning { background-color: rgba(245, 158, 11, 0.1); color: var(--warning-color); }
-
-        .kpi-value {
-            font-size: 2rem;
-            font-weight: 700;
-            margin: 0.5rem 0;
-        }
-
-        .kpi-label {
-            color: #64748b;
-            font-size: 0.875rem;
-        }
-
-        /* Action Buttons */
-        .action-btn {
-            padding: 0.5rem;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin: 0 2px;
-        }
-
-        .action-btn:hover {
-            transform: scale(1.1);
-        }
-
-        .action-btn.edit { background-color: var(--info-color); color: white; }
-        .action-btn.delete { background-color: var(--danger-color); color: white; }
-        .action-btn.email { background-color: var(--warning-color); color: white; }
-        .action-btn.view { background-color: var(--primary-color); color: white; }
-
-        /* Status Badges */
-        .status-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
+        
+        .stats-card h5 {
+            font-size: 0.9rem;
             font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #666;
         }
-
-        .status-rejected { background-color: #fee2e2; color: var(--danger-color); }
-        .status-pending { background-color: #fef3c7; color: var(--warning-color); }
-        .status-accepted { background-color: #dcfce7; color: var(--success-color); }
-
-        /* Upload Area */
+        
+        .stats-card h3 {
+            font-weight: 700;
+            margin-bottom: 0;
+            color: var(--primary-color);
+        }
+        
+        .stats-card .icon {
+            font-size: 2.5rem;
+            opacity: 0.8;
+        }
+        
+        .section-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
         .upload-area {
-            border: 2px dashed var(--border-color);
+            border: 2px dashed #ddd;
             border-radius: 12px;
             padding: 3rem;
             text-align: center;
             transition: all 0.3s;
             cursor: pointer;
-            background-color: white;
+            background: #fafafa;
         }
-
+        
         .upload-area:hover {
-            border-color: var(--primary-color);
-            background-color: rgba(37, 99, 235, 0.02);
+            border-color: var(--secondary-color);
+            background: #f0f4ff;
         }
-
+        
         .upload-area.dragover {
             border-color: var(--primary-color);
-            background-color: rgba(37, 99, 235, 0.05);
+            background: #e8eaf6;
         }
-
-        /* Progress Bar */
-        .progress-container {
-            display: none;
-            margin-top: 1rem;
-        }
-
-        /* Toast Notifications */
-        .toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-        }
-
-        .custom-toast {
-            background: white;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            display: flex;
-            align-items: center;
-            min-width: 300px;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        .toast-icon {
-            font-size: 1.5rem;
-            margin-right: 1rem;
-        }
-
-        .toast-success .toast-icon { color: var(--success-color); }
-        .toast-error .toast-icon { color: var(--danger-color); }
-        .toast-warning .toast-icon { color: var(--warning-color); }
-
-        /* Chart Containers */
-        .chart-container {
+        
+        .table-container {
             background: white;
             border-radius: 12px;
+            box-shadow: var(--card-shadow);
             padding: 1.5rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
             margin-bottom: 2rem;
         }
-
-        /* Modal Styles */
+        
+        .table thead th {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            font-weight: 600;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .table tbody tr {
+            transition: background-color 0.2s;
+        }
+        
+        .table tbody tr:hover {
+            background-color: #f8f9ff;
+        }
+        
+        .status-badge {
+            font-size: 0.8rem;
+            padding: 0.35rem 0.7rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-responded {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .status-resolved {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-rejected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .reason-tag {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+        
+        .reason-spilled {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        
+        .reason-wrong {
+            background-color: #e8eaf6;
+            color: #3949ab;
+        }
+        
+        .reason-missing {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .reason-overcooked {
+            background-color: #fff3e0;
+            color: #e65100;
+        }
+        
+        .reason-undercooked {
+            background-color: #fce4ec;
+            color: #c2185b;
+        }
+        
+        .reason-hair {
+            background-color: #f3e5f5;
+            color: #7b1fa2;
+        }
+        
+        .reason-smell {
+            background-color: #efebe9;
+            color: #5d4037;
+        }
+        
+        .action-btn {
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin: 0.1rem;
+            font-size: 0.85rem;
+        }
+        
+        .action-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .btn-view {
+            background-color: var(--info-color);
+            color: white;
+        }
+        
+        .btn-respond {
+            background-color: var(--warning-color);
+            color: white;
+        }
+        
+        .btn-template {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
         .modal-header {
             background-color: var(--primary-color);
             color: white;
         }
-
-        .modal-header .btn-close {
-            filter: brightness(0) invert(1);
+        
+        .modal-body {
+            background-color: #f8f9fa;
         }
-
-        /* DataTables Customization */
-        .dataTables_wrapper .dataTables_filter input {
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 0.5rem;
-        }
-
-        .dataTables_wrapper .dataTables_length select {
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 0.5rem;
-        }
-
-        /* Form Styles */
-        .form-control, .form-select {
-            border: 1px solid var(--border-color);
+        
+        .template-container {
+            background: white;
+            border: 1px solid #ddd;
             border-radius: 8px;
-            padding: 0.75rem;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            position: relative;
         }
-
-        .form-control:focus, .form-select:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.25);
+        
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.85rem;
+            transition: all 0.3s;
         }
-
-        /* Buttons */
-        .btn-primary {
+        
+        .copy-btn:hover {
             background-color: var(--primary-color);
-            border-color: var(--primary-color);
-            border-radius: 8px;
-            padding: 0.75rem 1.5rem;
-            font-weight: 500;
         }
-
-        .btn-primary:hover {
-            background-color: #1d4ed8;
-            border-color: #1d4ed8;
+        
+        .template-content {
+            font-family: 'Courier New', monospace;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            margin-top: 1rem;
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 5px;
+            border: 1px solid #e9ecef;
         }
-
-        .btn-success {
+        
+        .footer {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+            padding: 1.5rem 0;
+            margin-top: 3rem;
+        }
+        
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1050;
+        }
+        
+        .custom-toast {
             background-color: var(--success-color);
-            border-color: var(--success-color);
+            color: white;
+            padding: 1rem;
             border-radius: 8px;
-            padding: 0.75rem 1.5rem;
-            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            animation: slideIn 0.3s ease-out;
         }
-
-        .btn-danger {
-            background-color: var(--danger-color);
-            border-color: var(--danger-color);
-            border-radius: 8px;
-            padding: 0.75rem 1.5rem;
-            font-weight: 500;
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
-
-        /* Section Headers */
-        .section-header {
+        
+        .custom-toast i {
+            font-size: 1.5rem;
+            margin-left: 0.8rem;
+        }
+        
+        .filter-section {
             background: white;
             border-radius: 12px;
+            box-shadow: var(--card-shadow);
             padding: 1.5rem;
             margin-bottom: 2rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
-
-        /* Loading Spinner */
-        .spinner-container {
+        
+        .filter-btn {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            margin-left: 0.5rem;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn:hover {
+            background-color: var(--primary-color);
+        }
+        
+        .filter-btn.active {
+            background-color: var(--primary-color);
+        }
+        
+        .adjustment-amount {
+            font-weight: 700;
+            color: var(--danger-color);
+        }
+        
+        .search-box {
+            position: relative;
+        }
+        
+        .search-box input {
+            padding-left: 40px;
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+        
+        .chart-container {
+            height: 300px;
+            margin-top: 1rem;
+        }
+        
+        .loading-spinner {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.5);
             z-index: 9999;
             justify-content: center;
             align-items: center;
         }
-
+        
+        .loading-spinner.show {
+            display: flex;
+        }
+        
         .spinner-content {
             background: white;
             padding: 2rem;
-            border-radius: 12px;
+            border-radius: 10px;
             text-align: center;
+        }
+        
+        .progress-container {
+            display: none;
+            margin-top: 1rem;
+        }
+        
+        .btn-primary-custom {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary-custom:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.2rem rgba(57, 73, 171, 0.25);
+        }
+        
+        .dataTables_wrapper .dataTables_filter input {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 0.5rem;
+        }
+        
+        .dataTables_wrapper .dataTables_length select {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 0.5rem;
+        }
+        
+        .table-responsive {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .summary-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 1rem 0;
+        }
+        
+        .summary-stat {
+            text-align: center;
+        }
+        
+        .summary-stat h4 {
+            color: var(--primary-color);
+            margin: 0;
+        }
+        
+        .summary-stat p {
+            color: #666;
+            margin: 0;
+            font-size: 0.9rem;
         }
     </style>
 </head>
 <body>
     <!-- Loading Spinner -->
-    <div class="spinner-container d-flex" id="loadingSpinner">
+    <div class="loading-spinner" id="loadingSpinner">
         <div class="spinner-content">
             <div class="spinner-border text-primary mb-3" role="status">
-                <span class="visually-hidden">Loading...</span>
+                <span class="visually-hidden">جاري التحميل...</span>
             </div>
-            <p>Processing...</p>
+            <p>جاري المعالجة...</p>
         </div>
     </div>
-
-    <!-- Toast Container -->
-    <div class="toast-container" id="toastContainer"></div>
 
     <!-- Header -->
     <header class="main-header">
         <div class="container">
             <div class="row align-items-center">
-                <div class="col">
-                    <h1 class="mb-0"><i class="bi bi-shield-check me-2"></i>Refund Management System</h1>
-                    <p class="mb-0 opacity-75">Track and manage refund requests effectively</p>
+                <div class="col-md-6">
+                    <h1 class="mb-0"><i class="bi bi-shield-check me-2"></i>نظام الرد على تعويضات كريم</h1>
+                    <p class="mb-0 mt-2 opacity-75">إدارة الردود على ادعاءات التعويض وإثبات عدم صحتها</p>
                 </div>
-                <div class="col-auto">
-                    <button class="btn btn-light" onclick="downloadTemplate()">
-                        <i class="bi bi-download me-2"></i>Download Excel Template
-                    </button>
+                <div class="col-md-6 text-md-start mt-3 mt-md-0">
+                    <div class="d-flex align-items-center justify-content-md-end">
+                        <div class="me-3">
+                            <i class="bi bi-calendar3 me-1"></i>
+                            <span id="currentDate"></span>
+                        </div>
+                        <div>
+                            <i class="bi bi-clock me-1"></i>
+                            <span id="currentTime"></span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </header>
 
     <div class="container">
-        <!-- KPI Dashboard -->
-        <div class="row mb-4">
-            <div class="col-md-3 mb-3">
-                <div class="kpi-card">
-                    <div class="kpi-icon primary">
-                        <i class="bi bi-receipt"></i>
+        <!-- Statistics Cards -->
+        <div class="row">
+            <div class="col-md-3 col-sm-6">
+                <div class="card stats-card">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5>إجمالي الحالات</h5>
+                            <h3 id="totalCases">0</h3>
+                        </div>
+                        <div class="icon text-primary">
+                            <i class="bi bi-folder2-open"></i>
+                        </div>
                     </div>
-                    <div class="kpi-value" id="totalRefunds">0</div>
-                    <div class="kpi-label">Total Refunds</div>
                 </div>
             </div>
-            <div class="col-md-3 mb-3">
-                <div class="kpi-card">
-                    <div class="kpi-icon danger">
-                        <i class="bi bi-x-circle"></i>
+            <div class="col-md-3 col-sm-6">
+                <div class="card stats-card">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5>قيد الانتظار</h5>
+                            <h3 id="pendingCases">0</h3>
+                        </div>
+                        <div class="icon text-warning">
+                            <i class="bi bi-hourglass-split"></i>
+                        </div>
                     </div>
-                    <div class="kpi-value" id="rejectedRefunds">0</div>
-                    <div class="kpi-label">Rejected</div>
                 </div>
             </div>
-            <div class="col-md-3 mb-3">
-                <div class="kpi-card">
-                    <div class="kpi-icon warning">
-                        <i class="bi bi-hourglass-split"></i>
+            <div class="col-md-3 col-sm-6">
+                <div class="card stats-card">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5>تم الرد</h5>
+                            <h3 id="respondedCases">0</h3>
+                        </div>
+                        <div class="icon text-info">
+                            <i class="bi bi-reply-fill"></i>
+                        </div>
                     </div>
-                    <div class="kpi-value" id="pendingRefunds">0</div>
-                    <div class="kpi-label">Under Review</div>
                 </div>
             </div>
-            <div class="col-md-3 mb-3">
-                <div class="kpi-card">
-                    <div class="kpi-icon success">
-                        <i class="bi bi-cash-coin"></i>
+            <div class="col-md-3 col-sm-6">
+                <div class="card stats-card">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5>تم الحل</h5>
+                            <h3 id="resolvedCases">0</h3>
+                        </div>
+                        <div class="icon text-success">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
                     </div>
-                    <div class="kpi-value" id="totalSavings">0</div>
-                    <div class="kpi-label">Total Savings (AED)</div>
                 </div>
             </div>
         </div>
 
-        <!-- Upload Section -->
-        <div class="section-header">
-            <div class="row align-items-center">
-                <div class="col">
-                    <h4 class="mb-0"><i class="bi bi-cloud-upload me-2"></i>Import Data</h4>
-                    <p class="mb-0 text-muted">Upload Excel file to import refund records</p>
+        <!-- Summary Statistics -->
+        <div class="section-card">
+            <h5 class="mb-3"><i class="bi bi-graph-up me-2"></i>ملخص الإحصائيات</h5>
+            <div class="summary-stats">
+                <div class="summary-stat">
+                    <h4 id="totalDeducted">0 AED</h4>
+                    <p>إجمالي المبالغ المخصومة</p>
                 </div>
-                <div class="col-auto">
-                    <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
-                        <i class="bi bi-file-earmark-excel me-2"></i>Choose Excel File
+                <div class="summary-stat">
+                    <h4 id="totalSaved">0 AED</h4>
+                    <p>المبالغ التي تم حفظها</p>
+                </div>
+                <div class="summary-stat">
+                    <h4 id="avgDeduction">0 AED</h4>
+                    <p>متوسط الخصم</p>
+                </div>
+                <div class="summary-stat">
+                    <h4 id="successRate">0%</h4>
+                    <p>نسبة النجاح</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="chart-container">
+                        <canvas id="reasonsChart"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="chart-container">
+                        <canvas id="branchesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Import Section -->
+        <div class="section-card">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="mb-0"><i class="bi bi-cloud-upload me-2"></i>استيراد البيانات</h5>
+                <div>
+                    <button class="btn btn-primary-custom" onclick="downloadTemplate()">
+                        <i class="bi bi-download me-1"></i>تحميل قالب Excel
                     </button>
-                    <input type="file" id="fileInput" accept=".xlsx, .xls" onchange="handleFileUpload(event)" style="display: none;">
                 </div>
             </div>
             
-            <div class="upload-area mt-3" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-area" onclick="document.getElementById('fileInput').click()">
                 <i class="bi bi-cloud-arrow-up" style="font-size: 3rem; color: var(--primary-color);"></i>
-                <h5 class="mt-3">Drag & Drop Excel File Here</h5>
-                <p class="text-muted">or click to browse</p>
+                <h5 class="mt-3">اسحب وأفلت ملف Excel هنا</h5>
+                <p class="text-muted">أو انقر لاختيار الملف</p>
                 <div class="progress-container" id="progressContainer">
                     <div class="progress">
                         <div class="progress-bar progress-bar-striped progress-bar-animated" 
                              role="progressbar" style="width: 0%"></div>
                     </div>
-                    <small class="text-muted mt-1 d-block">Processing...</small>
+                    <small class="text-muted mt-1 d-block">جاري المعالجة...</small>
                 </div>
             </div>
+            <input type="file" id="fileInput" accept=".xlsx, .xls" onchange="handleFileUpload(event)" style="display: none;">
         </div>
 
         <!-- Filters Section -->
-        <div class="section-header">
-            <div class="row g-3">
-                <div class="col-md-3">
-                    <label class="form-label">Branch</label>
-                    <select class="form-select" id="branchFilter">
-                        <option value="">All Branches</option>
-                        <option value="Al Barsha 1">Al Barsha 1</option>
-                        <option value="Al Markaziyah">Al Markaziyah</option>
-                        <option value="Al Danah">Al Danah</option>
-                        <option value="Al Satwa">Al Satwa</option>
-                        <option value="Mohammed Bin Zayed City">Mohammed Bin Zayed City</option>
-                        <option value="Al Rawdah">Al Rawdah</option>
-                    </select>
+        <div class="section-card">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h5 class="mb-0"><i class="bi bi-funnel-fill me-2"></i>تصفية البيانات</h5>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label">Reason</label>
-                    <select class="form-select" id="reasonFilter">
-                        <option value="">All Reasons</option>
-                        <option value="Spilled / damaged">Spilled / damaged</option>
-                        <option value="Wrong item sent">Wrong item sent</option>
-                        <option value="Missing or unavailable items">Missing or unavailable items</option>
-                        <option value="Food is overcooked/burnt">Food is overcooked/burnt</option>
-                        <option value="Food is undercooked">Food is undercooked</option>
-                        <option value="Hair in the food">Hair in the food</option>
-                        <option value="Foul Smell">Foul Smell</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">Status</label>
-                    <select class="form-select" id="statusFilter">
-                        <option value="">All Statuses</option>
-                        <option value="Rejected">Rejected</option>
-                        <option value="Pending">Pending</option>
-                        <option value="Accepted">Accepted</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">Date</label>
-                    <input type="date" class="form-control" id="dateFilter">
+                <div class="col-md-6 text-md-start mt-3 mt-md-0">
+                    <div class="d-flex align-items-center justify-content-md-end">
+                        <div class="search-box me-3">
+                            <i class="bi bi-search"></i>
+                            <input type="text" class="form-control" id="searchInput" placeholder="بحث...">
+                        </div>
+                        <button class="btn btn-primary-custom" onclick="exportData()">
+                            <i class="bi bi-file-earmark-excel me-1"></i>تصدير
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="row mt-3">
-                <div class="col">
-                    <button class="btn btn-primary me-2" onclick="applyFilters()">
-                        <i class="bi bi-funnel me-2"></i>Apply Filters
-                    </button>
-                    <button class="btn btn-outline-secondary" onclick="resetFilters()">
-                        <i class="bi bi-arrow-clockwise me-2"></i>Reset
-                    </button>
+                <div class="col-md-12">
+                    <div class="d-flex flex-wrap">
+                        <button class="filter-btn active" data-filter="all">الكل</button>
+                        <button class="filter-btn" data-filter="pending">قيد الانتظار</button>
+                        <button class="filter-btn" data-filter="responded">تم الرد</button>
+                        <button class="filter-btn" data-filter="resolved">تم الحل</button>
+                        <button class="filter-btn" data-filter="spilled">انسكاب/تلف</button>
+                        <button class="filter-btn" data-filter="wrong">طلب خاطئ</button>
+                        <button class="filter-btn" data-filter="missing">عنصر مفقود</button>
+                        <button class="filter-btn" data-filter="overcooked">طعام محروق</button>
+                        <button class="filter-btn" data-filter="undercooked">طعام نيء</button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Data Table -->
-        <div class="section-header">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h4 class="mb-0"><i class="bi bi-table me-2"></i>Refund Records</h4>
+        <!-- Cases Table -->
+        <div class="section-card">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="mb-0"><i class="bi bi-table me-2"></i>قائمة الحالات</h5>
                 <div>
-                    <span class="badge bg-secondary me-2" id="recordCount">0 records</span>
-                    <button class="btn btn-success btn-sm me-2" onclick="exportToExcel()">
-                        <i class="bi bi-file-earmark-excel"></i>
+                    <button class="btn btn-outline-secondary btn-sm me-2" onclick="refreshData()">
+                        <i class="bi bi-arrow-clockwise me-1"></i>تحديث
                     </button>
-                    <button class="btn btn-danger btn-sm" onclick="exportToPDF()">
-                        <i class="bi bi-file-earmark-pdf"></i>
+                    <button class="btn btn-outline-primary btn-sm" onclick="printReport()">
+                        <i class="bi bi-printer me-1"></i>طباعة
                     </button>
                 </div>
             </div>
             
             <div class="table-responsive">
-                <table class="table table-hover" id="refundsTable">
+                <table class="table table-hover" id="casesTable">
                     <thead>
                         <tr>
-                            <th>Order ID</th>
-                            <th>Branch</th>
-                            <th>Order Date</th>
-                            <th>Refund Date</th>
-                            <th>Basket Amount</th>
-                            <th>Refund Amount</th>
-                            <th>Reason</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+                            <th>الحالة</th>
+                            <th>الفرع</th>
+                            <th>تاريخ الطلب</th>
+                            <th>تاريخ التعويض</th>
+                            <th>قيمة السلة</th>
+                            <th>مبلغ التعويض</th>
+                            <th>سبب التعويض</th>
+                            <th>الإجراءات</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -471,155 +675,131 @@
                 </table>
             </div>
         </div>
-
-        <!-- Charts Section -->
-        <div class="row">
-            <div class="col-md-6">
-                <div class="chart-container">
-                    <h5 class="mb-3"><i class="bi bi-pie-chart me-2"></i>Refund Reasons Distribution</h5>
-                    <canvas id="reasonsChart" height="300"></canvas>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="chart-container">
-                    <h5 class="mb-3"><i class="bi bi-bar-chart me-2"></i>Refunds by Branch</h5>
-                    <canvas id="branchesChart" height="300"></canvas>
-                </div>
-            </div>
-        </div>
     </div>
 
-    <!-- Details Modal -->
-    <div class="modal fade" id="detailsModal" tabindex="-1">
+    <!-- Case Details Modal -->
+    <div class="modal fade" id="caseDetailsModal" tabindex="-1" aria-labelledby="caseDetailsModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Refund Details</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body" id="detailsModalBody">
-                    <!-- Details will be populated here -->
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Edit Modal -->
-    <div class="modal fade" id="editModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit Refund</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <h5 class="modal-title" id="caseDetailsModalLabel">
+                        <i class="bi bi-info-circle-fill me-2"></i>تفاصيل الحالة
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="editForm">
-                        <input type="hidden" id="editId">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Order ID</label>
-                                <input type="text" class="form-control" id="editOrderId" readonly>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Branch</label>
-                                <select class="form-select" id="editBranch">
-                                    <option value="Al Barsha 1">Al Barsha 1</option>
-                                    <option value="Al Markaziyah">Al Markaziyah</option>
-                                    <option value="Al Danah">Al Danah</option>
-                                    <option value="Al Satwa">Al Satwa</option>
-                                    <option value="Mohammed Bin Zayed City">Mohammed Bin Zayed City</option>
-                                    <option value="Al Rawdah">Al Rawdah</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Order Date</label>
-                                <input type="datetime-local" class="form-control" id="editOrderDate">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Refund Date</label>
-                                <input type="datetime-local" class="form-control" id="editRefundDate">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Basket Amount</label>
-                                <input type="number" step="0.01" class="form-control" id="editBasketAmount">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Refund Amount</label>
-                                <input type="number" step="0.01" class="form-control" id="editRefundAmount">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Reason</label>
-                                <select class="form-select" id="editReason">
-                                    <option value="Spilled / damaged">Spilled / damaged</option>
-                                    <option value="Wrong item sent">Wrong item sent</option>
-                                    <option value="Missing or unavailable items">Missing or unavailable items</option>
-                                    <option value="Food is overcooked/burnt">Food is overcooked/burnt</option>
-                                    <option value="Food is undercooked">Food is undercooked</option>
-                                    <option value="Hair in the food">Hair in the food</option>
-                                    <option value="Foul Smell">Foul Smell</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Status</label>
-                                <select class="form-select" id="editStatus">
-                                    <option value="Rejected">Rejected</option>
-                                    <option value="Pending">Pending</option>
-                                    <option value="Accepted">Accepted</option>
-                                </select>
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label">Notes</label>
-                                <textarea class="form-control" id="editNotes" rows="3"></textarea>
-                            </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label"><strong>الفرع:</strong></label>
+                            <span id="detailsBranch" class="form-control-plaintext"></span>
                         </div>
-                    </form>
+                        <div class="col-md-6">
+                            <label class="form-label"><strong>تاريخ الطلب:</strong></label>
+                            <span id="detailsOrderDate" class="form-control-plaintext"></span>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label"><strong>تاريخ التعويض:</strong></label>
+                            <span id="detailsRefundDate" class="form-control-plaintext"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label"><strong>قيمة السلة:</strong></label>
+                            <span id="detailsBasketAmount" class="form-control-plaintext"></span>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label"><strong>مبلغ التعويض:</strong></label>
+                            <span id="detailsRefundAmount" class="form-control-plaintext"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label"><strong>سبب التعويض:</strong></label>
+                            <span id="detailsReason" class="form-control-plaintext"></span>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label"><strong>الحالة:</strong></label>
+                            <span id="detailsStatus" class="form-control-plaintext"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label"><strong>تاريخ الرد:</strong></label>
+                            <span id="detailsResponseDate" class="form-control-plaintext"></span>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label class="form-label"><strong>ملاحظات:</strong></label>
+                            <textarea class="form-control" id="detailsNotes" rows="3" placeholder="أضف ملاحظات حول هذه الحالة..."></textarea>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="saveEditedRefund()">Save Changes</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Email Modal -->
-    <div class="modal fade" id="emailModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Send Email Response</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="emailForm">
-                        <div class="mb-3">
-                            <label class="form-label">Subject</label>
-                            <input type="text" class="form-control" id="emailSubject" readonly>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">To</label>
-                            <input type="email" class="form-control" value="careem@careem.com" readonly>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Message</label>
-                            <textarea class="form-control" id="emailBody" rows="10"></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="sendEmail()">
-                        <i class="bi bi-send me-2"></i>Send Email
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                    <button type="button" class="btn btn-primary" onclick="saveCaseDetails()">
+                        <i class="bi bi-save me-1"></i>حفظ التغييرات
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Scripts -->
+    <!-- Response Template Modal -->
+    <div class="modal fade" id="responseModal" tabindex="-1" aria-labelledby="responseModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="responseModalLabel">
+                        <i class="bi bi-envelope-paper-fill me-2"></i>نموذج الرد
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label"><strong>نوع الرد:</strong></label>
+                            <select class="form-select" id="responseType" onchange="updateResponseTemplate()">
+                                <option value="video">دليل فيديو</option>
+                                <option value="witness">شهادة شهود</option>
+                                <option value="evidence">أدلة أخرى</option>
+                                <option value="policy">سياسة الشركة</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label"><strong>الفرع:</strong></label>
+                            <span id="responseBranch" class="form-control-plaintext"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="template-container">
+                        <button class="copy-btn" onclick="copyResponseTemplate()">
+                            <i class="bi bi-clipboard me-1"></i>نسخ النص
+                        </button>
+                        <div class="template-content" id="responseContent"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                    <button type="button" class="btn btn-primary" onclick="sendResponse()">
+                        <i class="bi bi-send-fill me-1"></i>إرسال الرد
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p class="mb-0">© 2025 نظام الرد على تعويضات كريم - جميع الحقوق محفوظة</p>
+            <p class="mb-0 mt-1 opacity-75">تم تطويره بواسطة فريق إدارة المطاعم</p>
+        </div>
+    </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
@@ -628,193 +808,150 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-
+    
     <script>
-        // Sample data
-        const sampleData = [
-            {
-                id: 1,
-                orderId: "127515454",
-                branch: "Al Barsha 1",
-                orderDate: "2025-08-30T20:25",
-                refundDate: "2025-08-30T21:33",
-                basketAmount: 17.05,
-                refundAmount: 15.50,
-                reason: "Spilled / damaged",
-                status: "Rejected",
-                notes: "Verified from video"
-            },
-            {
-                id: 2,
-                orderId: "127515455",
-                branch: "Al Danah",
-                orderDate: "2025-08-30T19:45",
-                refundDate: "2025-08-30T20:15",
-                basketAmount: 33.88,
-                refundAmount: 32.00,
-                reason: "Missing or unavailable items",
-                status: "Pending",
-                notes: "Under review"
-            },
-            {
-                id: 3,
-                orderId: "127515456",
-                branch: "Al Markaziyah",
-                orderDate: "2025-08-29T18:30",
-                refundDate: "2025-08-29T19:45",
-                basketAmount: 42.75,
-                refundAmount: 42.75,
-                reason: "Wrong item sent",
-                status: "Accepted",
-                notes: "Customer complaint verified"
-            },
-            {
-                id: 4,
-                orderId: "127515457",
-                branch: "Al Satwa",
-                orderDate: "2025-08-29T21:15",
-                refundDate: "2025-08-29T22:30",
-                basketAmount: 28.50,
-                refundAmount: 28.50,
-                reason: "Food is overcooked/burnt",
-                status: "Rejected",
-                notes: "Not verified from video"
-            },
-            {
-                id: 5,
-                orderId: "127515458",
-                branch: "Mohammed Bin Zayed City",
-                orderDate: "2025-08-28T19:20",
-                refundDate: "2025-08-28T20:45",
-                basketAmount: 56.90,
-                refundAmount: 56.90,
-                reason: "Hair in the food",
-                status: "Accepted",
-                notes: "Verified from video"
-            }
-        ];
-
         // Global variables
-        let refunds = [...sampleData];
+        let cases = [];
         let dataTable;
         let reasonsChart;
         let branchesChart;
+        let currentCase = null;
+
+        // Response templates
+        const responseTemplates = {
+            video: {
+                title: "رد على طلب التعويض - دليل فيديو",
+                content: `السادة فريق كريم المحترم،
+
+تحية طيبة وبعد،
+
+نود إعلامكم بخصوص طلب التعويض رقم [رقم الحالة] من فرع [الفرع]، والذي تم تقديمه في تاريخ [تاريخ التعويض].
+
+بعد مراجعة دقيقة للطلب والتحقق من التفاصيل، نؤكد أن الطلب رقم [رقم الطلب] قد تم إعداده وتسليمه للسائق بالكامل وبشكل صحيح في التاريخ المحدد [تاريخ الطلب].
+
+نرفق لكم أدلة دامغة تثبت صحة ادعاءاتنا:
+1. تسجيل فيديو واضح يوضح عملية التسليم بالكامل
+2. التسجيل يظهر التوقيت الدقيق لعملية التسليم
+3. تأكيد استلام السائق للطلب كاملاً وبجميع العناصر المطلوبة
+4. عدم وجود أي تلف أو عيب في الطلب عند التسليم
+
+نظرًا للأدلة المقدمة، نطلب منكم إعادة النظر في هذا الطلب ورفض التعويض المطلوب، حيث أن الطلب تم تسليمه بشكل صحيح وكامل وفقًا للمعايير المطلوبة.
+
+نشكر لكم تعاونكم وننتظر ردكم العاجل.
+
+مع خالص التقدير،
+فريق إدارة [الفرع]
+هاتف: [رقم الهاتف]
+البريد الإلكتروني: [البريد الإلكتروني]`
+            },
+            witness: {
+                title: "رد على طلب التعويض - شهادة شهود",
+                content: `السادة فريق كريم المحترم،
+
+تحية طيبة وبعد،
+
+بخصوص طلب التعويض رقم [رقم الحالة] من فرع [الفرع]، نود توضيح النقاط التالية:
+
+الطلب رقم [رقم الطلب] تم تسليمه للسائق في التاريخ [تاريخ الطلب]، وقد شهد على ذلك:
+- السائق [اسم السائق] الذي استلم الطلب شخصيًا
+- العميل [اسم العميل] الذي كان حاضرًا وقت التسليم
+- موظف المطعم [اسم الموظف] الذي قام بتجهيز الطلب
+
+نرفق لكم شهادات موقعة من الشهود تؤكد أن:
+1. الطلب تم تسليمه كاملاً وبجميع العناصر المطلوبة
+2. لم يحدث أي تلف أو ضرر بالطلب أثناء التسليم
+3. العميل استلم الطلب راضيًا دون أي اعتراضات
+4. تم تسليم الطلب في الوقت المحدد دون أي تأخير
+
+بناءًا على هذه الشهادات، نطلب منكم إلغاء طلب التعويض، حيث أن الأدلة تثبت عدم وجود أي مبرر للتعويض.
+
+نتطلع إلى حل عادل لهذه المسألة.
+
+مع خالص التقدير،
+فريق إدارة [الفرع]
+هاتف: [رقم الهاتف]
+البريد الإلكتروني: [البريد الإلكتروني]`
+            },
+            evidence: {
+                title: "رد على طلب التعويض - أدلة أخرى",
+                content: `السادة فريق كريم المحترم،
+
+تحية طيبة وبعد،
+
+نود الرد على طلب التعويض رقم [رقم الحالة] المتعلق بالطلب رقم [رقم الطلب] من فرع [الفرع].
+
+بعد التحقيق في هذا الطلب، وجدنا الأدلة التالية تثبت عدم صحة ادعاءات العميل:
+
+1. **سجل الطلب**: يظهر أن الطلب تم تجهيزه وتسليمه في الوقت المحدد [تاريخ الطلب]
+2. **إيصال الاستلام**: يوجد إيصال موقع من السائق يؤكد استلام الطلب كاملاً
+3. **سجل الكاميرات**: تسجيلات الكاميرات الأمنية تظهر عملية التسليم بوضوح
+4. **تقرير الجودة**: تقرير فحص الجودة يؤكد أن جميع العناصر كانت مطابقة للمواصفات
+5. **سجل الوقت**: سجل العمل يثبت أن الطلب تم إعداده في الوقت المحدد دون أي تأخير
+
+نظرًا لهذه الأدلة القاطعة، نؤكد أن طلب التعويض غير مبرر ونطلب رفضه.
+
+نحن على استعداد تام لتقديم أي أدلة إضافية تطلبونها لإثبات صحة موقفنا.
+
+نشكر تفهمكم وتعاونكم.
+
+مع خالص التقدير،
+فريق إدارة [الفرع]
+هاتف: [رقم الهاتف]
+البريد الإلكتروني: [البريد الإلكتروني]`
+            },
+            policy: {
+                title: "رد على طلب التعويض - سياسة الشركة",
+                content: `السادة فريق كريم المحترم،
+
+تحية طيبة وبعد،
+
+بخصوص طلب التعويض رقم [رقم الحالة] من فرع [الفرع]، نود توضيح سياسة الشركة في مثل هذه الحالات:
+
+سياسة شركتنا واضحة فيما يخص التعويضات:
+1. يتم التعويض فقط في حالة وجود خطأ واضح من جانب المطعم
+2. يجب تقديم طلب التعويض خلال 24 ساعة من وقت استلام الطلب
+3. يجب إثبات وجود تلف أو عيب في الطلب وقت التسليم
+4. يتم فحص جميع الطلبات قبل تسليمها للتأكد من جودتها
+
+في حالة الطلب رقم [رقم الطلب]:
+- تم فحص الطلب بعناية قبل تسليمه
+- تم تسليمه للسائق في التاريخ [تاريخ الطلب] دون أي مشاكل
+- لم يتم الإبلاغ عن أي مشاكل وقت التسليم
+- لا يوجد أي دليل على وجود تلف أو عيب في الطلب
+
+بناءًا على سياسة الشركة والأدلة المتوفرة، نعتبر أن هذا الطلب لا يستحق تعويضًا.
+
+نحن ملتزمون بجودة خدمتنا وسنكون سعداء بالتعاون معكم في حل هذه المسألة.
+
+مع خالص التقدير،
+فريق إدارة [الفرع]
+هاتف: [رقم الهاتف]
+البريد الإلكتروني: [البريد الإلكتروني]`
+            }
+        };
 
         // Initialize the application
         $(document).ready(function() {
-            loadDataFromStorage();
-            initializeDataTable();
+            updateDateTime();
             initializeCharts();
-            updateKPIs();
+            initializeDataTable();
             setupEventListeners();
-            setDefaultDate();
+            loadSampleData();
         });
 
-        // Load data from localStorage
-        function loadDataFromStorage() {
-            const stored = localStorage.getItem('refundData');
-            if (stored) {
-                refunds = JSON.parse(stored);
-            }
+        // Update date and time
+        function updateDateTime() {
+            const now = new Date();
+            const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+            const timeOptions = { hour: '2-digit', minute: '2-digit' };
+            
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('ar-SA', dateOptions);
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString('ar-SA', timeOptions);
         }
+        
+        setInterval(updateDateTime, 60000);
 
-        // Save data to localStorage
-        function saveDataToStorage() {
-            localStorage.setItem('refundData', JSON.stringify(refunds));
-        }
-
-        // Set default date to today
-        function setDefaultDate() {
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('dateFilter').value = today;
-        }
-
-        // Initialize DataTable
-        function initializeDataTable() {
-            dataTable = $('#refundsTable').DataTable({
-                data: refunds,
-                columns: [
-                    { data: 'orderId' },
-                    { data: 'branch' },
-                    { 
-                        data: 'orderDate',
-                        render: function(data) {
-                            return new Date(data).toLocaleString();
-                        }
-                    },
-                    { 
-                        data: 'refundDate',
-                        render: function(data) {
-                            return new Date(data).toLocaleString();
-                        }
-                    },
-                    { 
-                        data: 'basketAmount',
-                        render: function(data) {
-                            return 'AED ' + data.toFixed(2);
-                        }
-                    },
-                    { 
-                        data: 'refundAmount',
-                        render: function(data) {
-                            return 'AED ' + data.toFixed(2);
-                        }
-                    },
-                    { data: 'reason' },
-                    { 
-                        data: 'status',
-                        render: function(data) {
-                            const statusMap = {
-                                'Rejected': '<span class="status-badge status-rejected">Rejected</span>',
-                                'Pending': '<span class="status-badge status-pending">Pending</span>',
-                                'Accepted': '<span class="status-badge status-accepted">Accepted</span>'
-                            };
-                            return statusMap[data] || data;
-                        }
-                    },
-                    {
-                        data: null,
-                        render: function(data, type, row) {
-                            return `
-                                <button class="action-btn view" onclick="viewDetails(${row.id})" title="View">
-                                    <i class="bi bi-eye"></i>
-                                </button>
-                                <button class="action-btn edit" onclick="editRefund(${row.id})" title="Edit">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
-                                <button class="action-btn email" onclick="prepareEmail(${row.id})" title="Send Email">
-                                    <i class="bi bi-envelope"></i>
-                                </button>
-                                <button class="action-btn delete" onclick="deleteRefund(${row.id})" title="Delete">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            `;
-                        }
-                    }
-                ],
-                pageLength: 10,
-                responsive: true,
-                dom: '<"row"<"col-sm-6"l><"col-sm-6"f>>' +
-                     '<"row"<"col-sm-12"tr>>' +
-                     '<"row"<"col-sm-5"i><"col-sm-7"p>>',
-                initComplete: function() {
-                    updateRecordCount();
-                }
-            });
-
-            // Update record count on draw
-            dataTable.on('draw', function() {
-                updateRecordCount();
-            });
-        }
-
-        // Update record count
-        function updateRecordCount() {
-            const count = dataTable.data().length;
-            document.getElementById('recordCount').textContent = `${count} records`;
-        }
-
-        // Initialize Charts
+        // Initialize charts
         function initializeCharts() {
             // Reasons Chart
             const reasonsCtx = document.getElementById('reasonsChart').getContext('2d');
@@ -825,13 +962,13 @@
                     datasets: [{
                         data: [],
                         backgroundColor: [
-                            '#2563eb',
-                            '#16a34a',
-                            '#dc2626',
-                            '#f59e0b',
-                            '#8b5cf6',
-                            '#ec4899',
-                            '#14b8a6'
+                            '#c62828',
+                            '#3949ab',
+                            '#2e7d32',
+                            '#e65100',
+                            '#c2185b',
+                            '#7b1fa2',
+                            '#5d4037'
                         ]
                     }]
                 },
@@ -841,6 +978,10 @@
                     plugins: {
                         legend: {
                             position: 'bottom'
+                        },
+                        title: {
+                            display: true,
+                            text: 'توزيع الحالات حسب السبب'
                         }
                     }
                 }
@@ -853,14 +994,23 @@
                 data: {
                     labels: [],
                     datasets: [{
-                        label: 'Number of Refunds',
+                        label: 'عدد الحالات',
                         data: [],
-                        backgroundColor: '#2563eb'
+                        backgroundColor: '#3949ab'
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'الحالات حسب الفرع'
+                        }
+                    },
                     scales: {
                         y: {
                             beginAtZero: true,
@@ -871,47 +1021,111 @@
                     }
                 }
             });
-
-            updateCharts();
         }
 
-        // Update Charts
-        function updateCharts() {
-            // Update reasons chart
-            const reasonCounts = {};
-            refunds.forEach(refund => {
-                reasonCounts[refund.reason] = (reasonCounts[refund.reason] || 0) + 1;
+        // Initialize DataTable
+        function initializeDataTable() {
+            dataTable = $('#casesTable').DataTable({
+                data: [],
+                columns: [
+                    {
+                        data: 'status',
+                        render: function(data) {
+                            const statusMap = {
+                                'pending': '<span class="status-badge status-pending">قيد الانتظار</span>',
+                                'responded': '<span class="status-badge status-responded">تم الرد</span>',
+                                'resolved': '<span class="status-badge status-resolved">تم الحل</span>',
+                                'rejected': '<span class="status-badge status-rejected">مرفوض</span>'
+                            };
+                            return statusMap[data] || data;
+                        }
+                    },
+                    { data: 'branch' },
+                    {
+                        data: 'orderDate',
+                        render: function(data) {
+                            return new Date(data).toLocaleString('ar-SA');
+                        }
+                    },
+                    {
+                        data: 'refundDate',
+                        render: function(data) {
+                            return new Date(data).toLocaleString('ar-SA');
+                        }
+                    },
+                    {
+                        data: 'basketAmount',
+                        render: function(data) {
+                            return 'AED ' + data.toFixed(2);
+                        }
+                    },
+                    {
+                        data: 'refundAmount',
+                        render: function(data) {
+                            return '- AED ' + data.toFixed(2);
+                        }
+                    },
+                    {
+                        data: 'reason',
+                        render: function(data) {
+                            const reasonMap = {
+                                'Spilled / damaged': '<span class="reason-tag reason-spilled">انسكاب/تلف</span>',
+                                'Wrong item sent': '<span class="reason-tag reason-wrong">طلب خاطئ</span>',
+                                'Missing or unavailable items (Main item)': '<span class="reason-tag reason-missing">عنصر مفقود</span>',
+                                'Food is overcooked/burnt': '<span class="reason-tag reason-overcooked">طعام محروق</span>',
+                                'Food is undercooked': '<span class="reason-tag reason-undercooked">طعام نيء</span>',
+                                'Hair in the food': '<span class="reason-tag reason-hair">شعر في الطعام</span>',
+                                'Foul Smell': '<span class="reason-tag reason-smell">رائحة كريهة</span>'
+                            };
+                            return reasonMap[data] || data;
+                        }
+                    },
+                    {
+                        data: null,
+                        render: function(data, type, row) {
+                            return `
+                                <button class="action-btn btn-view" onclick="viewCaseDetails(${row.id})" title="عرض التفاصيل">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button class="action-btn btn-respond" onclick="openResponseModal(${row.id})" title="رد">
+                                    <i class="bi bi-reply"></i>
+                                </button>
+                                <button class="action-btn btn-template" onclick="generateResponse(${row.id})" title="إنشاء رد">
+                                    <i class="bi bi-envelope"></i>
+                                </button>
+                            `;
+                        }
+                    }
+                ],
+                pageLength: 10,
+                responsive: true,
+                dom: '<"row"<"col-sm-6"l><"col-sm-6"f>>' +
+                     '<"row"<"col-sm-12"tr>>' +
+                     '<"row"<"col-sm-5"i><"col-sm-7"p>>',
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/ar.json'
+                }
             });
-
-            reasonsChart.data.labels = Object.keys(reasonCounts);
-            reasonsChart.data.datasets[0].data = Object.values(reasonCounts);
-            reasonsChart.update();
-
-            // Update branches chart
-            const branchCounts = {};
-            refunds.forEach(refund => {
-                branchCounts[refund.branch] = (branchCounts[refund.branch] || 0) + 1;
-            });
-
-            branchesChart.data.labels = Object.keys(branchCounts);
-            branchesChart.data.datasets[0].data = Object.values(branchCounts);
-            branchesChart.update();
         }
 
-        // Update KPIs
-        function updateKPIs() {
-            document.getElementById('totalRefunds').textContent = refunds.length;
-            document.getElementById('rejectedRefunds').textContent = refunds.filter(r => r.status === 'Rejected').length;
-            document.getElementById('pendingRefunds').textContent = refunds.filter(r => r.status === 'Pending').length;
-            
-            const totalSavings = refunds
-                .filter(r => r.status === 'Rejected')
-                .reduce((sum, r) => sum + r.refundAmount, 0);
-            document.getElementById('totalSavings').textContent = totalSavings.toFixed(2);
-        }
-
-        // Setup Event Listeners
+        // Setup event listeners
         function setupEventListeners() {
+            // Filter buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const filter = this.getAttribute('data-filter');
+                    filterTable(filter);
+                });
+            });
+
+            // Search input
+            document.getElementById('searchInput').addEventListener('input', function() {
+                dataTable.search(this.value).draw();
+            });
+
             // Drag and drop
             const uploadArea = document.querySelector('.upload-area');
             
@@ -930,88 +1144,371 @@
                 
                 const files = e.dataTransfer.files;
                 if (files.length > 0) {
-                    processExcelFile(files[0], e);
+                    processExcelFile(files[0]);
                 }
             });
         }
 
-        // Handle file upload - Updated version
+        // Load sample data
+        function loadSampleData() {
+            const sampleData = [
+                {
+                    id: 1,
+                    branch: 'Al Barsha 1',
+                    orderDate: '2025-08-30T20:25',
+                    refundDate: '2025-08-30T21:33',
+                    basketAmount: 17.05,
+                    refundAmount: 15.50,
+                    reason: 'Spilled / damaged',
+                    status: 'pending',
+                    responseDate: null,
+                    notes: ''
+                },
+                {
+                    id: 2,
+                    branch: 'Al Barsha 1',
+                    orderDate: '2025-08-29T23:47',
+                    refundDate: '2025-08-30T00:29',
+                    basketAmount: 20.35,
+                    refundAmount: 18.50,
+                    reason: 'Spilled / damaged',
+                    status: 'responded',
+                    responseDate: '2025-08-30T10:00',
+                    notes: 'تم الرد بالأدلة'
+                },
+                {
+                    id: 3,
+                    branch: 'Al Danah',
+                    orderDate: '2025-08-30T19:59',
+                    refundDate: '2025-08-30T20:52',
+                    basketAmount: 33.88,
+                    refundAmount: 32.00,
+                    reason: 'Missing or unavailable items (Main item)',
+                    status: 'resolved',
+                    responseDate: '2025-08-30T14:00',
+                    notes: 'تم رفض التعويض'
+                },
+                {
+                    id: 4,
+                    branch: 'Al Markaziyah',
+                    orderDate: '2025-08-30T18:40',
+                    refundDate: '2025-08-30T19:16',
+                    basketAmount: 19.44,
+                    refundAmount: 12.00,
+                    reason: 'Wrong item sent',
+                    status: 'pending',
+                    responseDate: null,
+                    notes: ''
+                },
+                {
+                    id: 5,
+                    branch: 'Al Rawdah',
+                    orderDate: '2025-08-30T12:57',
+                    refundDate: '2025-08-30T14:20',
+                    basketAmount: 141.95,
+                    refundAmount: 138.00,
+                    reason: 'Wrong item sent',
+                    status: 'resolved',
+                    responseDate: '2025-08-30T16:00',
+                    notes: 'تم تقديم الفيديو'
+                }
+            ];
+
+            cases = sampleData;
+            updateDataTable();
+            updateStatistics();
+            updateCharts();
+        }
+
+        // Update DataTable
+        function updateDataTable() {
+            dataTable.clear();
+            dataTable.rows.add(cases);
+            dataTable.draw();
+        }
+
+        // Update statistics
+        function updateStatistics() {
+            const totalCases = cases.length;
+            const pendingCases = cases.filter(c => c.status === 'pending').length;
+            const respondedCases = cases.filter(c => c.status === 'responded').length;
+            const resolvedCases = cases.filter(c => c.status === 'resolved').length;
+            
+            const totalDeducted = cases.reduce((sum, c) => sum + c.refundAmount, 0);
+            const totalSaved = cases
+                .filter(c => c.status === 'resolved')
+                .reduce((sum, c) => sum + c.refundAmount, 0);
+            const avgDeduction = totalCases > 0 ? totalDeducted / totalCases : 0;
+            const successRate = totalCases > 0 ? (resolvedCases / totalCases * 100) : 0;
+
+            document.getElementById('totalCases').textContent = totalCases;
+            document.getElementById('pendingCases').textContent = pendingCases;
+            document.getElementById('respondedCases').textContent = respondedCases;
+            document.getElementById('resolvedCases').textContent = resolvedCases;
+            document.getElementById('totalDeducted').textContent = totalDeducted.toFixed(2) + ' AED';
+            document.getElementById('totalSaved').textContent = totalSaved.toFixed(2) + ' AED';
+            document.getElementById('avgDeduction').textContent = avgDeduction.toFixed(2) + ' AED';
+            document.getElementById('successRate').textContent = successRate.toFixed(1) + '%';
+        }
+
+        // Update charts
+        function updateCharts() {
+            // Update reasons chart
+            const reasonCounts = {};
+            cases.forEach(c => {
+                reasonCounts[c.reason] = (reasonCounts[c.reason] || 0) + 1;
+            });
+            
+            reasonsChart.data.labels = Object.keys(reasonCounts);
+            reasonsChart.data.datasets[0].data = Object.values(reasonCounts);
+            reasonsChart.update();
+
+            // Update branches chart
+            const branchCounts = {};
+            cases.forEach(c => {
+                branchCounts[c.branch] = (branchCounts[c.branch] || 0) + 1;
+            });
+            
+            branchesChart.data.labels = Object.keys(branchCounts);
+            branchesChart.data.datasets[0].data = Object.values(branchCounts);
+            branchesChart.update();
+        }
+
+        // Filter table
+        function filterTable(filter) {
+            if (filter === 'all') {
+                dataTable.search('').draw();
+                return;
+            }
+
+            const filteredData = cases.filter(c => {
+                if (filter === 'pending' || filter === 'responded' || filter === 'resolved' || filter === 'rejected') {
+                    return c.status === filter;
+                }
+                return c.reason.toLowerCase().includes(filter);
+            });
+
+            dataTable.clear();
+            dataTable.rows.add(filteredData);
+            dataTable.draw();
+        }
+
+        // View case details
+        function viewCaseDetails(id) {
+            const caseData = cases.find(c => c.id === id);
+            if (!caseData) return;
+
+            currentCase = caseData;
+
+            document.getElementById('detailsBranch').textContent = caseData.branch;
+            document.getElementById('detailsOrderDate').textContent = new Date(caseData.orderDate).toLocaleString('ar-SA');
+            document.getElementById('detailsRefundDate').textContent = new Date(caseData.refundDate).toLocaleString('ar-SA');
+            document.getElementById('detailsBasketAmount').textContent = 'AED ' + caseData.basketAmount.toFixed(2);
+            document.getElementById('detailsRefundAmount').textContent = '- AED ' + caseData.refundAmount.toFixed(2);
+            document.getElementById('detailsReason').textContent = caseData.reason;
+            document.getElementById('detailsStatus').textContent = getStatusText(caseData.status);
+            document.getElementById('detailsResponseDate').textContent = caseData.responseDate ? 
+                new Date(caseData.responseDate).toLocaleString('ar-SA') : 'لم يتم الرد بعد';
+            document.getElementById('detailsNotes').value = caseData.notes || '';
+
+            const modal = new bootstrap.Modal(document.getElementById('caseDetailsModal'));
+            modal.show();
+        }
+
+        // Get status text
+        function getStatusText(status) {
+            const statusMap = {
+                'pending': 'قيد الانتظار',
+                'responded': 'تم الرد',
+                'resolved': 'تم الحل',
+                'rejected': 'مرفوض'
+            };
+            return statusMap[status] || status;
+        }
+
+        // Save case details
+        function saveCaseDetails() {
+            if (!currentCase) return;
+
+            currentCase.notes = document.getElementById('detailsNotes').value;
+            
+            // Update the case in the array
+            const index = cases.findIndex(c => c.id === currentCase.id);
+            if (index !== -1) {
+                cases[index] = currentCase;
+            }
+
+            updateDataTable();
+            showToast('تم حفظ التغييرات بنجاح!', 'success');
+            
+            const modal = bootstrap.Modal.getInstance(document.getElementById('caseDetailsModal'));
+            modal.hide();
+        }
+
+        // Open response modal
+        function openResponseModal(id) {
+            const caseData = cases.find(c => c.id === id);
+            if (!caseData) return;
+
+            currentCase = caseData;
+
+            document.getElementById('responseBranch').textContent = caseData.branch;
+            document.getElementById('responseType').value = 'video';
+            
+            updateResponseTemplate();
+
+            const modal = new bootstrap.Modal(document.getElementById('responseModal'));
+            modal.show();
+        }
+
+        // Update response template
+        function updateResponseTemplate() {
+            if (!currentCase) return;
+
+            const type = document.getElementById('responseType').value;
+            const template = responseTemplates[type];
+            
+            let content = template.content;
+            content = content.replace('[رقم الحالة]', currentCase.id);
+            content = content.replace('[الفرع]', currentCase.branch);
+            content = content.replace('[رقم الطلب]', currentCase.id);
+            content = content.replace('[تاريخ الطلب]', new Date(currentCase.orderDate).toLocaleDateString('ar-SA'));
+            content = content.replace('[تاريخ التعويض]', new Date(currentCase.refundDate).toLocaleDateString('ar-SA'));
+            content = content.replace('[رقم الهاتف]', '+971-XX-XXX-XXXX');
+            content = content.replace('[البريد الإلكتروني]', 'restaurant@example.com');
+
+            // Replace placeholders with actual data
+            content = content.replace('[اسم السائق]', 'أحمد محمد');
+            content = content.replace('[اسم العميل]', 'علي أحمد');
+            content = content.replace('[اسم الموظف]', 'محمد علي');
+
+            document.getElementById('responseContent').textContent = content;
+        }
+
+        // Copy response template
+        function copyResponseTemplate() {
+            const content = document.getElementById('responseContent').textContent;
+            navigator.clipboard.writeText(content).then(() => {
+                showToast('تم نسخ النص بنجاح!', 'success');
+            }).catch(err => {
+                showToast('فشل نسخ النص، يرجى النسخ يدويًا', 'danger');
+            });
+        }
+
+        // Generate response
+        function generateResponse(id) {
+            const caseData = cases.find(c => c.id === id);
+            if (!caseData) return;
+
+            // Update case status
+            caseData.status = 'responded';
+            caseData.responseDate = new Date().toISOString();
+            
+            const index = cases.findIndex(c => c.id === id);
+            if (index !== -1) {
+                cases[index] = caseData;
+            }
+
+            updateDataTable();
+            updateStatistics();
+            showToast('تم إنشاء الرد بنجاح!', 'success');
+        }
+
+        // Send response
+        function sendResponse() {
+            if (!currentCase) return;
+
+            // Update case status
+            currentCase.status = 'responded';
+            currentCase.responseDate = new Date().toISOString();
+            
+            const index = cases.findIndex(c => c.id === currentCase.id);
+            if (index !== -1) {
+                cases[index] = currentCase;
+            }
+
+            updateDataTable();
+            updateStatistics();
+            showToast('تم إرسال الرد بنجاح!', 'success');
+            
+            const modal = bootstrap.Modal.getInstance(document.getElementById('responseModal'));
+            modal.hide();
+        }
+
+        // Handle file upload
         function handleFileUpload(event) {
             const file = event.target.files[0];
             if (file) {
-                processExcelFile(file, event);
+                processExcelFile(file);
             }
         }
 
-        // Process Excel file - Updated version
-        function processExcelFile(file, event) {
-            showProgress();
+        // Process Excel file
+        function processExcelFile(file) {
+            showLoading();
+
             const reader = new FileReader();
-            reader.onload = function (e) {
+            
+            reader.onload = function(e) {
                 try {
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
                     const sheetName = workbook.SheetNames[0];
                     const sheet = workbook.Sheets[sheetName];
                     const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: '' });
-                    
+
                     // Validate required columns
                     const requiredColumns = ['Branch', 'Order Date', 'Refund Date', 'Basket Amount', 'Refund Amount', 'Reason', 'Status'];
                     const firstRow = jsonData[0] || {};
                     const missingColumns = requiredColumns.filter(col => !(col in firstRow));
                     
                     if (missingColumns.length > 0) {
-                        showToast('Error', `Missing required columns: ${missingColumns.join(', ')}`, 'error');
+                        showToast(`الأعمدة المطلوبة مفقودة: ${missingColumns.join(', ')}`, 'danger');
+                        hideLoading();
                         return;
                     }
-                    
+
                     // Process data
                     let addedCount = 0;
-                    const maxId = refunds.length > 0 ? Math.max(...refunds.map(r => r.id)) : 0;
+                    const maxId = cases.length > 0 ? Math.max(...cases.map(c => c.id)) : 0;
                     let newId = maxId + 1;
-                    
+
                     jsonData.forEach(row => {
-                        const newRefund = {
+                        const newCase = {
                             id: newId++,
-                            orderId: row['Order ID'] || generateOrderId(),
                             branch: row['Branch'],
                             orderDate: parseDate(row['Order Date']),
                             refundDate: parseDate(row['Refund Date']),
                             basketAmount: parseFloat(row['Basket Amount']) || 0,
                             refundAmount: parseFloat(row['Refund Amount']) || 0,
                             reason: row['Reason'],
-                            status: row['Status'],
+                            status: row['Status'].toLowerCase(),
+                            responseDate: null,
                             notes: row['Notes'] || ''
                         };
-                        
-                        refunds.push(newRefund);
+
+                        cases.push(newCase);
                         addedCount++;
                     });
-                    
-                    // Save and update
-                    saveDataToStorage();
+
                     updateDataTable();
-                    updateKPIs();
+                    updateStatistics();
                     updateCharts();
-                    
-                    showToast('Success', `Successfully imported ${addedCount} records`, 'success');
-                    
+
+                    showToast(`تم استيراد ${addedCount} حالة بنجاح!`, 'success');
                 } catch (err) {
-                    console.error("Error reading Excel file:", err);
-                    showToast('Error', 'Error reading Excel file: ' + err.message, 'error');
+                    console.error('Error processing Excel file:', err);
+                    showToast('خطأ في معالجة ملف Excel', 'danger');
                 } finally {
-                    hideProgress();
+                    hideLoading();
                 }
             };
+
             reader.readAsArrayBuffer(file);
-            
-            // Reset file input
-            if (event && event.target) {
-                event.target.value = '';
-            }
+            event.target.value = '';
         }
 
-        // Parse date from Excel
+        // Parse date
         function parseDate(dateValue) {
             if (!dateValue) return new Date().toISOString();
             
@@ -1024,312 +1521,121 @@
             return isNaN(date.getTime()) ? new Date().toISOString() : date.toISOString();
         }
 
-        // Generate Order ID
-        function generateOrderId() {
-            return 'ORD-' + Math.floor(100000000 + Math.random() * 900000000);
-        }
-
-        // Show progress
-        function showProgress() {
-            document.getElementById('progressContainer').style.display = 'block';
-            document.getElementById('loadingSpinner').style.display = 'flex';
-            
-            // Simulate progress
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += 10;
-                document.querySelector('.progress-bar').style.width = progress + '%';
-                
-                if (progress >= 100) {
-                    clearInterval(interval);
-                }
-            }, 100);
-        }
-
-        // Hide progress
-        function hideProgress() {
-            document.getElementById('progressContainer').style.display = 'none';
-            document.getElementById('loadingSpinner').style.display = 'none';
-            document.querySelector('.progress-bar').style.width = '0%';
-        }
-
-        // Update DataTable
-        function updateDataTable() {
-            dataTable.clear();
-            dataTable.rows.add(refunds);
-            dataTable.draw();
-        }
-
-        // Apply filters
-        function applyFilters() {
-            const branch = document.getElementById('branchFilter').value;
-            const reason = document.getElementById('reasonFilter').value;
-            const status = document.getElementById('statusFilter').value;
-            const date = document.getElementById('dateFilter').value;
-            
-            let filtered = refunds;
-            
-            if (branch) {
-                filtered = filtered.filter(r => r.branch === branch);
-            }
-            
-            if (reason) {
-                filtered = filtered.filter(r => r.reason === reason);
-            }
-            
-            if (status) {
-                filtered = filtered.filter(r => r.status === status);
-            }
-            
-            if (date) {
-                filtered = filtered.filter(r => {
-                    const refundDate = new Date(r.refundDate).toISOString().split('T')[0];
-                    return refundDate === date;
-                });
-            }
-            
-            dataTable.clear();
-            dataTable.rows.add(filtered);
-            dataTable.draw();
-        }
-
-        // Reset filters
-        function resetFilters() {
-            document.getElementById('branchFilter').value = '';
-            document.getElementById('reasonFilter').value = '';
-            document.getElementById('statusFilter').value = '';
-            document.getElementById('dateFilter').value = '';
-            
-            updateDataTable();
-        }
-
-        // View details - Updated version
-        function viewDetails(id) {
-            const refund = refunds.find(r => r.id === id);
-            if (!refund) return;
-            
-            // Create details HTML
-            const details = `
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><strong>Order ID:</strong> ${refund.orderId}</p>
-                        <p><strong>Branch:</strong> ${refund.branch}</p>
-                        <p><strong>Order Date:</strong> ${new Date(refund.orderDate).toLocaleString()}</p>
-                        <p><strong>Refund Date:</strong> ${new Date(refund.refundDate).toLocaleString()}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <p><strong>Basket Amount:</strong> AED ${refund.basketAmount.toFixed(2)}</p>
-                        <p><strong>Refund Amount:</strong> AED ${refund.refundAmount.toFixed(2)}</p>
-                        <p><strong>Reason:</strong> ${refund.reason}</p>
-                        <p><strong>Status:</strong> ${getStatusBadge(refund.status)}</p>
-                    </div>
-                </div>
-                ${refund.notes ? `<div class="mt-3"><p><strong>Notes:</strong> ${refund.notes}</p></div>` : ''}
-            `;
-            
-            // Update modal content
-            document.getElementById('detailsModalBody').innerHTML = details;
-            
-            // Show modal
-            const modal = new bootstrap.Modal(document.getElementById('detailsModal'));
-            modal.show();
-        }
-
-        // Helper function to get status badge HTML
-        function getStatusBadge(status) {
-            const statusMap = {
-                'Rejected': '<span class="status-badge status-rejected">Rejected</span>',
-                'Pending': '<span class="status-badge status-pending">Pending</span>',
-                'Accepted': '<span class="status-badge status-accepted">Accepted</span>'
-            };
-            return statusMap[status] || status;
-        }
-
-        // Edit refund - Updated version
-        function editRefund(id) {
-            const refund = refunds.find(r => r.id === id);
-            if (!refund) return;
-            
-            // Populate edit form
-            document.getElementById('editOrderId').value = refund.orderId;
-            document.getElementById('editBranch').value = refund.branch;
-            document.getElementById('editOrderDate').value = refund.orderDate.slice(0, 16);
-            document.getElementById('editRefundDate').value = refund.refundDate.slice(0, 16);
-            document.getElementById('editBasketAmount').value = refund.basketAmount;
-            document.getElementById('editRefundAmount').value = refund.refundAmount;
-            document.getElementById('editReason').value = refund.reason;
-            document.getElementById('editStatus').value = refund.status;
-            document.getElementById('editNotes').value = refund.notes || '';
-            document.getElementById('editId').value = refund.id;
-            
-            // Show edit modal
-            const modal = new bootstrap.Modal(document.getElementById('editModal'));
-            modal.show();
-        }
-
-        // Save edited refund - New function
-        function saveEditedRefund() {
-            const id = parseInt(document.getElementById('editId').value);
-            const refund = refunds.find(r => r.id === id);
-            if (!refund) return;
-            
-            // Update refund data
-            refund.branch = document.getElementById('editBranch').value;
-            refund.orderDate = document.getElementById('editOrderDate').value + ':00';
-            refund.refundDate = document.getElementById('editRefundDate').value + ':00';
-            refund.basketAmount = parseFloat(document.getElementById('editBasketAmount').value);
-            refund.refundAmount = parseFloat(document.getElementById('editRefundAmount').value);
-            refund.reason = document.getElementById('editReason').value;
-            refund.status = document.getElementById('editStatus').value;
-            refund.notes = document.getElementById('editNotes').value;
-            
-            // Save and update
-            saveDataToStorage();
-            updateDataTable();
-            updateKPIs();
-            
-            // Hide modal
-            const modal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
-            modal.hide();
-            
-            showToast('Success', 'Refund updated successfully', 'success');
-        }
-
-        // Delete refund
-        function deleteRefund(id) {
-            if (confirm('Are you sure you want to delete this record?')) {
-                refunds = refunds.filter(r => r.id !== id);
-                saveDataToStorage();
-                updateDataTable();
-                updateKPIs();
-                updateCharts();
-                showToast('Success', 'Record deleted successfully', 'success');
-            }
-        }
-
-        // Prepare email
-        function prepareEmail(id) {
-            const refund = refunds.find(r => r.id === id);
-            if (refund) {
-                document.getElementById('emailSubject').value = `Response to Refund Request for Order ${refund.orderId}`;
-                document.getElementById('emailBody').value = `Dear Careem Team,\n\nThank you for contacting us regarding order ${refund.orderId}. After reviewing the details with the ${refund.branch} branch, we have confirmed that the order was delivered correctly. Therefore, we request to cancel the applied deduction as there is no eligibility for a refund.\n\nOrder Details:\n- Order ID: ${refund.orderId}\n- Branch: ${refund.branch}\n- Order Date: ${new Date(refund.orderDate).toLocaleString()}\n- Requested Refund Amount: ${refund.refundAmount} AED\n\nBest regards,\nFinance Review Team\nCrispy Chicken - UAE`;
-                
-                const modal = new bootstrap.Modal(document.getElementById('emailModal'));
-                modal.show();
-            }
-        }
-
-        // Send email
-        function sendEmail() {
-            // Simulate sending email
-            showToast('Success', 'Email sent successfully', 'success');
-            
-            const modal = bootstrap.Modal.getInstance(document.getElementById('emailModal'));
-            modal.hide();
-        }
-
-        // Export to Excel
-        function exportToExcel() {
-            const ws = XLSX.utils.json_to_sheet(refunds.map(r => ({
-                'Order ID': r.orderId,
-                'Branch': r.branch,
-                'Order Date': new Date(r.orderDate).toLocaleString(),
-                'Refund Date': new Date(r.refundDate).toLocaleString(),
-                'Basket Amount': r.basketAmount,
-                'Refund Amount': r.refundAmount,
-                'Reason': r.reason,
-                'Status': r.status,
-                'Notes': r.notes
-            })));
-            
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Refunds');
-            
-            const date = new Date().toISOString().split('T')[0];
-            XLSX.writeFile(wb, `Refunds_${date}.xlsx`);
-            
-            showToast('Success', 'Excel file exported successfully', 'success');
-        }
-
-        // Export to PDF
-        function exportToPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            
-            doc.text('Refund Report', 105, 15, { align: 'center' });
-            
-            const tableData = refunds.map(r => [
-                r.orderId,
-                r.branch,
-                new Date(r.orderDate).toLocaleDateString(),
-                r.basketAmount.toFixed(2),
-                r.refundAmount.toFixed(2),
-                r.reason,
-                r.status
-            ]);
-            
-            doc.autoTable({
-                head: [['Order ID', 'Branch', 'Date', 'Amount', 'Refund', 'Reason', 'Status']],
-                body: tableData
-            });
-            
-            doc.save(`Refunds_${new Date().toISOString().split('T')[0]}.pdf`);
-            
-            showToast('Success', 'PDF file exported successfully', 'success');
-        }
-
         // Download template
         function downloadTemplate() {
-            const template = [
-                {
-                    'Branch': 'Al Barsha 1',
-                    'Order Date': '2025-08-30 20:25',
-                    'Refund Date': '2025-08-30 21:33',
-                    'Basket Amount': 17.05,
-                    'Refund Amount': 15.50,
-                    'Reason': 'Spilled / damaged',
-                    'Status': 'Rejected',
-                    'Notes': 'Verified from video'
-                }
-            ];
-            
+            const template = [{
+                'Branch': 'Al Barsha 1',
+                'Order Date': '30 Aug 2025, 08:25 PM',
+                'Refund Date': '30 Aug 2025, 09:33 PM',
+                'Basket Amount': 17.05,
+                'Refund Amount': 15.50,
+                'Reason': 'Spilled / damaged',
+                'Status': 'Pending',
+                'Notes': ''
+            }];
+
             const ws = XLSX.utils.json_to_sheet(template);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Template');
+
+            XLSX.writeFile(wb, 'Refund_Cases_Template.xlsx');
+            showToast('تم تحميل القالب بنجاح!', 'success');
+        }
+
+        // Export data
+        function exportData() {
+            showLoading();
+
+            setTimeout(() => {
+                const ws = XLSX.utils.json_to_sheet(cases.map(c => ({
+                    'ID': c.id,
+                    'Branch': c.branch,
+                    'Order Date': new Date(c.orderDate).toLocaleString('ar-SA'),
+                    'Refund Date': new Date(c.refundDate).toLocaleString('ar-SA'),
+                    'Basket Amount': c.basketAmount,
+                    'Refund Amount': c.refundAmount,
+                    'Reason': c.reason,
+                    'Status': c.status,
+                    'Response Date': c.responseDate ? new Date(c.responseDate).toLocaleString('ar-SA') : '',
+                    'Notes': c.notes
+                })));
+
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Refund_Cases');
+
+                const date = new Date().toISOString().split('T')[0];
+                XLSX.writeFile(wb, `Refund_Cases_${date}.xlsx`);
+
+                hideLoading();
+                showToast('تم تصدير البيانات بنجاح!', 'success');
+            }, 1000);
+        }
+
+        // Refresh data
+        function refreshData() {
+            showLoading();
+
+            setTimeout(() => {
+                updateDataTable();
+                updateStatistics();
+                updateCharts();
+                hideLoading();
+                showToast('تم تحديث البيانات بنجاح!', 'success');
+            }, 1000);
+        }
+
+        // Print report
+        function printReport() {
+            showToast('جاري تجهيز التقرير للطباعة...', 'info');
             
-            XLSX.writeFile(wb, 'Refund_Template.xlsx');
-            
-            showToast('Success', 'Template downloaded successfully', 'success');
+            setTimeout(() => {
+                window.print();
+            }, 1000);
+        }
+
+        // Show loading
+        function showLoading() {
+            document.getElementById('loadingSpinner').classList.add('show');
+        }
+
+        // Hide loading
+        function hideLoading() {
+            document.getElementById('loadingSpinner').classList.remove('show');
         }
 
         // Show toast notification
-        function showToast(title, message, type = 'info') {
+        function showToast(message, type = 'success') {
+            const toastContainer = document.getElementById('toastContainer');
             const toast = document.createElement('div');
-            toast.className = `custom-toast toast-${type}`;
+            toast.className = 'custom-toast';
             
-            const iconMap = {
-                'success': 'bi-check-circle-fill',
-                'error': 'bi-x-circle-fill',
-                'warning': 'bi-exclamation-triangle-fill',
-                'info': 'bi-info-circle-fill'
-            };
+            if (type === 'danger') {
+                toast.style.backgroundColor = 'var(--danger-color)';
+            } else if (type === 'warning') {
+                toast.style.backgroundColor = 'var(--warning-color)';
+            } else if (type === 'info') {
+                toast.style.backgroundColor = 'var(--info-color)';
+            }
+            
+            const icon = type === 'success' ? 'bi-check-circle-fill' : 
+                        type === 'danger' ? 'bi-exclamation-triangle-fill' :
+                        type === 'warning' ? 'bi-exclamation-triangle-fill' : 'bi-info-circle-fill';
             
             toast.innerHTML = `
-                <div class="toast-icon">
-                    <i class="bi ${iconMap[type]}"></i>
-                </div>
-                <div class="toast-message">
-                    <div class="fw-bold">${title}</div>
-                    <div>${message}</div>
-                </div>
+                <i class="bi ${icon}"></i>
+                <span>${message}</span>
             `;
             
-            document.getElementById('toastContainer').appendChild(toast);
+            toastContainer.appendChild(toast);
             
             setTimeout(() => {
                 toast.style.opacity = '0';
-                setTimeout(() => toast.remove(), 300);
-            }, 5000);
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, 3000);
         }
     </script>
 </body>
