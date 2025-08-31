@@ -6,6 +6,8 @@
   <title>نظام إدارة التعويضات | Compensation Management System</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     .toast-container {
       position: fixed;
@@ -98,6 +100,60 @@
     .form-floating label {
       text-align: right;
     }
+    .card-view {
+      display: none;
+    }
+    .stats-card {
+      border-left: 4px solid;
+      transition: transform 0.2s;
+    }
+    .stats-card:hover {
+      transform: translateY(-5px);
+    }
+    .stats-card.total {
+      border-left-color: #0d6efd;
+    }
+    .stats-card.refunded {
+      border-left-color: #dc3545;
+    }
+    .stats-card.disputed {
+      border-left-color: #fd7e14;
+    }
+    .stats-card.resolved {
+      border-left-color: #198754;
+    }
+    .table-responsive {
+      overflow-x: auto;
+    }
+    .top-reason {
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    .summary-table {
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    .summary-table h5 {
+      margin-bottom: 15px;
+      color: #495057;
+    }
+    .summary-table .table {
+      margin-bottom: 0;
+    }
+    .summary-table .table th {
+      background-color: #e9ecef;
+    }
+    .summary-table .table td {
+      vertical-align: middle;
+    }
+    .grand-total {
+      font-weight: bold;
+      background-color: #e9ecef;
+    }
     @media (max-width: 768px) {
       .action-buttons .btn { 
         display: block; 
@@ -109,6 +165,15 @@
         margin-top: 10px;
         margin-bottom: 10px;
       }
+      .table-responsive {
+        display: none;
+      }
+      .card-view {
+        display: block;
+      }
+      .summary-table {
+        overflow-x: auto;
+      }
     }
   </style>
 </head>
@@ -119,61 +184,115 @@
       <i class="bi bi-translate"></i> <span id="langToggleText">English</span>
     </button>
   </div>
-
   <h2 class="mb-4 text-center">📋 <span id="systemTitle">نظام إدارة التعويضات</span></h2>
   
   <!-- Stats Cards -->
   <div class="row mb-4">
-    <div class="col-md-2 mb-3">
-      <div class="card text-center">
+    <div class="col-md-3 mb-3">
+      <div class="card stats-card total h-100">
         <div class="card-body">
           <h5 class="card-title" id="totalCasesTitle">إجمالي الحالات</h5>
           <h2 class="text-primary" id="totalCases">0</h2>
         </div>
       </div>
     </div>
-    <div class="col-md-2 mb-3">
-      <div class="card text-center">
+    <div class="col-md-3 mb-3">
+      <div class="card stats-card refunded h-100">
         <div class="card-body">
-          <h5 class="card-title" id="pendingTitle">قيد الانتظار</h5>
-          <h2 class="text-warning" id="pendingCases">0</h2>
+          <h5 class="card-title" id="totalRefundedTitle">إجمالي المبلغ المسترد</h5>
+          <h2 class="text-danger" id="totalRefunded">0</h2>
         </div>
       </div>
     </div>
-    <div class="col-md-2 mb-3">
-      <div class="card text-center">
+    <div class="col-md-3 mb-3">
+      <div class="card stats-card disputed h-100">
         <div class="card-body">
-          <h5 class="card-title" id="resolvedTitle">تم الحل</h5>
+          <h5 class="card-title" id="disputedCasesTitle">الحالات المتنازع عليها</h5>
+          <h2 class="text-warning" id="disputedCases">0</h2>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card stats-card resolved h-100">
+        <div class="card-body">
+          <h5 class="card-title" id="resolvedCasesTitle">الحالات المحلولة</h5>
           <h2 class="text-success" id="resolvedCases">0</h2>
         </div>
       </div>
     </div>
-    <div class="col-md-2 mb-3">
-      <div class="card text-center">
+  </div>
+  
+  <!-- Charts Section -->
+  <div class="row mb-4">
+    <div class="col-md-6 mb-3">
+      <div class="card">
         <div class="card-body">
-          <h5 class="card-title" id="disputedTitle">متنازع عليها</h5>
-          <h2 class="text-danger" id="disputedCases">0</h2>
+          <h5 class="card-title">توزيع الحالات حسب السبب</h5>
+          <canvas id="reasonChart" height="300"></canvas>
         </div>
       </div>
     </div>
-    <div class="col-md-2 mb-3">
-      <div class="card text-center">
+    <div class="col-md-6 mb-3">
+      <div class="card">
         <div class="card-body">
-          <h5 class="card-title" id="underReviewTitle">قيد المراجعة</h5>
-          <h2 class="text-info" id="underReviewCases">0</h2>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-2 mb-3">
-      <div class="card text-center">
-        <div class="card-body">
-          <h5 class="card-title" id="totalAmountTitle">إجمالي المبلغ</h5>
-          <h2 class="text-info" id="totalAmount">0</h2>
+          <h5 class="card-title">توزيع الحالات حسب المنطقة</h5>
+          <canvas id="areaChart" height="300"></canvas>
         </div>
       </div>
     </div>
   </div>
-
+  
+  <!-- Summary Tables -->
+  <div class="row mb-4">
+    <div class="col-md-6 mb-3">
+      <div class="summary-table">
+        <h5><i class="bi bi-geo-alt"></i> ملخص حسب منطقة الفرع</h5>
+        <div class="table-responsive">
+          <table class="table table-sm table-striped" id="outletSummaryTable">
+            <thead>
+              <tr>
+                <th>منطقة الفرع</th>
+                <th>عدد الطلبات</th>
+                <th>إجمالي السلة</th>
+                <th>المبلغ المسترد</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 mb-3">
+      <div class="summary-table">
+        <h5><i class="bi bi-exclamation-triangle"></i> ملخص حسب السبب</h5>
+        <div class="table-responsive">
+          <table class="table table-sm table-striped" id="reasonSummaryTable">
+            <thead>
+              <tr>
+                <th>السبب</th>
+                <th>عدد الطلبات</th>
+                <th>إجمالي السلة</th>
+                <th>المبلغ المسترد</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Top Reason -->
+  <div class="top-reason">
+    <div class="d-flex align-items-center">
+      <i class="bi bi-bar-chart-line fs-4 me-3"></i>
+      <div>
+        <h5 class="mb-1" id="topReasonTitle">أكثر سبب تكرر للاسترداد</h5>
+        <p class="mb-0" id="topReason">-</p>
+      </div>
+    </div>
+  </div>
+  
   <!-- Controls -->
   <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
     <div>
@@ -185,19 +304,75 @@
       </button>
     </div>
     <div class="d-flex">
-      <input type="text" id="searchInput" class="form-control me-2" placeholder="بحث في الحالات..." onkeyup="searchCases()">
-      <select id="filterStatus" class="form-select" onchange="filterByStatus()">
-        <option value="all" id="filterAll">الكل</option>
-        <option value="pending" id="filterPending">قيد الانتظار</option>
-        <option value="responded" id="filterResponded">تم الرد</option>
-        <option value="resolved" id="filterResolved">تم الحل</option>
-        <option value="disputed" id="filterDisputed">متنازع عليها</option>
-        <option value="under_review" id="filterUnderReview">قيد المراجعة</option>
-        <option value="rejected" id="filterRejected">مرفوض</option>
+      <select id="filterReason" class="form-select me-2" onchange="filterTable()">
+        <option value="all" id="filterAllReasons">جميع الأسباب</option>
+        <option value="spilled_damaged">انسكاب / تضرر</option>
+        <option value="wrong_item">إرسال صنف خاطئ</option>
+        <option value="missing_main">نقص/عدم توفر - صنف رئيسي</option>
+        <option value="missing_side">نقص/عدم توفر - صنف جانبي</option>
+        <option value="overcooked">محروق / مطبوخ زيادة</option>
+        <option value="undercooked">ناقص الطهي</option>
+        <option value="foul_smell">رائحة كريهة</option>
+        <option value="hair_food">شعر في الطعام</option>
+        <option value="not_edible">طعام غير صالح للأكل</option>
+      </select>
+      <select id="filterStatus" class="form-select" onchange="filterTable()">
+        <option value="all" id="filterAllStatuses">جميع الحالات</option>
+        <option value="Deducted">مسترد</option>
+        <option value="pending">قيد الانتظار</option>
+        <option value="responded">تم الرد</option>
+        <option value="resolved">تم الحل</option>
+        <option value="disputed">متنازع عليها</option>
+        <option value="under_review">قيد المراجعة</option>
+        <option value="rejected">مرفوض</option>
       </select>
     </div>
   </div>
-
+  
+  <!-- Table View -->
+  <div class="table-responsive">
+    <table id="casesTable" class="table table-bordered table-striped mt-3 text-center align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>
+            <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+          </th>
+          <th>رقم الطلب</th>
+          <th>معرف الفرع</th>
+          <th>منطقة الفرع</th>
+          <th>تاريخ الطلب</th>
+          <th>تاريخ الاسترداد</th>
+          <th>إجمالي السلة</th>
+          <th>المبلغ المسترد</th>
+          <th>الحالة</th>
+          <th>السبب</th>
+          <th>اسم الفرع</th>
+          <th>اسم العلامة التجارية</th>
+          <th>إجراءات</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  
+  <!-- Card View (for mobile) -->
+  <div class="card-view">
+    <div id="casesCards" class="row"></div>
+  </div>
+  
+  <!-- Bulk Actions -->
+  <div class="d-flex mb-3">
+    <button class="btn btn-outline-primary me-2" onclick="bulkUpdateStatus('resolved')">
+      <i class="bi bi-check-circle"></i> تحديد كمُحلول
+    </button>
+    <button class="btn btn-outline-warning me-2" onclick="bulkUpdateStatus('under_review')">
+      <i class="bi bi-eye"></i> تحديد قيد المراجعة
+    </button>
+    <button class="btn btn-outline-danger" onclick="bulkDelete()">
+      <i class="bi bi-trash"></i> حذف المحدد
+    </button>
+  </div>
+  
   <!-- The Modal (Add/Edit) -->
   <div class="modal fade" id="caseModal" tabindex="-1">
     <div class="modal-dialog modal-xl">
@@ -206,7 +381,7 @@
           <h5 class="modal-title" id="modalTitle">إضافة حالة جديدة</h5>
           <div class="view-mode-toggle">
             <button type="button" class="btn btn-sm btn-outline-secondary" onclick="toggleViewMode()">
-              <i class="bi bi-layout-text-window-reverse"></i> <span id="viewModeText">عرض مبسط</span>
+              <i class="bi bi-layout-text-window-reverse"></i> <span id="viewModeText">عرض مفصل</span>
             </button>
           </div>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -227,48 +402,53 @@
                 </div>
                 <div class="col-md-6 mb-3">
                   <div class="form-floating">
-                    <input type="text" class="form-control" id="simpleOutlet" placeholder="الفرع" required>
-                    <label for="simpleOutlet" id="simpleOutletLabel">الفرع</label>
+                    <input type="text" class="form-control" id="simpleOutletId" placeholder="معرف الفرع" required>
+                    <label for="simpleOutletId" id="simpleOutletIdLabel">معرف الفرع</label>
                   </div>
                 </div>
                 <div class="col-md-6 mb-3">
                   <div class="form-floating">
-                    <input type="datetime-local" class="form-control" id="simpleOrderDate" placeholder="تاريخ الطلب" required>
-                    <label for="simpleOrderDate" id="simpleOrderDateLabel">تاريخ الطلب</label>
+                    <input type="text" class="form-control" id="simpleOutletArea" placeholder="منطقة الفرع" required>
+                    <label for="simpleOutletArea" id="simpleOutletAreaLabel">منطقة الفرع</label>
                   </div>
                 </div>
                 <div class="col-md-6 mb-3">
                   <div class="form-floating">
-                    <input type="datetime-local" class="form-control" id="simpleRefundDate" placeholder="تاريخ الاسترداد" required>
-                    <label for="simpleRefundDate" id="simpleRefundDateLabel">تاريخ الاسترداد</label>
+                    <input type="datetime-local" class="form-control" id="simpleOrderDateTime" placeholder="تاريخ الطلب" required>
+                    <label for="simpleOrderDateTime" id="simpleOrderDateTimeLabel">تاريخ الطلب</label>
                   </div>
                 </div>
                 <div class="col-md-6 mb-3">
                   <div class="form-floating">
-                    <input type="number" class="form-control" id="simpleBasketAmount" placeholder="إجمالي السلة" step="0.01" required>
+                    <input type="datetime-local" class="form-control" id="simpleRefundDateTime" placeholder="تاريخ الاسترداد" required>
+                    <label for="simpleRefundDateTime" id="simpleRefundDateTimeLabel">تاريخ الاسترداد</label>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <div class="form-floating">
+                    <input type="text" class="form-control" id="simpleBasketAmount" placeholder="إجمالي السلة" step="0.01" required>
                     <label for="simpleBasketAmount" id="simpleBasketAmountLabel">إجمالي السلة</label>
                   </div>
                 </div>
                 <div class="col-md-6 mb-3">
                   <div class="form-floating">
-                    <input type="number" class="form-control" id="simpleRefundAmount" placeholder="المبلغ المسترد" step="0.01" required>
+                    <input type="text" class="form-control" id="simpleRefundAmount" placeholder="المبلغ المسترد" step="0.01" required>
                     <label for="simpleRefundAmount" id="simpleRefundAmountLabel">المبلغ المسترد</label>
                   </div>
                 </div>
                 <div class="col-md-6 mb-3">
                   <div class="form-floating">
-                    <select class="form-control" id="simpleReason" required>
+                    <select class="form-control" id="simpleReason" required onchange="updateEmailTemplate()">
                       <option value="" selected disabled>اختر السبب</option>
-                      <option value="spilled">انسكاب / تضرر</option>
-                      <option value="wrong">إرسال صنف خاطئ</option>
+                      <option value="spilled_damaged">انسكاب / تضرر</option>
+                      <option value="wrong_item">إرسال صنف خاطئ</option>
                       <option value="missing_main">نقص/عدم توفر - صنف رئيسي</option>
                       <option value="missing_side">نقص/عدم توفر - صنف جانبي</option>
                       <option value="overcooked">محروق / مطبوخ زيادة</option>
                       <option value="undercooked">ناقص الطهي</option>
-                      <option value="smell">رائحة كريهة</option>
-                      <option value="hair">شعر في الطعام</option>
-                      <option value="inedible">طعام غير صالح للأكل</option>
-                      <option value="other">أخرى</option>
+                      <option value="foul_smell">رائحة كريهة</option>
+                      <option value="hair_food">شعر في الطعام</option>
+                      <option value="not_edible">طعام غير صالح للأكل</option>
                     </select>
                     <label for="simpleReason" id="simpleReasonLabel">السبب</label>
                   </div>
@@ -277,6 +457,7 @@
                   <div class="form-floating">
                     <select class="form-control" id="simpleStatus" required>
                       <option value="" selected disabled>اختر الحالة</option>
+                      <option value="Deducted">مسترد</option>
                       <option value="pending">قيد الانتظار</option>
                       <option value="responded">تم الرد</option>
                       <option value="resolved">تم الحل</option>
@@ -285,6 +466,18 @@
                       <option value="rejected">مرفوض</option>
                     </select>
                     <label for="simpleStatus" id="simpleStatusLabel">الحالة</label>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <div class="form-floating">
+                    <input type="text" class="form-control" id="simpleOutletName" placeholder="اسم الفرع" required>
+                    <label for="simpleOutletName" id="simpleOutletNameLabel">اسم الفرع</label>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <div class="form-floating">
+                    <input type="text" class="form-control" id="simpleBrandName" placeholder="اسم العلامة التجارية" required>
+                    <label for="simpleBrandName" id="simpleBrandNameLabel">اسم العلامة التجارية</label>
                   </div>
                 </div>
               </div>
@@ -302,20 +495,32 @@
                     <div class="invalid-feedback" id="orderIdError">يرجى إدخال رقم الطلب</div>
                   </div>
                   <div class="col-md-4 mb-3">
-                    <label for="outlet" class="form-label" id="outletLabel">الفرع</label>
-                    <input type="text" id="outlet" class="form-control" required>
+                    <label for="outletId" class="form-label" id="outletIdLabel">معرف الفرع</label>
+                    <input type="text" id="outletId" class="form-control" required>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <label for="outletArea" class="form-label" id="outletAreaLabel">منطقة الفرع</label>
+                    <input type="text" id="outletArea" class="form-control" required>
                   </div>
                   <div class="col-md-4 mb-3">
                     <label for="orderDate" class="form-label" id="orderDateLabel">تاريخ الطلب</label>
                     <input type="date" id="orderDate" class="form-control" required>
                   </div>
-                  <div class="col-md-6 mb-3">
+                  <div class="col-md-4 mb-3">
+                    <label for="refundDate" class="form-label" id="refundDateLabel">تاريخ الاسترداد</label>
+                    <input type="date" id="refundDate" class="form-control" required>
+                  </div>
+                  <div class="col-md-4 mb-3">
                     <label for="partner" class="form-label" id="partnerLabel">الشريك</label>
                     <input type="text" id="partner" class="form-control" value="Accepted by partner" readonly>
                   </div>
                   <div class="col-md-6 mb-3">
-                    <label for="referenceId" class="form-label" id="referenceIdLabel">رقم المرجع</label>
-                    <input type="text" id="referenceId" class="form-control">
+                    <label for="outletName" class="form-label" id="outletNameLabel">اسم الفرع</label>
+                    <input type="text" id="outletName" class="form-control" required>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="brandName" class="form-label" id="brandNameLabel">اسم العلامة التجارية</label>
+                    <input type="text" id="brandName" class="form-control" required>
                   </div>
                 </div>
               </div>
@@ -386,10 +591,6 @@
                     <input type="number" id="deductedAmount" class="form-control" value="0" min="0" step="0.01">
                   </div>
                   <div class="col-md-4 mb-3">
-                    <label for="refundDate" class="form-label" id="refundDateLabel">تاريخ الاسترداد</label>
-                    <input type="date" id="refundDate" class="form-control">
-                  </div>
-                  <div class="col-md-4 mb-3">
                     <label for="location" class="form-label" id="locationLabel">الموقع</label>
                     <input type="text" id="location" class="form-control" placeholder="موقع التسليم">
                   </div>
@@ -402,16 +603,16 @@
                 <div class="row">
                   <div class="col-md-6 mb-3">
                     <label for="reason" class="form-label" id="reasonLabel">السبب الرئيسي</label>
-                    <select id="reason" class="form-control">
-                      <option value="spilled">انسكاب / تضرر</option>
-                      <option value="wrong">إرسال صنف خاطئ</option>
+                    <select id="reason" class="form-control" onchange="updateEmailTemplate()">
+                      <option value="spilled_damaged">انسكاب / تضرر</option>
+                      <option value="wrong_item">إرسال صنف خاطئ</option>
                       <option value="missing_main">نقص/عدم توفر - صنف رئيسي</option>
                       <option value="missing_side">نقص/عدم توفر - صنف جانبي</option>
                       <option value="overcooked">محروق / مطبوخ زيادة</option>
                       <option value="undercooked">ناقص الطهي</option>
-                      <option value="smell">رائحة كريهة</option>
-                      <option value="hair">شعر في الطعام</option>
-                      <option value="inedible">طعام غير صالح للأكل</option>
+                      <option value="foul_smell">رائحة كريهة</option>
+                      <option value="hair_food">شعر في الطعام</option>
+                      <option value="not_edible">طعام غير صالح للأكل</option>
                       <option value="other">أخرى</option>
                     </select>
                   </div>
@@ -452,6 +653,7 @@
                   <div class="col-md-6 mb-3">
                     <label for="status" class="form-label" id="statusLabel">الحالة</label>
                     <select id="status" class="form-control">
+                      <option value="Deducted">مسترد</option>
                       <option value="pending">قيد الانتظار</option>
                       <option value="responded">تم الرد</option>
                       <option value="resolved">تم الحل</option>
@@ -516,1592 +718,847 @@
       </div>
     </div>
   </div>
-
-  <!-- Cases Table -->
-  <div class="table-responsive">
-    <table id="casesTable" class="table table-bordered table-striped mt-3 text-center align-middle">
-      <thead class="table-dark">
-        <tr>
-          <th id="thOrderId">رقم الطلب</th>
-          <th id="thOutlet">الفرع</th>
-          <th id="thOrderDate">تاريخ الطلب</th>
-          <th id="thRefundDate">تاريخ الاسترداد</th>
-          <th id="thBasketAmount">إجمالي السلة</th>
-          <th id="thRefundAmount">المبلغ المسترد</th>
-          <th id="thStatus">الحالة</th>
-          <th id="thReason">السبب</th>
-          <th id="thActions">إجراءات</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
-
+  
   <!-- Toast Container -->
   <div class="toast-container"></div>
-
+  
+  <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
   <script>
-    // Language translations with email templates
-    const translations = {
-      ar: {
-        systemTitle: "نظام إدارة التعويضات",
-        totalCasesTitle: "إجمالي الحالات",
-        pendingTitle: "قيد الانتظار",
-        resolvedTitle: "تم الحل",
-        disputedTitle: "متنازع عليها",
-        underReviewTitle: "قيد المراجعة",
-        totalAmountTitle: "إجمالي المبلغ",
-        addCaseBtn: "➕ إضافة حالة جديدة",
-        exportBtn: "تصدير البيانات",
-        filterAll: "الكل",
-        filterPending: "قيد الانتظار",
-        filterResponded: "تم الرد",
-        filterResolved: "تم الحل",
-        filterDisputed: "متنازع عليها",
-        filterUnderReview: "قيد المراجعة",
-        filterRejected: "مرفوض",
-        modalTitleAdd: "إضافة حالة جديدة",
-        modalTitleEdit: "تعديل حالة",
-        orderIdLabel: "رقم الطلب",
-        outletLabel: "الفرع",
-        orderDateLabel: "تاريخ الطلب",
-        partnerLabel: "الشريك",
-        referenceIdLabel: "رقم المرجع",
-        itemsTitle: "العناصر",
-        quantityLabel: "الكمية",
-        itemNameLabel: "اسم العنصر",
-        itemCategoryLabel: "الفئة",
-        itemPriceLabel: "السعر",
-        itemDescriptionLabel: "الوصف",
-        addItemBtn: "إضافة عنصر",
-        financialTitle: "التفاصيل المالية",
-        basketAmountLabel: "إجمالي السلة",
-        promoCodeLabel: "رمز العرض",
-        promoAmountLabel: "قيمة العرض",
-        totalAmountLabel: "الإجمالي",
-        deductedAmountLabel: "المبلغ المسترد",
-        refundDateLabel: "تاريخ الاسترداد",
-        locationLabel: "الموقع",
-        reasonTitle: "السبب وملاحظات العميل",
-        reasonLabel: "السبب الرئيسي",
-        customerReasonLabel: "سبب العميل",
-        selectedItemsLabel: "العناصر المحددة من العميل",
-        noItemsSelected: "لا توجد عناصر محددة",
-        customerNotesLabel: "ملاحظات العميل",
-        itemImageLabel: "صورة العنصر",
-        responseTitle: "الرد على العميل",
-        responseLabel: "نص الرد",
-        responseDateLabel: "تاريخ الرد",
-        statusLabel: "الحالة",
-        disputeTitle: "نزاع و أدلة",
-        isDisputedLabel: "تم رفع نزاع بشأن هذه الحالة",
-        disputeReasonLabel: "سبب النزاع",
-        evidenceLabel: "الأدلة (صور أو فيديو)",
-        noEvidence: "لا توجد أدلة مضافة",
-        emailTemplateLabel: "نموذج البريد الإلكتروني",
-        useDefaultTemplateLabel: "استخدام النموذج الافتراضي",
-        emailPreviewTitle: "معاينة البريد الإلكتروني:",
-        cancelBtn: "إلغاء",
-        saveBtn: "💾 حفظ",
-        editBtn: "✏️ تعديل",
-        deleteBtn: "🗑️ حذف",
-        confirmDelete: "⚠️ هل أنت متأكد أنك تريد حذف هذه الحالة؟",
-        orderIdError: "يرجى إدخال رقم الطلب",
-        successSave: "تم حفظ الحالة بنجاح",
-        successDelete: "تم حذف الحالة بنجاح",
-        noData: "لا توجد حالات مسجلة",
-        searchPlaceholder: "بحث في الحالات...",
-        thOrderId: "رقم الطلب",
-        thOutlet: "الفرع",
-        thOrderDate: "تاريخ الطلب",
-        thRefundDate: "تاريخ الاسترداد",
-        thBasketAmount: "إجمالي السلة",
-        thRefundAmount: "المبلغ المسترد",
-        thReason: "السبب",
-        thStatus: "الحالة",
-        thActions: "إجراءات",
-        langToggleText: "English",
-        viewModeText: "عرض مفصل",
-        simplifiedFormTitle: "النموذج المبسط",
-        simpleOrderIdLabel: "رقم الطلب",
-        simpleOutletLabel: "الفرع",
-        simpleOrderDateLabel: "تاريخ الطلب",
-        simpleRefundDateLabel: "تاريخ الاسترداد",
-        simpleBasketAmountLabel: "إجمالي السلة",
-        simpleRefundAmountLabel: "المبلغ المسترد",
-        simpleReasonLabel: "السبب",
-        simpleStatusLabel: "الحالة",
-        reasonSpilled: "انسكاب / تضرر",
-        reasonWrong: "إرسال صنف خاطئ",
-        reasonMissingMain: "نقص/عدم توفر - صنف رئيسي",
-        reasonMissingSide: "نقص/عدم توفر - صنف جانبي",
-        reasonOvercooked: "محروق / مطبوخ زيادة",
-        reasonUndercooked: "ناقص الطهي",
-        reasonSmell: "رائحة كريهة",
-        reasonHair: "شعر في الطعام",
-        reasonInedible: "طعام غير صالح للأكل",
-        reasonOther: "أخرى",
-        statusPending: "قيد الانتظار",
-        statusResponded: "تم الرد",
-        statusResolved: "تم الحل",
-        statusDisputed: "متنازع عليها",
-        statusUnderReview: "قيد المراجعة",
-        statusRejected: "مرفوض",
-        orderInfoTitle: "معلومات الطلب",
-        emailTemplates: {
-          spilled: `فريق كريم المحترم،
-
-نود إثارة نزاع بخصوص الطلب التالي:
-رقم المرجع: {referenceId}
-التاريخ: {orderDate}
-الموقع: {location}
-مبلغ الطلب (درهم إماراتي): {totalAmount}
-
-تم تحضير الطلب وتسليمه في حالة جيدة.
-الضرر المبلغ عنه حدث أثناء التسليم بسبب سوء معاملة السائق، وليس من الفرع.
-نرجو منكم مراجعة هذه الحالة وإلغاء الخصم.
-
-مع خالص التقدير،
-{managerName}
-مدير مركز الاتصال | {restaurantName}
-📞 {managerPhone}
-✉️ {managerEmail}`,
-          wrong: `فريق كريم المحترم،
-
-نود نزاع الخصم المطبق على الطلب التالي:
-رقم المرجع: {referenceId}
-التاريخ: {orderDate}
-الموقع: {location}
-مبلغ الطلب (درهم إماراتي): {totalAmount}
-
-يؤكد الفرع أن الطلب تم تعبئته بشكل صحيح وفقًا لإيصال النظام.
-إذا تم استلام عنصر خاطئ، فقد تكون هذه المشكلة قد حدثت أثناء المعالجة بعد الاستلام.
-نطلب مراجعتكم وإلغاء هذا الخصم.
-
-مع خالص التقدير،
-{managerName}
-مدير مركز الاتصال | {restaurantName}
-📞 {managerPhone}
-✉️ {managerEmail}`,
-          missing_main: `فريق كريم المحترم،
-
-نود إثارة نزاع بخصوص الطلب التالي:
-رقم المرجع: {referenceId}
-التاريخ: {orderDate}
-الموقع: {location}
-مبلغ الطلب (درهم إماراتي): {totalAmount}
-
-يؤكد الفرع أنه تم تعبئة جميع العناصر، بما في ذلك العنصر الرئيسي، وتسليمها.
-أي ادعاء بوجود عنصر مفقود ليس بسبب خطأ من الفرع ولكن قد يكون مشكلة في معالجة التسليم.
-نرجو منكم مراجعة وإلغاء هذا الخصم.
-
-مع خالص التقدير،
-{managerName}
-مدير مركز الاتصال | {restaurantName}
-📞 {managerPhone}
-✉️ {managerEmail}`,
-          missing_side: `فريق كريم المحترم،
-
-نود نزاع الخصم للطلب التالي:
-رقم المرجع: {referenceId}
-التاريخ: {orderDate}
-الموقع: {location}
-مبلغ الطلب (درهم إماراتي): {totalAmount}
-
-يؤكد الفرع أنه تم تضمين جميع العناصر الجانبية وتسليمها بشكل صحيح.
-ادعاء وجود عنصر جانبي مفقود غير صحيح ضد الفرع.
-نطلب مراجعتكم وإلغاء هذا الخصم.
-
-مع خالص التقدير،
-{managerName}
-مدير مركز الاتصال | {restaurantName}
-📞 {managerPhone}
-✉️ {managerEmail}`,
-          overcooked: `فريق كريم المحترم،
-
-نود إثارة نزاع بخصوص الطلب التالي:
-رقم المرجع: {referenceId}
-التاريخ: {orderDate}
-الموقع: {location}
-مبلغ الطلب (درهم إماراتي): {totalAmount}
-
-يتبع الفرع إجراءات صارمة لمراقبة الجودة ويتحقق من حالة الطعام قبل التسليم.
-ادعاء الطعام محروق/مطبوخ أكثر من اللازم غير مبرر لأن العنصر غادر الفرع في حالة جيدة.
-نطلب مراجعة وإلغاء هذا الخصم.
-
-مع خالص التقدير،
-{managerName}
-مدير مركز الاتصال | {restaurantName}
-📞 {managerPhone}
-✉️ {managerEmail}`,
-          undercooked: `فريق كريم المحترم،
-
-نود نزاع الخصم على الطلب التالي:
-رقم المرجع: {referenceId}
-التاريخ: {orderDate}
-الموقع: {location}
-مبلغ الطلب (درهم إماراتي): {totalAmount}
-
-يضمن فريق المطبخ طهي جميع الطعام وفقًا للمعايير قبل التعبئة.
-ادعاء الطعام غير ناضج غير متسق مع عملية التحضير لدينا.
-نطلب مراجعتكم اللطيفة وإلغاء هذا الخصم.
-
-مع خالص التقدير،
-{managerName}
-مدير مركز الاتصال | {restaurantName}
-📞 {managerPhone}
-✉️ {managerEmail}`,
-          smell: `فريق كريم المحترم،
-
-نود إثارة نزاع بخصوص الطلب التالي:
-رقم المرجع: {referenceId}
-التاريخ: {orderDate}
-الموقع: {location}
-مبلغ الطلب (درهم إماراتي): {totalAmount}
-
-يضمن الفرع جودة الطعام وطزاجته عند التحضير.
-أي ادعاء برائحة كريهة غير مرتبط بالفرع حيث تم تحضير الطلب وإرساله في الوقت المحدد.
-نطلب مراجعة وإلغاء هذا الخصم.
-
-مع خالص التقدير،
-{managerName}
-مدير مركز الاتصال | {restaurantName}
-📞 {managerPhone}
-✉️ {managerEmail}`,
-          hair: `فريق كريم المحترم،
-
-نود نزاع الخصم المطبق على الطلب التالي:
-رقم المرجع: {referenceId}
-التاريخ: {orderDate}
-الموقع: {location}
-مبلغ الطلب (درهم إماراتي): {totalAmount}
-
-يتبع الفرع معايير نظافة صارمة أثناء تحضير الطعام والتعبئة.
-ادعاء وجود شعر في الطعام غير متسق مع ممارسات المطبخ لدينا.
-نطلب مراجعتكم وإلغاء هذا الخصم.
-
-مع خالص التقدير،
-{managerName}
-مدير مركز الاتصال | {restaurantName}
-📞 {managerPhone}
-✉️ {managerEmail}`,
-          inedible: `فريق كريم المحترم،
-
-نود إثارة نزاع بخصوص الطلب التالي:
-رقم المرجع: {referenceId}
-التاريخ: {orderDate}
-الموقع: {location}
-مبلغ الطلب (درهم إماراتي): {totalAmount}
-
-تم تحضير الطعام وتسليمه في حالة جيدة وتلبية معايير الجودة لدينا.
-ادعاء أن الطعام غير صالح للأكل غير دقيق.
-نرجو منكم مراجعة وإلغاء هذا الخصم.
-
-مع خالص التقدير،
-{managerName}
-مدير مركز الاتصال | {restaurantName}
-📞 {managerPhone}
-✉️ {managerEmail}`
-        }
-      },
-      en: {
-        systemTitle: "Compensation Management System",
-        totalCasesTitle: "Total Cases",
-        pendingTitle: "Pending",
-        resolvedTitle: "Resolved",
-        disputedTitle: "Disputed",
-        underReviewTitle: "Under Review",
-        totalAmountTitle: "Total Amount",
-        addCaseBtn: "➕ Add New Case",
-        exportBtn: "Export Data",
-        filterAll: "All",
-        filterPending: "Pending",
-        filterResponded: "Responded",
-        filterResolved: "Resolved",
-        filterDisputed: "Disputed",
-        filterUnderReview: "Under Review",
-        filterRejected: "Rejected",
-        modalTitleAdd: "Add New Case",
-        modalTitleEdit: "Edit Case",
-        orderIdLabel: "Order ID",
-        outletLabel: "Outlet",
-        orderDateLabel: "Order Date",
-        partnerLabel: "Partner",
-        referenceIdLabel: "Reference ID",
-        itemsTitle: "Items",
-        quantityLabel: "Quantity",
-        itemNameLabel: "Item Name",
-        itemCategoryLabel: "Category",
-        itemPriceLabel: "Price",
-        itemDescriptionLabel: "Description",
-        addItemBtn: "Add Item",
-        financialTitle: "Financial Details",
-        basketAmountLabel: "Basket Amount",
-        promoCodeLabel: "Promo Code",
-        promoAmountLabel: "Promo Amount",
-        totalAmountLabel: "Total",
-        deductedAmountLabel: "Refund Amount",
-        refundDateLabel: "Refund Date",
-        locationLabel: "Location",
-        reasonTitle: "Reason and Customer Feedback",
-        reasonLabel: "Main Reason",
-        customerReasonLabel: "Customer Reason",
-        selectedItemsLabel: "Customer Selected Items",
-        noItemsSelected: "No items selected",
-        customerNotesLabel: "Customer Notes",
-        itemImageLabel: "Item Image",
-        responseTitle: "Response to Customer",
-        responseLabel: "Response Text",
-        responseDateLabel: "Response Date",
-        statusLabel: "Status",
-        disputeTitle: "Dispute & Evidence",
-        isDisputedLabel: "A dispute has been raised for this case",
-        disputeReasonLabel: "Dispute Reason",
-        evidenceLabel: "Evidence (Images or Videos)",
-        noEvidence: "No evidence added",
-        emailTemplateLabel: "Email Template",
-        useDefaultTemplateLabel: "Use Default Template",
-        emailPreviewTitle: "Email Preview:",
-        cancelBtn: "Cancel",
-        saveBtn: "💾 Save",
-        editBtn: "✏️ Edit",
-        deleteBtn: "🗑️ Delete",
-        confirmDelete: "⚠️ Are you sure you want to delete this case?",
-        orderIdError: "Please enter an order ID",
-        successSave: "Case saved successfully",
-        successDelete: "Case deleted successfully",
-        noData: "No cases recorded",
-        searchPlaceholder: "Search cases...",
-        thOrderId: "Order ID",
-        thOutlet: "Outlet",
-        thOrderDate: "Order Date",
-        thRefundDate: "Refund Date",
-        thBasketAmount: "Basket Amount",
-        thRefundAmount: "Refund Amount",
-        thReason: "Reason",
-        thStatus: "Status",
-        thActions: "Actions",
-        langToggleText: "العربية",
-        viewModeText: "Detailed View",
-        simplifiedFormTitle: "Simplified Form",
-        simpleOrderIdLabel: "Order ID",
-        simpleOutletLabel: "Outlet",
-        simpleOrderDateLabel: "Order Date",
-        simpleRefundDateLabel: "Refund Date",
-        simpleBasketAmountLabel: "Basket Amount",
-        simpleRefundAmountLabel: "Refund Amount",
-        simpleReasonLabel: "Reason",
-        simpleStatusLabel: "Status",
-        reasonSpilled: "Spilled / Damaged",
-        reasonWrong: "Wrong Item Sent",
-        reasonMissingMain: "Missing / Unavailable Item (Main Item)",
-        reasonMissingSide: "Missing / Unavailable Item (Side Item)",
-        reasonOvercooked: "Overcooked / Burnt",
-        reasonUndercooked: "Undercooked",
-        reasonSmell: "Foul Smell",
-        reasonHair: "Hair in the Food",
-        reasonInedible: "Food Not Edible",
-        reasonOther: "Other",
-        statusPending: "Pending",
-        statusResponded: "Responded",
-        statusResolved: "Resolved",
-        statusDisputed: "Disputed",
-        statusUnderReview: "Under Review",
-        statusRejected: "Rejected",
-        orderInfoTitle: "Order Information",
-        emailTemplates: {
-          spilled: `Dear Careem Team,
-
-We would like to raise a dispute regarding the following order:
-Reference ID: {referenceId}
-Date: {orderDate}
-Location: {location}
-Order Amount (AED): {totalAmount}
-
-The order was prepared and handed over in proper condition. 
-The reported damage occurred during delivery due to the driver's mishandling, not from the outlet.
-We kindly request you to review this case and reverse the deduction.
-
-Best regards,
-{managerName}
-Call Center Manager | {restaurantName}
-📞 {managerPhone}
-✉️ {managerEmail}`,
-          wrong: `Dear Careem Team,
-
-We would like to dispute the deduction applied to the following order:
-Reference ID: {referenceId}
-Date: {orderDate}
-Location: {location}
-Order Amount (AED): {totalAmount}
-
-The outlet confirms that the order was packed correctly as per the system receipt. 
-If the wrong item was received, this issue may have occurred during handling after pickup.
-We request your review and reversal of this deduction.
-
-Best regards,
-{managerName}
-Call Center Manager | {restaurantName}
-📞 {managerPhone}
-✉️ {managerEmail}`,
-          missing_main: `Dear Careem Team,
-
-We would like to raise a dispute regarding the following order:
-Reference ID: {referenceId}
-Date: {orderDate}
-Location: {location}
-Order Amount (AED): {totalAmount}
-
-The outlet confirms that all items, including the main item, were packed and handed over. 
-Any missing item claim is not due to outlet error but could be a delivery handling issue.
-We kindly request you to review and reverse this deduction.
-
-Best regards,
-{managerName}
-Call Center Manager | {restaurantName}
-📞 {managerPhone}
-✉️ {managerEmail}`,
-          missing_side: `Dear Careem Team,
-
-We would like to dispute the deduction for the following order:
-Reference ID: {referenceId}
-Date: {orderDate}
-Location: {location}
-Order Amount (AED): {totalAmount}
-
-The outlet confirms that all side items were included and handed over properly. 
-The claim of a missing side item is not valid against the outlet. 
-We request your review and reversal of this deduction.
-
-Best regards,
-{managerName}
-Call Center Manager | {restaurantName}
-📞 {managerPhone}
-✉️ {managerEmail}`,
-          overcooked: `Dear Careem Team,
-
-We would like to raise a dispute regarding the following order:
-Reference ID: {referenceId}
-Date: {orderDate}
-Location: {location}
-Order Amount (AED): {totalAmount}
-
-The outlet follows strict quality control and verifies food condition before handover. 
-The claim of overcooked/burnt food is not justified as the item left the outlet in proper condition.
-We request a review and reversal of this deduction.
-
-Best regards,
-{managerName}
-Call Center Manager | {restaurantName}
-📞 {managerPhone}
-✉️ {managerEmail}`,
-          undercooked: `Dear Careem Team,
-
-We would like to dispute the deduction on the following order:
-Reference ID: {referenceId}
-Date: {orderDate}
-Location: {location}
-Order Amount (AED): {totalAmount}
-
-Our kitchen team ensures all food is cooked to standard before packing. 
-The claim of undercooked food is not consistent with our preparation process. 
-We request your kind review and reversal of this deduction.
-
-Best regards,
-{managerName}
-Call Center Manager | {restaurantName}
-📞 {managerPhone}
-✉️ {managerEmail}`,
-          smell: `Dear Careem Team,
-
-We would like to raise a dispute regarding the following order:
-Reference ID: {referenceId}
-Date: {orderDate}
-Location: {location}
-Order Amount (AED): {totalAmount}
-
-The outlet guarantees food quality and freshness upon preparation. 
-Any claim of foul smell is unrelated to the outlet as the order was prepared and dispatched on time. 
-We request a review and reversal of this deduction.
-
-Best regards,
-{managerName}
-Call Center Manager | {restaurantName}
-📞 {managerPhone}
-✉️ {managerEmail}`,
-          hair: `Dear Careem Team,
-
-We would like to dispute the deduction applied to the following order:
-Reference ID: {referenceId}
-Date: {orderDate}
-Location: {location}
-Order Amount (AED): {totalAmount}
-
-The outlet follows strict hygiene standards during food preparation and packing. 
-The claim of hair in the food is not consistent with our kitchen practices. 
-We request your review and reversal of this deduction.
-
-Best regards,
-{managerName}
-Call Center Manager | {restaurantName}
-📞 {managerPhone}
-✉️ {managerEmail}`,
-          inedible: `Dear Careem Team,
-
-We would like to raise a dispute regarding the following order:
-Reference ID: {referenceId}
-Date: {orderDate}
-Location: {location}
-Order Amount (AED): {totalAmount}
-
-The food was prepared and handed over in proper condition and met our quality standards. 
-The claim that the food was not edible is not accurate. 
-We kindly request your review and reversal of this deduction.
-
-Best regards,
-{managerName}
-Call Center Manager | {restaurantName}
-📞 {managerPhone}
-✉️ {managerEmail}`
-        }
-      }
-    };
+    // Sample data
+    const sampleData = [
+      {"orderId":"127585858","outletId":"1057122","outletArea":"Al Rawdah","orderDateTime":"31 Aug 2025, 01:23 PM","refundDateTime":"31 Aug 2025, 02:16 PM","basketAmount":"AED 25.98","refundAmount":"- AED 18.50","status":"Deducted","reason":"Spilled / damaged","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127550563","outletId":"1066777","outletArea":"Al Danah","orderDateTime":"31 Aug 2025, 02:21 AM","refundDateTime":"31 Aug 2025, 04:31 AM","basketAmount":"AED 21.20","refundAmount":"- AED 20.00","status":"Deducted","reason":"Spilled / damaged","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127546624","outletId":"1057123","outletArea":"Mohammed Bin Zayed City","orderDateTime":"31 Aug 2025, 12:50 AM","refundDateTime":"31 Aug 2025, 03:06 AM","basketAmount":"AED 16.20","refundAmount":"- AED 15.00","status":"Deducted","reason":"Wrong item sent","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127549931","outletId":"1066777","outletArea":"Al Danah","orderDateTime":"31 Aug 2025, 02:03 AM","refundDateTime":"31 Aug 2025, 02:58 AM","basketAmount":"AED 21.06","refundAmount":"- AED 19.50","status":"Deducted","reason":"Missing or unavailable items (Main item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127548427","outletId":"1057118","outletArea":"Al Danah","orderDateTime":"31 Aug 2025, 01:27 AM","refundDateTime":"31 Aug 2025, 02:54 AM","basketAmount":"AED 21.60","refundAmount":"- AED 20.00","status":"Deducted","reason":"Spilled / damaged","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127548066","outletId":"1050334","outletArea":"Al Barsha 1","orderDateTime":"31 Aug 2025, 01:18 AM","refundDateTime":"31 Aug 2025, 02:27 AM","basketAmount":"AED 22.00","refundAmount":"- AED 20.00","status":"Deducted","reason":"Spilled / damaged","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127546576","outletId":"1057123","outletArea":"Mohammed Bin Zayed City","orderDateTime":"31 Aug 2025, 12:49 AM","refundDateTime":"31 Aug 2025, 02:27 AM","basketAmount":"AED 16.20","refundAmount":"- AED 15.00","status":"Deducted","reason":"Wrong item sent","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127548103","outletId":"1050334","outletArea":"Al Barsha 1","orderDateTime":"31 Aug 2025, 01:19 AM","refundDateTime":"31 Aug 2025, 02:22 AM","basketAmount":"AED 17.05","refundAmount":"- AED 15.50","status":"Deducted","reason":"Spilled / damaged","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127546682","outletId":"1057118","outletArea":"Al Danah","orderDateTime":"31 Aug 2025, 12:51 AM","refundDateTime":"31 Aug 2025, 02:13 AM","basketAmount":"AED 21.60","refundAmount":"- AED 20.00","status":"Deducted","reason":"Missing or unavailable items (Main item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127547204","outletId":"1057118","outletArea":"Al Danah","orderDateTime":"31 Aug 2025, 01:01 AM","refundDateTime":"31 Aug 2025, 02:13 AM","basketAmount":"AED 23.68","refundAmount":"- AED 8.25","status":"Deducted","reason":"Missing or unavailable items (Main item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127546522","outletId":"1057123","outletArea":"Mohammed Bin Zayed City","orderDateTime":"31 Aug 2025, 12:48 AM","refundDateTime":"31 Aug 2025, 01:37 AM","basketAmount":"AED 16.20","refundAmount":"- AED 15.00","status":"Deducted","reason":"Wrong item sent","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127545392","outletId":"1057123","outletArea":"Mohammed Bin Zayed City","orderDateTime":"31 Aug 2025, 12:31 AM","refundDateTime":"31 Aug 2025, 01:18 AM","basketAmount":"AED 21.06","refundAmount":"- AED 19.50","status":"Deducted","reason":"Missing or unavailable items (Main item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127545426","outletId":"1057120","outletArea":"Al Markaziyah","orderDateTime":"31 Aug 2025, 12:31 AM","refundDateTime":"31 Aug 2025, 01:04 AM","basketAmount":"AED 17.82","refundAmount":"- AED 16.50","status":"Deducted","reason":"Spilled / damaged","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127541812","outletId":"1066777","outletArea":"Al Danah","orderDateTime":"30 Aug 2025, 11:42 PM","refundDateTime":"31 Aug 2025, 12:29 AM","basketAmount":"AED 16.74","refundAmount":"- AED 11.00","status":"Deducted","reason":"Missing or unavailable items (Main item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127541359","outletId":"1057118","outletArea":"Al Danah","orderDateTime":"30 Aug 2025, 11:37 PM","refundDateTime":"31 Aug 2025, 12:15 AM","basketAmount":"AED 21.20","refundAmount":"- AED 5.00","status":"Deducted","reason":"Missing or unavailable items (Main item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127533805","outletId":"1057122","outletArea":"Al Rawdah","orderDateTime":"30 Aug 2025, 10:24 PM","refundDateTime":"30 Aug 2025, 11:35 PM","basketAmount":"AED 16.74","refundAmount":"- AED 15.50","status":"Deducted","reason":"My Food is not edible (SelfServe)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127534844","outletId":"1057118","outletArea":"Al Danah","orderDateTime":"30 Aug 2025, 10:33 PM","refundDateTime":"30 Aug 2025, 11:20 PM","basketAmount":"AED 26.80","refundAmount":"- AED 25.00","status":"Deducted","reason":"Missing or unavailable items (Main item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127532965","outletId":"1050334","outletArea":"Al Barsha 1","orderDateTime":"30 Aug 2025, 10:18 PM","refundDateTime":"30 Aug 2025, 11:14 PM","basketAmount":"AED 95.70","refundAmount":"- AED 51.50","status":"Deducted","reason":"Spilled / damaged","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127532321","outletId":"1057122","outletArea":"Al Rawdah","orderDateTime":"30 Aug 2025, 10:12 PM","refundDateTime":"30 Aug 2025, 11:05 PM","basketAmount":"AED 19.44","refundAmount":"- AED 18.00","status":"Deducted","reason":"Spilled / damaged","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127530859","outletId":"1057122","outletArea":"Al Rawdah","orderDateTime":"30 Aug 2025, 10:01 PM","refundDateTime":"30 Aug 2025, 10:36 PM","basketAmount":"AED 16.20","refundAmount":"- AED 15.00","status":"Deducted","reason":"Missing or unavailable items (Main item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127524871","outletId":"1061662","outletArea":"Al Satwa","orderDateTime":"30 Aug 2025, 09:20 PM","refundDateTime":"30 Aug 2025, 10:31 PM","basketAmount":"AED 20.90","refundAmount":"- AED 5.00","status":"Deducted","reason":"Spilled / damaged","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127526895","outletId":"1066777","outletArea":"Al Danah","orderDateTime":"30 Aug 2025, 09:34 PM","refundDateTime":"30 Aug 2025, 10:18 PM","basketAmount":"AED 16.20","refundAmount":"- AED 15.00","status":"Deducted","reason":"Missing or unavailable items (Main item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127515454","outletId":"1050334","outletArea":"Al Barsha 1","orderDateTime":"30 Aug 2025, 08:25 PM","refundDateTime":"30 Aug 2025, 09:33 PM","basketAmount":"AED 17.05","refundAmount":"- AED 15.50","status":"Deducted","reason":"Spilled / damaged","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127518108","outletId":"1057120","outletArea":"Al Markaziyah","orderDateTime":"30 Aug 2025, 08:40 PM","refundDateTime":"30 Aug 2025, 09:16 PM","basketAmount":"AED 19.44","refundAmount":"- AED 12.00","status":"Deducted","reason":"Wrong item sent","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127510864","outletId":"1066777","outletArea":"Al Danah","orderDateTime":"30 Aug 2025, 07:59 PM","refundDateTime":"30 Aug 2025, 08:52 PM","basketAmount":"AED 33.88","refundAmount":"- AED 32.00","status":"Deducted","reason":"Missing or unavailable items (Main item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127513797","outletId":"1057118","outletArea":"Al Danah","orderDateTime":"30 Aug 2025, 08:15 PM","refundDateTime":"30 Aug 2025, 08:41 PM","basketAmount":"AED 32.00","refundAmount":"- AED 25.00","status":"Deducted","reason":"Missing or unavailable items (Main item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127495845","outletId":"1061662","outletArea":"Al Satwa","orderDateTime":"30 Aug 2025, 06:32 PM","refundDateTime":"30 Aug 2025, 07:59 PM","basketAmount":"AED 23.05","refundAmount":"- AED 8.00","status":"Deducted","reason":"Missing or unavailable items (Main item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127500423","outletId":"1066777","outletArea":"Al Danah","orderDateTime":"30 Aug 2025, 07:00 PM","refundDateTime":"30 Aug 2025, 07:51 PM","basketAmount":"AED 16.74","refundAmount":"- AED 15.50","status":"Deducted","reason":"Food is overcooked/burnt","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127500279","outletId":"1057120","outletArea":"Al Markaziyah","orderDateTime":"30 Aug 2025, 06:59 PM","refundDateTime":"30 Aug 2025, 07:36 PM","basketAmount":"AED 20.52","refundAmount":"- AED 19.00","status":"Deducted","reason":"Missing or unavailable items (Main item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127497801","outletId":"1057120","outletArea":"Al Markaziyah","orderDateTime":"30 Aug 2025, 06:44 PM","refundDateTime":"30 Aug 2025, 07:17 PM","basketAmount":"AED 19.98","refundAmount":"- AED 18.50","status":"Deducted","reason":"Missing or unavailable items (Main item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127490479","outletId":"1057118","outletArea":"Al Danah","orderDateTime":"30 Aug 2025, 05:56 PM","refundDateTime":"30 Aug 2025, 06:59 PM","basketAmount":"AED 29.92","refundAmount":"- AED 5.00","status":"Deducted","reason":"Spilled / damaged","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127411504","outletId":"1057123","outletArea":"Mohammed Bin Zayed City","orderDateTime":"29 Aug 2025, 11:51 PM","refundDateTime":"30 Aug 2025, 06:59 PM","basketAmount":"AED 25.82","refundAmount":"- AED 24.50","status":"Deducted","reason":"Spilled / damaged","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127489255","outletId":"1057120","outletArea":"Al Markaziyah","orderDateTime":"30 Aug 2025, 05:47 PM","refundDateTime":"30 Aug 2025, 06:34 PM","basketAmount":"AED 21.60","refundAmount":"- AED 20.00","status":"Deducted","reason":"Food is undercooked","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127481062","outletId":"1057123","outletArea":"Mohammed Bin Zayed City","orderDateTime":"30 Aug 2025, 04:45 PM","refundDateTime":"30 Aug 2025, 05:52 PM","basketAmount":"AED 35.12","refundAmount":"- AED 8.25","status":"Deducted","reason":"Missing or unavailable items (Main item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127480993","outletId":"1057120","outletArea":"Al Markaziyah","orderDateTime":"30 Aug 2025, 04:45 PM","refundDateTime":"30 Aug 2025, 05:26 PM","basketAmount":"AED 16.74","refundAmount":"- AED 15.50","status":"Deducted","reason":"Missing or unavailable items (Main item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127471364","outletId":"1057118","outletArea":"Al Danah","orderDateTime":"30 Aug 2025, 03:28 PM","refundDateTime":"30 Aug 2025, 04:55 PM","basketAmount":"AED 21.60","refundAmount":"- AED 2.00","status":"Deducted","reason":"Missing or unavailable items (Side item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127472350","outletId":"1057123","outletArea":"Mohammed Bin Zayed City","orderDateTime":"30 Aug 2025, 03:36 PM","refundDateTime":"30 Aug 2025, 04:52 PM","basketAmount":"AED 19.98","refundAmount":"- AED 8.25","status":"Deducted","reason":"Missing or unavailable items (Main item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127466629","outletId":"1061662","outletArea":"Al Satwa","orderDateTime":"30 Aug 2025, 02:52 PM","refundDateTime":"30 Aug 2025, 04:13 PM","basketAmount":"AED 25.15","refundAmount":"- AED 23.00","status":"Deducted","reason":"Spilled / damaged","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127450735","outletId":"1057122","outletArea":"Al Rawdah","orderDateTime":"30 Aug 2025, 12:57 PM","refundDateTime":"30 Aug 2025, 02:20 PM","basketAmount":"AED 141.95","refundAmount":"- AED 138.00","status":"Deducted","reason":"Wrong item sent","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127418470","outletId":"1061662","outletArea":"Al Satwa","orderDateTime":"30 Aug 2025, 01:53 AM","refundDateTime":"30 Aug 2025, 03:35 AM","basketAmount":"AED 19.80","refundAmount":"- AED 18.00","status":"Deducted","reason":"Spilled / damaged","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127419382","outletId":"1066777","outletArea":"Al Danah","orderDateTime":"30 Aug 2025, 02:17 AM","refundDateTime":"30 Aug 2025, 02:57 AM","basketAmount":"AED 16.20","refundAmount":"- AED 15.00","status":"Deducted","reason":"Wrong item sent","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127417098","outletId":"1057118","outletArea":"Al Danah","orderDateTime":"30 Aug 2025, 01:21 AM","refundDateTime":"30 Aug 2025, 02:37 AM","basketAmount":"AED 21.60","refundAmount":"- AED 20.00","status":"Deducted","reason":"Missing or unavailable items (Main item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127412534","outletId":"1061662","outletArea":"Al Satwa","orderDateTime":"30 Aug 2025, 12:06 AM","refundDateTime":"30 Aug 2025, 01:30 AM","basketAmount":"AED 35.30","refundAmount":"- AED 33.00","status":"Deducted","reason":"Wrong item sent","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127411520","outletId":"1057120","outletArea":"Al Markaziyah","orderDateTime":"29 Aug 2025, 11:52 PM","refundDateTime":"30 Aug 2025, 12:53 AM","basketAmount":"AED 23.68","refundAmount":"- AED 22.00","status":"Deducted","reason":"Missing or unavailable items (Main item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127412129","outletId":"1057120","outletArea":"Al Markaziyah","orderDateTime":"30 Aug 2025, 12:00 AM","refundDateTime":"30 Aug 2025, 12:38 AM","basketAmount":"AED 16.20","refundAmount":"- AED 5.00","status":"Deducted","reason":"Spilled / damaged","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127411187","outletId":"1050334","outletArea":"Al Barsha 1","orderDateTime":"29 Aug 2025, 11:47 PM","refundDateTime":"30 Aug 2025, 12:29 AM","basketAmount":"AED 20.35","refundAmount":"- AED 18.50","status":"Deducted","reason":"Spilled / damaged","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127403125","outletId":"1061662","outletArea":"Al Satwa","orderDateTime":"29 Aug 2025, 10:26 PM","refundDateTime":"30 Aug 2025, 12:22 AM","basketAmount":"AED 22.00","refundAmount":"- AED 20.00","status":"Deducted","reason":"Food is undercooked","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127407564","outletId":"1066777","outletArea":"Al Danah","orderDateTime":"29 Aug 2025, 11:07 PM","refundDateTime":"29 Aug 2025, 11:47 PM","basketAmount":"AED 19.44","refundAmount":"- AED 18.00","status":"Deducted","reason":"Spilled / damaged","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127405770","outletId":"1057118","outletArea":"Al Danah","orderDateTime":"29 Aug 2025, 10:49 PM","refundDateTime":"29 Aug 2025, 11:32 PM","basketAmount":"AED 17.28","refundAmount":"- AED 16.00","status":"Deducted","reason":"Wrong item sent","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127401286","outletId":"1066777","outletArea":"Al Danah","orderDateTime":"29 Aug 2025, 10:11 PM","refundDateTime":"29 Aug 2025, 10:56 PM","basketAmount":"AED 21.20","refundAmount":"- AED 10.00","status":"Deducted","reason":"Wrong item sent","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127400557","outletId":"1057118","outletArea":"Al Danah","orderDateTime":"29 Aug 2025, 10:06 PM","refundDateTime":"29 Aug 2025, 10:53 PM","basketAmount":"AED 19.44","refundAmount":"- AED 7.92","status":"Deducted","reason":"Missing or unavailable items (Main item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127401972","outletId":"1057120","outletArea":"Al Markaziyah","orderDateTime":"29 Aug 2025, 10:17 PM","refundDateTime":"29 Aug 2025, 10:51 PM","basketAmount":"AED 16.74","refundAmount":"- AED 2.00","status":"Deducted","reason":"Missing or unavailable items (Main item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127399797","outletId":"1066777","outletArea":"Al Danah","orderDateTime":"29 Aug 2025, 10:00 PM","refundDateTime":"29 Aug 2025, 10:34 PM","basketAmount":"AED 21.60","refundAmount":"- AED 20.00","status":"Deducted","reason":"Missing or unavailable items (Main item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127398238","outletId":"1057122","outletArea":"Al Rawdah","orderDateTime":"29 Aug 2025, 09:49 PM","refundDateTime":"29 Aug 2025, 10:28 PM","basketAmount":"AED 21.60","refundAmount":"- AED 12.00","status":"Deducted","reason":"Wrong item sent","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127393569","outletId":"1057118","outletArea":"Al Danah","orderDateTime":"29 Aug 2025, 09:19 PM","refundDateTime":"29 Aug 2025, 10:02 PM","basketAmount":"AED 21.60","refundAmount":"- AED 20.00","status":"Deducted","reason":"Spilled / damaged","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127391830","outletId":"1057120","outletArea":"Al Markaziyah","orderDateTime":"29 Aug 2025, 09:08 PM","refundDateTime":"29 Aug 2025, 10:02 PM","basketAmount":"AED 20.52","refundAmount":"- AED 19.00","status":"Deducted","reason":"Spilled / damaged","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127394538","outletId":"1057120","outletArea":"Al Markaziyah","orderDateTime":"29 Aug 2025, 09:24 PM","refundDateTime":"29 Aug 2025, 09:50 PM","basketAmount":"AED 16.74","refundAmount":"- AED 15.50","status":"Deducted","reason":"Spilled / damaged","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127385132","outletId":"1057118","outletArea":"Al Danah","orderDateTime":"29 Aug 2025, 08:30 PM","refundDateTime":"29 Aug 2025, 09:04 PM","basketAmount":"AED 22.64","refundAmount":"- AED 21.00","status":"Deducted","reason":"Missing or unavailable items (Main item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127372461","outletId":"1057123","outletArea":"Mohammed Bin Zayed City","orderDateTime":"29 Aug 2025, 07:25 PM","refundDateTime":"29 Aug 2025, 08:44 PM","basketAmount":"AED 71.20","refundAmount":"- AED 68.00","status":"Deducted","reason":"Hair in the food","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127366323","outletId":"1057123","outletArea":"Mohammed Bin Zayed City","orderDateTime":"29 Aug 2025, 06:52 PM","refundDateTime":"29 Aug 2025, 08:26 PM","basketAmount":"AED 24.60","refundAmount":"- AED 23.00","status":"Deducted","reason":"Missing or unavailable items (Main item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127377356","outletId":"1066777","outletArea":"Al Danah","orderDateTime":"29 Aug 2025, 07:50 PM","refundDateTime":"29 Aug 2025, 08:18 PM","basketAmount":"AED 26.60","refundAmount":"- AED 25.00","status":"Deducted","reason":"Wrong item sent","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127377967","outletId":"1066777","outletArea":"Al Danah","orderDateTime":"29 Aug 2025, 07:53 PM","refundDateTime":"29 Aug 2025, 08:15 PM","basketAmount":"AED 27.60","refundAmount":"- AED 2.00","status":"Deducted","reason":"Missing or unavailable items (Main item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127367967","outletId":"1057118","outletArea":"Al Danah","orderDateTime":"29 Aug 2025, 07:01 PM","refundDateTime":"29 Aug 2025, 07:37 PM","basketAmount":"AED 21.60","refundAmount":"- AED 20.00","status":"Deducted","reason":"Foul Smell","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127363503","outletId":"1061662","outletArea":"Al Satwa","orderDateTime":"29 Aug 2025, 06:35 PM","refundDateTime":"29 Aug 2025, 07:25 PM","basketAmount":"AED 16.50","refundAmount":"- AED 5.00","status":"Deducted","reason":"Missing or unavailable items (Main item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127361962","outletId":"1057118","outletArea":"Al Danah","orderDateTime":"29 Aug 2025, 06:26 PM","refundDateTime":"29 Aug 2025, 07:22 PM","basketAmount":"AED 16.20","refundAmount":"- AED 15.00","status":"Deducted","reason":"Spilled / damaged","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127361859","outletId":"1057120","outletArea":"Al Markaziyah","orderDateTime":"29 Aug 2025, 06:25 PM","refundDateTime":"29 Aug 2025, 07:11 PM","basketAmount":"AED 21.60","refundAmount":"- AED 9.00","status":"Deducted","reason":"Spilled / damaged","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127352318","outletId":"1057123","outletArea":"Mohammed Bin Zayed City","orderDateTime":"29 Aug 2025, 05:15 PM","refundDateTime":"29 Aug 2025, 06:38 PM","basketAmount":"AED 25.76","refundAmount":"- AED 22.00","status":"Deducted","reason":"Wrong item sent","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127343813","outletId":"1066777","outletArea":"Al Danah","orderDateTime":"29 Aug 2025, 04:00 PM","refundDateTime":"29 Aug 2025, 04:50 PM","basketAmount":"AED 23.68","refundAmount":"- AED 22.00","status":"Deducted","reason":"Missing or unavailable items (Main item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127340006","outletId":"1057118","outletArea":"Al Danah","orderDateTime":"29 Aug 2025, 03:25 PM","refundDateTime":"29 Aug 2025, 04:29 PM","basketAmount":"AED 21.60","refundAmount":"- AED 20.00","status":"Deducted","reason":"Food is undercooked","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127339369","outletId":"1057118","outletArea":"Al Danah","orderDateTime":"29 Aug 2025, 03:19 PM","refundDateTime":"29 Aug 2025, 04:17 PM","basketAmount":"AED 21.60","refundAmount":"- AED 17.00","status":"Deducted","reason":"Missing or unavailable items (Main item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127307596","outletId":"1057123","outletArea":"Mohammed Bin Zayed City","orderDateTime":"29 Aug 2025, 11:34 AM","refundDateTime":"29 Aug 2025, 01:43 PM","basketAmount":"AED 31.88","refundAmount":"- AED 10.00","status":"Deducted","reason":"Spilled / damaged","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127318420","outletId":"1057122","outletArea":"Al Rawdah","orderDateTime":"29 Aug 2025, 12:48 PM","refundDateTime":"29 Aug 2025, 01:34 PM","basketAmount":"AED 24.00","refundAmount":"- AED 21.00","status":"Deducted","reason":"Missing or unavailable items (Main item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127314263","outletId":"1057120","outletArea":"Al Markaziyah","orderDateTime":"29 Aug 2025, 12:22 PM","refundDateTime":"29 Aug 2025, 01:15 PM","basketAmount":"AED 16.20","refundAmount":"- AED 2.00","status":"Deducted","reason":"Missing or unavailable items (Side item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127288547","outletId":"1066777","outletArea":"Al Danah","orderDateTime":"29 Aug 2025, 02:18 AM","refundDateTime":"29 Aug 2025, 02:50 AM","basketAmount":"AED 26.52","refundAmount":"- AED 19.00","status":"Deducted","reason":"Spilled / damaged","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127282222","outletId":"1050334","outletArea":"Al Barsha 1","orderDateTime":"29 Aug 2025, 12:00 AM","refundDateTime":"29 Aug 2025, 01:13 AM","basketAmount":"AED 17.05","refundAmount":"- AED 15.50","status":"Deducted","reason":"Spilled / damaged","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127270624","outletId":"1057118","outletArea":"Al Danah","orderDateTime":"28 Aug 2025, 09:55 PM","refundDateTime":"28 Aug 2025, 11:02 PM","basketAmount":"AED 23.68","refundAmount":"- AED 22.00","status":"Deducted","reason":"Food is overcooked/burnt","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127269288","outletId":"1050334","outletArea":"Al Barsha 1","orderDateTime":"28 Aug 2025, 09:44 PM","refundDateTime":"28 Aug 2025, 10:53 PM","basketAmount":"AED 21.45","refundAmount":"- AED 5.00","status":"Deducted","reason":"Wrong item sent","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127255110","outletId":"1057122","outletArea":"Al Rawdah","orderDateTime":"28 Aug 2025, 08:15 PM","refundDateTime":"28 Aug 2025, 10:43 PM","basketAmount":"AED 21.60","refundAmount":"- AED 20.00","status":"Deducted","reason":"Food is undercooked","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127270636","outletId":"1057118","outletArea":"Al Danah","orderDateTime":"28 Aug 2025, 09:55 PM","refundDateTime":"28 Aug 2025, 10:36 PM","basketAmount":"AED 23.68","refundAmount":"- AED 22.00","status":"Deducted","reason":"Food is overcooked/burnt","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127270644","outletId":"1066777","outletArea":"Al Danah","orderDateTime":"28 Aug 2025, 09:55 PM","refundDateTime":"28 Aug 2025, 10:36 PM","basketAmount":"AED 23.68","refundAmount":"- AED 22.00","status":"Deducted","reason":"Spilled / damaged","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127263571","outletId":"1066777","outletArea":"Al Danah","orderDateTime":"28 Aug 2025, 09:05 PM","refundDateTime":"28 Aug 2025, 10:29 PM","basketAmount":"AED 21.60","refundAmount":"- AED 20.00","status":"Deducted","reason":"Missing or unavailable items (Main item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127269129","outletId":"1057118","outletArea":"Al Danah","orderDateTime":"28 Aug 2025, 09:43 PM","refundDateTime":"28 Aug 2025, 10:25 PM","basketAmount":"AED 24.72","refundAmount":"- AED 18.00","status":"Deducted","reason":"My Food is not edible (SelfServe)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127267223","outletId":"1050334","outletArea":"Al Barsha 1","orderDateTime":"28 Aug 2025, 09:30 PM","refundDateTime":"28 Aug 2025, 10:02 PM","basketAmount":"AED 16.50","refundAmount":"- AED 5.00","status":"Deducted","reason":"Missing or unavailable items (Main item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127247126","outletId":"1050334","outletArea":"Al Barsha 1","orderDateTime":"28 Aug 2025, 07:31 PM","refundDateTime":"28 Aug 2025, 09:16 PM","basketAmount":"AED 19.80","refundAmount":"- AED 18.00","status":"Deducted","reason":"Missing or unavailable items (Main item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127246922","outletId":"1057120","outletArea":"Al Markaziyah","orderDateTime":"28 Aug 2025, 07:30 PM","refundDateTime":"28 Aug 2025, 08:28 PM","basketAmount":"AED 21.60","refundAmount":"- AED 6.60","status":"Deducted","reason":"Missing or unavailable items (Main item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127225424","outletId":"1057120","outletArea":"Al Markaziyah","orderDateTime":"28 Aug 2025, 05:09 PM","refundDateTime":"28 Aug 2025, 05:45 PM","basketAmount":"AED 21.60","refundAmount":"- AED 20.00","status":"Deducted","reason":"Food is undercooked","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127205071","outletId":"1066777","outletArea":"Al Danah","orderDateTime":"28 Aug 2025, 02:10 PM","refundDateTime":"28 Aug 2025, 02:55 PM","basketAmount":"AED 21.60","refundAmount":"- AED 20.00","status":"Deducted","reason":"Food is undercooked","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"},
+      {"orderId":"127191558","outletId":"1057120","outletArea":"Al Markaziyah","orderDateTime":"28 Aug 2025, 12:33 PM","refundDateTime":"28 Aug 2025, 12:53 PM","basketAmount":"AED 17.28","refundAmount":"- AED 2.00","status":"Deducted","reason":"Missing or unavailable items (Main item)","outletName":"Crispy Chicken","brandName":"Crispy Chicken - UAE"}
+    ];
 
     // Global variables
-    let cases = [];
+    let cases = [...sampleData];
     let currentLang = 'ar';
-    let filteredCases = [];
-    let evidenceFiles = [];
-    let isSimplifiedView = false;
+    let dataTable;
+    let reasonChart, areaChart;
 
-    // Initialize the app
+    // Initialize the application
     document.addEventListener('DOMContentLoaded', function() {
-      loadFromLocalStorage();
-      renderTable();
-      updateStats();
-      updateLanguage();
-      
-      // Set default dates
-      const today = new Date().toISOString().slice(0, 16);
-      document.getElementById('simpleOrderDate').value = today;
-      document.getElementById('simpleRefundDate').value = today;
-      document.getElementById('orderDate').value = today.split('T')[0];
-      document.getElementById('responseDate').value = today.split('T')[0];
-      document.getElementById('refundDate').value = today.split('T')[0];
+      initializeDataTable();
+      updateStatistics();
+      updateSummaryTables();
+      updateTopReason();
+      createCharts();
+      renderCardView();
     });
 
-    // Language functions
+    // Language toggle
     function toggleLanguage() {
       currentLang = currentLang === 'ar' ? 'en' : 'ar';
       document.documentElement.lang = currentLang;
       document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-      updateLanguage();
-      renderTable();
-    }
-
-    function updateLanguage() {
-      const t = translations[currentLang];
       
-      // Update all text elements
-      document.getElementById('systemTitle').textContent = t.systemTitle;
-      document.getElementById('totalCasesTitle').textContent = t.totalCasesTitle;
-      document.getElementById('pendingTitle').textContent = t.pendingTitle;
-      document.getElementById('resolvedTitle').textContent = t.resolvedTitle;
-      document.getElementById('disputedTitle').textContent = t.disputedTitle;
-      document.getElementById('underReviewTitle').textContent = t.underReviewTitle;
-      document.getElementById('totalAmountTitle').textContent = t.totalAmountTitle;
-      document.getElementById('addCaseBtn').innerHTML = `<i class="bi bi-plus-circle"></i> ${t.addCaseBtn}`;
-      document.getElementById('exportBtn').innerHTML = `<i class="bi bi-download"></i> ${t.exportBtn}`;
-      document.getElementById('filterAll').textContent = t.filterAll;
-      document.getElementById('filterPending').textContent = t.filterPending;
-      document.getElementById('filterResponded').textContent = t.filterResponded;
-      document.getElementById('filterResolved').textContent = t.filterResolved;
-      document.getElementById('filterDisputed').textContent = t.filterDisputed;
-      document.getElementById('filterUnderReview').textContent = t.filterUnderReview;
-      document.getElementById('filterRejected').textContent = t.filterRejected;
-      document.getElementById('cancelBtn').textContent = t.cancelBtn;
-      document.getElementById('saveBtn').innerHTML = t.saveBtn;
-      document.getElementById('searchInput').placeholder = t.searchPlaceholder;
-      document.getElementById('langToggleText').textContent = t.langToggleText;
-      document.getElementById('viewModeText').textContent = t.viewModeText;
+      // Update language toggle text
+      document.getElementById('langToggleText').textContent = currentLang === 'ar' ? 'English' : 'العربية';
       
-      // Update table headers
-      document.getElementById('thOrderId').textContent = t.thOrderId;
-      document.getElementById('thOutlet').textContent = t.thOutlet;
-      document.getElementById('thOrderDate').textContent = t.thOrderDate;
-      document.getElementById('thRefundDate').textContent = t.thRefundDate;
-      document.getElementById('thBasketAmount').textContent = t.thBasketAmount;
-      document.getElementById('thRefundAmount').textContent = t.thRefundAmount;
-      document.getElementById('thReason').textContent = t.thReason;
-      document.getElementById('thStatus').textContent = t.thStatus;
-      document.getElementById('thActions').textContent = t.thActions;
+      // Update all UI texts based on language
+      updateUITexts();
       
-      // Update form labels
-      document.getElementById('simplifiedFormTitle').textContent = t.simplifiedFormTitle;
-      document.getElementById('simpleOrderIdLabel').textContent = t.simpleOrderIdLabel;
-      document.getElementById('simpleOutletLabel').textContent = t.simpleOutletLabel;
-      document.getElementById('simpleOrderDateLabel').textContent = t.simpleOrderDateLabel;
-      document.getElementById('simpleRefundDateLabel').textContent = t.simpleRefundDateLabel;
-      document.getElementById('simpleBasketAmountLabel').textContent = t.simpleBasketAmountLabel;
-      document.getElementById('simpleRefundAmountLabel').textContent = t.simpleRefundAmountLabel;
-      document.getElementById('simpleReasonLabel').textContent = t.simpleReasonLabel;
-      document.getElementById('simpleStatusLabel').textContent = t.simpleStatusLabel;
-      document.getElementById('orderInfoTitle').textContent = t.orderInfoTitle;
-      document.getElementById('orderIdLabel').textContent = t.orderIdLabel;
-      document.getElementById('outletLabel').textContent = t.outletLabel;
-      document.getElementById('orderDateLabel').textContent = t.orderDateLabel;
-      document.getElementById('partnerLabel').textContent = t.partnerLabel;
-      document.getElementById('referenceIdLabel').textContent = t.referenceIdLabel;
-      document.getElementById('itemsTitle').textContent = t.itemsTitle;
-      document.getElementById('quantityLabel').textContent = t.quantityLabel;
-      document.getElementById('itemNameLabel').textContent = t.itemNameLabel;
-      document.getElementById('itemCategoryLabel').textContent = t.itemCategoryLabel;
-      document.getElementById('itemPriceLabel').textContent = t.itemPriceLabel;
-      document.getElementById('itemDescriptionLabel').textContent = t.itemDescriptionLabel;
-      document.getElementById('addItemBtn').textContent = t.addItemBtn;
-      document.getElementById('financialTitle').textContent = t.financialTitle;
-      document.getElementById('basketAmountLabel').textContent = t.basketAmountLabel;
-      document.getElementById('promoCodeLabel').textContent = t.promoCodeLabel;
-      document.getElementById('promoAmountLabel').textContent = t.promoAmountLabel;
-      document.getElementById('totalAmountLabel').textContent = t.totalAmountLabel;
-      document.getElementById('deductedAmountLabel').textContent = t.deductedAmountLabel;
-      document.getElementById('refundDateLabel').textContent = t.refundDateLabel;
-      document.getElementById('locationLabel').textContent = t.locationLabel;
-      document.getElementById('reasonTitle').textContent = t.reasonTitle;
-      document.getElementById('reasonLabel').textContent = t.reasonLabel;
-      document.getElementById('customerReasonLabel').textContent = t.customerReasonLabel;
-      document.getElementById('selectedItemsLabel').textContent = t.selectedItemsLabel;
-      document.getElementById('noItemsSelected').textContent = t.noItemsSelected;
-      document.getElementById('customerNotesLabel').textContent = t.customerNotesLabel;
-      document.getElementById('itemImageLabel').textContent = t.itemImageLabel;
-      document.getElementById('responseTitle').textContent = t.responseTitle;
-      document.getElementById('responseLabel').textContent = t.responseLabel;
-      document.getElementById('responseDateLabel').textContent = t.responseDateLabel;
-      document.getElementById('statusLabel').textContent = t.statusLabel;
-      document.getElementById('disputeTitle').textContent = t.disputeTitle;
-      document.getElementById('isDisputedLabel').textContent = t.isDisputedLabel;
-      document.getElementById('disputeReasonLabel').textContent = t.disputeReasonLabel;
-      document.getElementById('evidenceLabel').textContent = t.evidenceLabel;
-      document.getElementById('noEvidence').textContent = t.noEvidence;
-      document.getElementById('emailTemplateLabel').textContent = t.emailTemplateLabel;
-      document.getElementById('useDefaultTemplateLabel').textContent = t.useDefaultTemplateLabel;
-      document.getElementById('emailPreviewTitle').textContent = t.emailPreviewTitle;
-      document.getElementById('orderIdError').textContent = t.orderIdError;
-      
-      // Update form options
-      updateFormOptions();
-    }
-
-    function updateFormOptions() {
-      const t = translations[currentLang];
-      
-      // Update reason options for simplified form
-      const simpleReasonSelect = document.getElementById('simpleReason');
-      simpleReasonSelect.innerHTML = `
-        <option value="" selected disabled>اختر السبب</option>
-        <option value="spilled">${t.reasonSpilled}</option>
-        <option value="wrong">${t.reasonWrong}</option>
-        <option value="missing_main">${t.reasonMissingMain}</option>
-        <option value="missing_side">${t.reasonMissingSide}</option>
-        <option value="overcooked">${t.reasonOvercooked}</option>
-        <option value="undercooked">${t.reasonUndercooked}</option>
-        <option value="smell">${t.reasonSmell}</option>
-        <option value="hair">${t.reasonHair}</option>
-        <option value="inedible">${t.reasonInedible}</option>
-        <option value="other">${t.reasonOther}</option>
-      `;
-      
-      // Update reason options for detailed form
-      const reasonSelect = document.getElementById('reason');
-      reasonSelect.innerHTML = `
-        <option value="spilled">${t.reasonSpilled}</option>
-        <option value="wrong">${t.reasonWrong}</option>
-        <option value="missing_main">${t.reasonMissingMain}</option>
-        <option value="missing_side">${t.reasonMissingSide}</option>
-        <option value="overcooked">${t.reasonOvercooked}</option>
-        <option value="undercooked">${t.reasonUndercooked}</option>
-        <option value="smell">${t.reasonSmell}</option>
-        <option value="hair">${t.reasonHair}</option>
-        <option value="inedible">${t.reasonInedible}</option>
-        <option value="other">${t.reasonOther}</option>
-      `;
-      
-      // Update status options for simplified form
-      const simpleStatusSelect = document.getElementById('simpleStatus');
-      simpleStatusSelect.innerHTML = `
-        <option value="" selected disabled>اختر الحالة</option>
-        <option value="pending">${t.statusPending}</option>
-        <option value="responded">${t.statusResponded}</option>
-        <option value="resolved">${t.statusResolved}</option>
-        <option value="disputed">${t.statusDisputed}</option>
-        <option value="under_review">${t.statusUnderReview}</option>
-        <option value="rejected">${t.statusRejected}</option>
-      `;
-      
-      // Update status options for detailed form
-      const statusSelect = document.getElementById('status');
-      statusSelect.innerHTML = `
-        <option value="pending">${t.statusPending}</option>
-        <option value="responded">${t.statusResponded}</option>
-        <option value="resolved">${t.statusResolved}</option>
-        <option value="disputed">${t.statusDisputed}</option>
-        <option value="under_review">${t.statusUnderReview}</option>
-        <option value="rejected">${t.statusRejected}</option>
-      `;
-    }
-
-    // View mode toggle
-    function toggleViewMode() {
-      isSimplifiedView = !isSimplifiedView;
-      const modalBody = document.querySelector('#caseModal .modal-body');
-      const viewModeText = document.getElementById('viewModeText');
-      const t = translations[currentLang];
-      
-      if (isSimplifiedView) {
-        modalBody.classList.add('simplified-view');
-        viewModeText.textContent = t.viewModeText;
-      } else {
-        modalBody.classList.remove('simplified-view');
-        viewModeText.textContent = t.simplifiedFormTitle;
+      // Re-render data table with new language
+      if (dataTable) {
+        dataTable.destroy();
+        initializeDataTable();
       }
     }
 
-    // Item management functions
-    function addItem() {
-      const itemsContainer = document.getElementById('itemsContainer');
-      const newItem = document.createElement('div');
-      newItem.className = 'item-row';
-      newItem.innerHTML = `
-        <div class="row align-items-center">
-          <div class="col-md-1">
-            <label class="form-label">${translations[currentLang].quantityLabel}</label>
-            <input type="number" class="form-control item-quantity" value="1" min="1">
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">${translations[currentLang].itemNameLabel}</label>
-            <input type="text" class="form-control item-name" placeholder="${translations[currentLang].itemNameLabel}">
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">${translations[currentLang].itemCategoryLabel}</label>
-            <input type="text" class="form-control item-category" placeholder="${translations[currentLang].itemCategoryLabel}">
-          </div>
-          <div class="col-md-2">
-            <label class="form-label">${translations[currentLang].itemPriceLabel}</label>
-            <input type="number" class="form-control item-price" value="0" min="0" step="0.01">
-          </div>
-          <div class="col-md-2 d-flex align-items-end">
-            <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(this)">
-              <i class="bi bi-trash"></i>
-            </button>
-          </div>
-        </div>
-        <div class="row mt-2">
-          <div class="col-12">
-            <label class="form-label">${translations[currentLang].itemDescriptionLabel}</label>
-            <textarea class="form-control item-description" rows="1" placeholder="${translations[currentLang].itemDescriptionLabel}"></textarea>
-          </div>
-        </div>
-      `;
-      itemsContainer.appendChild(newItem);
-      
-      // Add event listeners to calculate totals
-      newItem.querySelectorAll('.item-price, .item-quantity').forEach(input => {
-        input.addEventListener('input', calculateTotals);
-      });
-    }
-
-    function removeItem(button) {
-      const itemRow = button.closest('.item-row');
-      itemRow.remove();
-      calculateTotals();
-      updateSelectedItems();
-    }
-
-    function calculateTotals() {
-      let basketAmount = 0;
-      document.querySelectorAll('.item-row').forEach(row => {
-        const quantity = parseFloat(row.querySelector('.item-quantity').value) || 0;
-        const price = parseFloat(row.querySelector('.item-price').value) || 0;
-        basketAmount += quantity * price;
-      });
-      
-      const promoAmount = parseFloat(document.getElementById('promoAmount').value) || 0;
-      const totalAmount = basketAmount - promoAmount;
-      
-      document.getElementById('basketAmount').value = basketAmount.toFixed(2);
-      document.getElementById('totalAmount').value = totalAmount.toFixed(2);
-    }
-
-    // Image preview function
-    function previewImage(input) {
-      const preview = document.getElementById('imagePreview');
-      if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          preview.src = e.target.result;
-          preview.classList.remove('d-none');
-        };
-        reader.readAsDataURL(input.files[0]);
+    // Update UI texts based on language
+    function updateUITexts() {
+      if (currentLang === 'en') {
+        document.getElementById('systemTitle').textContent = 'Compensation Management System';
+        document.getElementById('totalCasesTitle').textContent = 'Total Cases';
+        document.getElementById('totalRefundedTitle').textContent = 'Total Refunded Amount';
+        document.getElementById('disputedCasesTitle').textContent = 'Disputed Cases';
+        document.getElementById('resolvedCasesTitle').textContent = 'Resolved Cases';
+        document.getElementById('addCaseBtn').innerHTML = '<i class="bi bi-plus-circle"></i> Add New Case';
+        document.getElementById('exportBtn').innerHTML = '<i class="bi bi-download"></i> Export Data';
+        document.getElementById('filterAllReasons').textContent = 'All Reasons';
+        document.getElementById('filterAllStatuses').textContent = 'All Statuses';
+        document.getElementById('modalTitle').textContent = 'Add New Case';
+        document.getElementById('viewModeText').textContent = 'Detailed View';
+        document.getElementById('simplifiedFormTitle').textContent = 'Simplified Form';
+        document.getElementById('simpleOrderIdLabel').textContent = 'Order ID';
+        document.getElementById('simpleOutletIdLabel').textContent = 'Outlet ID';
+        document.getElementById('simpleOutletAreaLabel').textContent = 'Outlet Area';
+        document.getElementById('simpleOrderDateTimeLabel').textContent = 'Order Date & Time';
+        document.getElementById('simpleRefundDateTimeLabel').textContent = 'Refund Date & Time';
+        document.getElementById('simpleBasketAmountLabel').textContent = 'Basket Amount';
+        document.getElementById('simpleRefundAmountLabel').textContent = 'Refund Amount';
+        document.getElementById('simpleReasonLabel').textContent = 'Reason';
+        document.getElementById('simpleStatusLabel').textContent = 'Status';
+        document.getElementById('simpleOutletNameLabel').textContent = 'Outlet Name';
+        document.getElementById('simpleBrandNameLabel').textContent = 'Brand Name';
+        document.getElementById('orderInfoTitle').textContent = 'Order Information';
+        document.getElementById('orderIdLabel').textContent = 'Order ID';
+        document.getElementById('outletIdLabel').textContent = 'Outlet ID';
+        document.getElementById('outletAreaLabel').textContent = 'Outlet Area';
+        document.getElementById('orderDateLabel').textContent = 'Order Date';
+        document.getElementById('refundDateLabel').textContent = 'Refund Date';
+        document.getElementById('partnerLabel').textContent = 'Partner';
+        document.getElementById('outletNameLabel').textContent = 'Outlet Name';
+        document.getElementById('brandNameLabel').textContent = 'Brand Name';
+        document.getElementById('itemsTitle').textContent = 'Items';
+        document.getElementById('quantityLabel').textContent = 'Quantity';
+        document.getElementById('itemNameLabel').textContent = 'Item Name';
+        document.getElementById('itemCategoryLabel').textContent = 'Category';
+        document.getElementById('itemPriceLabel').textContent = 'Price';
+        document.getElementById('itemDescriptionLabel').textContent = 'Description';
+        document.getElementById('addItemBtn').innerHTML = '<i class="bi bi-plus"></i> Add Item';
+        document.getElementById('financialTitle').textContent = 'Financial Details';
+        document.getElementById('basketAmountLabel').textContent = 'Basket Amount';
+        document.getElementById('promoCodeLabel').textContent = 'Promo Code';
+        document.getElementById('promoAmountLabel').textContent = 'Promo Amount';
+        document.getElementById('totalAmountLabel').textContent = 'Total Amount';
+        document.getElementById('deductedAmountLabel').textContent = 'Refunded Amount';
+        document.getElementById('locationLabel').textContent = 'Location';
+        document.getElementById('reasonTitle').textContent = 'Reason and Customer Feedback';
+        document.getElementById('reasonLabel').textContent = 'Main Reason';
+        document.getElementById('customerReasonLabel').textContent = 'Customer Reason';
+        document.getElementById('selectedItemsLabel').textContent = 'Items Selected by Customer';
+        document.getElementById('noItemsSelected').textContent = 'No items selected';
+        document.getElementById('customerNotesLabel').textContent = 'Customer Notes';
+        document.getElementById('itemImageLabel').textContent = 'Item Image';
+        document.getElementById('responseTitle').textContent = 'Response to Customer';
+        document.getElementById('responseLabel').textContent = 'Response Text';
+        document.getElementById('responseDateLabel').textContent = 'Response Date';
+        document.getElementById('statusLabel').textContent = 'Status';
+        document.getElementById('disputeTitle').textContent = 'Dispute and Evidence';
+        document.getElementById('isDisputedLabel').textContent = 'A dispute has been raised for this case';
+        document.getElementById('disputeReasonLabel').textContent = 'Dispute Reason';
+        document.getElementById('evidenceLabel').textContent = 'Evidence (Images or Videos)';
+        document.getElementById('noEvidence').textContent = 'No evidence added';
+        document.getElementById('emailTemplateLabel').textContent = 'Email Template';
+        document.getElementById('useDefaultTemplateLabel').textContent = 'Use Default Template';
+        document.getElementById('emailPreviewTitle').textContent = 'Email Preview:';
+        document.getElementById('cancelBtn').textContent = 'Cancel';
+        document.getElementById('saveBtn').textContent = '💾 Save';
+        document.getElementById('topReasonTitle').textContent = 'Most Common Refund Reason';
       } else {
-        preview.classList.add('d-none');
+        document.getElementById('systemTitle').textContent = 'نظام إدارة التعويضات';
+        document.getElementById('totalCasesTitle').textContent = 'إجمالي الحالات';
+        document.getElementById('totalRefundedTitle').textContent = 'إجمالي المبلغ المسترد';
+        document.getElementById('disputedCasesTitle').textContent = 'الحالات المتنازع عليها';
+        document.getElementById('resolvedCasesTitle').textContent = 'الحالات المحلولة';
+        document.getElementById('addCaseBtn').innerHTML = '<i class="bi bi-plus-circle"></i> ➕ إضافة حالة جديدة';
+        document.getElementById('exportBtn').innerHTML = '<i class="bi bi-download"></i> تصدير البيانات';
+        document.getElementById('filterAllReasons').textContent = 'جميع الأسباب';
+        document.getElementById('filterAllStatuses').textContent = 'جميع الحالات';
+        document.getElementById('modalTitle').textContent = 'إضافة حالة جديدة';
+        document.getElementById('viewModeText').textContent = 'عرض مفصل';
+        document.getElementById('simplifiedFormTitle').textContent = 'النموذج المبسط';
+        document.getElementById('simpleOrderIdLabel').textContent = 'رقم الطلب';
+        document.getElementById('simpleOutletIdLabel').textContent = 'معرف الفرع';
+        document.getElementById('simpleOutletAreaLabel').textContent = 'منطقة الفرع';
+        document.getElementById('simpleOrderDateTimeLabel').textContent = 'تاريخ الطلب';
+        document.getElementById('simpleRefundDateTimeLabel').textContent = 'تاريخ الاسترداد';
+        document.getElementById('simpleBasketAmountLabel').textContent = 'إجمالي السلة';
+        document.getElementById('simpleRefundAmountLabel').textContent = 'المبلغ المسترد';
+        document.getElementById('simpleReasonLabel').textContent = 'السبب';
+        document.getElementById('simpleStatusLabel').textContent = 'الحالة';
+        document.getElementById('simpleOutletNameLabel').textContent = 'اسم الفرع';
+        document.getElementById('simpleBrandNameLabel').textContent = 'اسم العلامة التجارية';
+        document.getElementById('orderInfoTitle').textContent = 'معلومات الطلب';
+        document.getElementById('orderIdLabel').textContent = 'رقم الطلب';
+        document.getElementById('outletIdLabel').textContent = 'معرف الفرع';
+        document.getElementById('outletAreaLabel').textContent = 'منطقة الفرع';
+        document.getElementById('orderDateLabel').textContent = 'تاريخ الطلب';
+        document.getElementById('refundDateLabel').textContent = 'تاريخ الاسترداد';
+        document.getElementById('partnerLabel').textContent = 'الشريك';
+        document.getElementById('outletNameLabel').textContent = 'اسم الفرع';
+        document.getElementById('brandNameLabel').textContent = 'اسم العلامة التجارية';
+        document.getElementById('itemsTitle').textContent = 'العناصر';
+        document.getElementById('quantityLabel').textContent = 'الكمية';
+        document.getElementById('itemNameLabel').textContent = 'اسم العنصر';
+        document.getElementById('itemCategoryLabel').textContent = 'الفئة';
+        document.getElementById('itemPriceLabel').textContent = 'السعر';
+        document.getElementById('itemDescriptionLabel').textContent = 'الوصف';
+        document.getElementById('addItemBtn').innerHTML = '<i class="bi bi-plus"></i> إضافة عنصر';
+        document.getElementById('financialTitle').textContent = 'التفاصيل المالية';
+        document.getElementById('basketAmountLabel').textContent = 'إجمالي السلة';
+        document.getElementById('promoCodeLabel').textContent = 'رمز العرض';
+        document.getElementById('promoAmountLabel').textContent = 'قيمة العرض';
+        document.getElementById('totalAmountLabel').textContent = 'الإجمالي';
+        document.getElementById('deductedAmountLabel').textContent = 'المبلغ المسترد';
+        document.getElementById('locationLabel').textContent = 'الموقع';
+        document.getElementById('reasonTitle').textContent = 'السبب وملاحظات العميل';
+        document.getElementById('reasonLabel').textContent = 'السبب الرئيسي';
+        document.getElementById('customerReasonLabel').textContent = 'سبب العميل';
+        document.getElementById('selectedItemsLabel').textContent = 'العناصر المحددة من العميل';
+        document.getElementById('noItemsSelected').textContent = 'لا توجد عناصر محددة';
+        document.getElementById('customerNotesLabel').textContent = 'ملاحظات العميل';
+        document.getElementById('itemImageLabel').textContent = 'صورة العنصر';
+        document.getElementById('responseTitle').textContent = 'الرد على العميل';
+        document.getElementById('responseLabel').textContent = 'نص الرد';
+        document.getElementById('responseDateLabel').textContent = 'تاريخ الرد';
+        document.getElementById('statusLabel').textContent = 'الحالة';
+        document.getElementById('disputeTitle').textContent = 'نزاع و أدلة';
+        document.getElementById('isDisputedLabel').textContent = 'تم رفع نزاع بشأن هذه الحالة';
+        document.getElementById('disputeReasonLabel').textContent = 'سبب النزاع';
+        document.getElementById('evidenceLabel').textContent = 'الأدلة (صور أو فيديو)';
+        document.getElementById('noEvidence').textContent = 'لا توجد أدلة مضافة';
+        document.getElementById('emailTemplateLabel').textContent = 'نموذج البريد الإلكتروني';
+        document.getElementById('useDefaultTemplateLabel').textContent = 'استخدام النموذج الافتراضي';
+        document.getElementById('emailPreviewTitle').textContent = 'معاينة البريد الإلكتروني:';
+        document.getElementById('cancelBtn').textContent = 'إلغاء';
+        document.getElementById('saveBtn').textContent = '💾 حفظ';
+        document.getElementById('topReasonTitle').textContent = 'أكثر سبب تكرر للاسترداد';
       }
     }
 
-    // Update selected items display
-    function updateSelectedItems() {
-      const container = document.getElementById('selectedItemsContainer');
-      const items = document.querySelectorAll('.item-row');
-      let html = '';
+    // Initialize DataTable
+    function initializeDataTable() {
+      dataTable = $('#casesTable').DataTable({
+        data: cases,
+        columns: [
+          {
+            data: null,
+            render: function(data, type, row, meta) {
+              return `<input type="checkbox" class="case-checkbox" value="${meta.row}">`;
+            },
+            orderable: false
+          },
+          { data: 'orderId' },
+          { data: 'outletId' },
+          { data: 'outletArea' },
+          { data: 'orderDateTime' },
+          { data: 'refundDateTime' },
+          { data: 'basketAmount' },
+          { data: 'refundAmount' },
+          { 
+            data: 'status',
+            render: function(data) {
+              const statusClass = data.toLowerCase().replace(/\s+/g, '_');
+              return `<span class="badge status-${statusClass}">${data}</span>`;
+            }
+          },
+          { data: 'reason' },
+          { data: 'outletName' },
+          { data: 'brandName' },
+          {
+            data: null,
+            render: function(data, type, row, meta) {
+              return `
+                <div class="action-buttons">
+                  <button class="btn btn-sm btn-primary" onclick="editCase(${meta.row})">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn btn-sm btn-danger" onclick="deleteCase(${meta.row})">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              `;
+            },
+            orderable: false
+          }
+        ],
+        responsive: true,
+        language: {
+          url: currentLang === 'ar' ? '//cdn.datatables.net/plug-ins/1.13.7/i18n/ar.json' : '//cdn.datatables.net/plug-ins/1.13.7/i18n/en.json'
+        },
+        order: [[4, 'desc']] // Sort by order date
+      });
+    }
+
+    // Update statistics
+    function updateStatistics() {
+      const totalCases = cases.length;
+      const totalRefunded = cases.reduce((sum, caseItem) => {
+        const amount = parseFloat(caseItem.refundAmount.replace(/[^\d.-]/g, ''));
+        return sum + amount;
+      }, 0);
+      const disputedCases = cases.filter(caseItem => caseItem.status === 'disputed').length;
+      const resolvedCases = cases.filter(caseItem => caseItem.status === 'resolved').length;
       
-      items.forEach((item, index) => {
-        const name = item.querySelector('.item-name').value;
-        const quantity = item.querySelector('.item-quantity').value;
-        
-        if (name) {
-          html += `<div class="form-check">
-            <input class="form-check-input" type="checkbox" value="${index}" id="itemCheck${index}">
-            <label class="form-check-label" for="itemCheck${index}">
-              ${quantity}x ${name}
-            </label>
-          </div>`;
+      document.getElementById('totalCases').textContent = totalCases;
+      document.getElementById('totalRefunded').textContent = `AED ${Math.abs(totalRefunded).toFixed(2)}`;
+      document.getElementById('disputedCases').textContent = disputedCases;
+      document.getElementById('resolvedCases').textContent = resolvedCases;
+    }
+
+    // Update summary tables
+    function updateSummaryTables() {
+      // Summary by outlet area
+      const outletSummary = {};
+      cases.forEach(caseItem => {
+        const area = caseItem.outletArea;
+        if (!outletSummary[area]) {
+          outletSummary[area] = {
+            count: 0,
+            basketTotal: 0,
+            refundTotal: 0
+          };
+        }
+        outletSummary[area].count++;
+        outletSummary[area].basketTotal += parseFloat(caseItem.basketAmount.replace(/[^\d.-]/g, ''));
+        outletSummary[area].refundTotal += Math.abs(parseFloat(caseItem.refundAmount.replace(/[^\d.-]/g, '')));
+      });
+      
+      const outletTableBody = document.querySelector('#outletSummaryTable tbody');
+      outletTableBody.innerHTML = '';
+      Object.keys(outletSummary).forEach(area => {
+        const row = outletTableBody.insertRow();
+        row.insertCell(0).textContent = area;
+        row.insertCell(1).textContent = outletSummary[area].count;
+        row.insertCell(2).textContent = `AED ${outletSummary[area].basketTotal.toFixed(2)}`;
+        row.insertCell(3).textContent = `AED ${outletSummary[area].refundTotal.toFixed(2)}`;
+      });
+      
+      // Summary by reason
+      const reasonSummary = {};
+      cases.forEach(caseItem => {
+        const reason = caseItem.reason;
+        if (!reasonSummary[reason]) {
+          reasonSummary[reason] = {
+            count: 0,
+            basketTotal: 0,
+            refundTotal: 0
+          };
+        }
+        reasonSummary[reason].count++;
+        reasonSummary[reason].basketTotal += parseFloat(caseItem.basketAmount.replace(/[^\d.-]/g, ''));
+        reasonSummary[reason].refundTotal += Math.abs(parseFloat(caseItem.refundAmount.replace(/[^\d.-]/g, '')));
+      });
+      
+      const reasonTableBody = document.querySelector('#reasonSummaryTable tbody');
+      reasonTableBody.innerHTML = '';
+      Object.keys(reasonSummary).forEach(reason => {
+        const row = reasonTableBody.insertRow();
+        row.insertCell(0).textContent = reason;
+        row.insertCell(1).textContent = reasonSummary[reason].count;
+        row.insertCell(2).textContent = `AED ${reasonSummary[reason].basketTotal.toFixed(2)}`;
+        row.insertCell(3).textContent = `AED ${reasonSummary[reason].refundTotal.toFixed(2)}`;
+      });
+    }
+
+    // Update top reason
+    function updateTopReason() {
+      const reasonCounts = {};
+      cases.forEach(caseItem => {
+        const reason = caseItem.reason;
+        reasonCounts[reason] = (reasonCounts[reason] || 0) + 1;
+      });
+      
+      let topReason = '-';
+      let maxCount = 0;
+      Object.keys(reasonCounts).forEach(reason => {
+        if (reasonCounts[reason] > maxCount) {
+          maxCount = reasonCounts[reason];
+          topReason = reason;
         }
       });
       
-      if (html) {
-        container.innerHTML = html;
+      document.getElementById('topReason').textContent = topReason !== '-' ? `${topReason} (${maxCount} حالة)` : '-';
+    }
+
+    // Create charts
+    function createCharts() {
+      // Reason distribution chart
+      const reasonCounts = {};
+      cases.forEach(caseItem => {
+        const reason = caseItem.reason;
+        reasonCounts[reason] = (reasonCounts[reason] || 0) + 1;
+      });
+      
+      const reasonCtx = document.getElementById('reasonChart').getContext('2d');
+      if (reasonChart) reasonChart.destroy();
+      reasonChart = new Chart(reasonCtx, {
+        type: 'pie',
+        data: {
+          labels: Object.keys(reasonCounts),
+          datasets: [{
+            data: Object.values(reasonCounts),
+            backgroundColor: [
+              '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+              '#FF9F40', '#8AC926', '#1982C4', '#6A4C93', '#F15BB5'
+            ]
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'right',
+            },
+            title: {
+              display: true,
+              text: currentLang === 'ar' ? 'توزيع الحالات حسب السبب' : 'Cases Distribution by Reason'
+            }
+          }
+        }
+      });
+      
+      // Area distribution chart
+      const areaCounts = {};
+      cases.forEach(caseItem => {
+        const area = caseItem.outletArea;
+        areaCounts[area] = (areaCounts[area] || 0) + 1;
+      });
+      
+      const areaCtx = document.getElementById('areaChart').getContext('2d');
+      if (areaChart) areaChart.destroy();
+      areaChart = new Chart(areaCtx, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(areaCounts),
+          datasets: [{
+            label: currentLang === 'ar' ? 'عدد الحالات' : 'Number of Cases',
+            data: Object.values(areaCounts),
+            backgroundColor: '#36A2EB',
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          },
+          plugins: {
+            title: {
+              display: true,
+              text: currentLang === 'ar' ? 'توزيع الحالات حسب المنطقة' : 'Cases Distribution by Area'
+            }
+          }
+        }
+      });
+    }
+
+    // Render card view for mobile
+    function renderCardView() {
+      const cardsContainer = document.getElementById('casesCards');
+      cardsContainer.innerHTML = '';
+      
+      cases.forEach((caseItem, index) => {
+        const card = document.createElement('div');
+        card.className = 'col-md-6 col-lg-4 mb-3';
+        card.innerHTML = `
+          <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <span class="badge bg-primary">${caseItem.orderId}</span>
+              <span class="badge status-${caseItem.status.toLowerCase().replace(/\s+/g, '_')}">${caseItem.status}</span>
+            </div>
+            <div class="card-body">
+              <h5 class="card-title">${caseItem.outletName}</h5>
+              <p class="card-text">
+                <strong>${currentLang === 'ar' ? 'منطقة الفرع' : 'Outlet Area'}:</strong> ${caseItem.outletArea}<br>
+                <strong>${currentLang === 'ar' ? 'تاريخ الطلب' : 'Order Date'}:</strong> ${caseItem.orderDateTime}<br>
+                <strong>${currentLang === 'ar' ? 'السبب' : 'Reason'}:</strong> ${caseItem.reason}<br>
+                <strong>${currentLang === 'ar' ? 'إجمالي السلة' : 'Basket Amount'}:</strong> ${caseItem.basketAmount}<br>
+                <strong>${currentLang === 'ar' ? 'المبلغ المسترد' : 'Refund Amount'}:</strong> ${caseItem.refundAmount}
+              </p>
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+              <button class="btn btn-sm btn-primary" onclick="editCase(${index})">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-sm btn-danger" onclick="deleteCase(${index})">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </div>
+        `;
+        cardsContainer.appendChild(card);
+      });
+    }
+
+    // Open add case modal
+    function openAddCase() {
+      document.getElementById('editIndex').value = '';
+      document.getElementById('modalTitle').textContent = currentLang === 'ar' ? 'إضافة حالة جديدة' : 'Add New Case';
+      document.getElementById('caseForm').reset();
+      document.getElementById('simplifiedForm').style.display = 'block';
+      document.getElementById('detailedForm').style.display = 'none';
+      const modal = new bootstrap.Modal(document.getElementById('caseModal'));
+      modal.show();
+    }
+
+    // Save case
+    function saveCase() {
+      const editIndex = document.getElementById('editIndex').value;
+      const isEdit = editIndex !== '';
+      
+      // Get form data
+      const formData = {
+        orderId: document.getElementById('simpleOrderId').value,
+        outletId: document.getElementById('simpleOutletId').value,
+        outletArea: document.getElementById('simpleOutletArea').value,
+        orderDateTime: document.getElementById('simpleOrderDateTime').value,
+        refundDateTime: document.getElementById('simpleRefundDateTime').value,
+        basketAmount: `AED ${document.getElementById('simpleBasketAmount').value}`,
+        refundAmount: `- AED ${document.getElementById('simpleRefundAmount').value}`,
+        status: document.getElementById('simpleStatus').value,
+        reason: document.getElementById('simpleReason').value,
+        outletName: document.getElementById('simpleOutletName').value,
+        brandName: document.getElementById('simpleBrandName').value
+      };
+      
+      // Validate form
+      if (!formData.orderId || !formData.outletId || !formData.outletArea || 
+          !formData.orderDateTime || !formData.refundDateTime || 
+          !formData.basketAmount || !formData.refundAmount || 
+          !formData.status || !formData.reason || 
+          !formData.outletName || !formData.brandName) {
+        showToast(currentLang === 'ar' ? 'يرجى ملء جميع الحقول المطلوبة' : 'Please fill all required fields', 'error');
+        return;
+      }
+      
+      // Save or update
+      if (isEdit) {
+        cases[editIndex] = formData;
+        showToast(currentLang === 'ar' ? 'تم تحديث الحالة بنجاح' : 'Case updated successfully', 'success');
       } else {
-        container.innerHTML = `<p class="text-muted mb-0">${translations[currentLang].noItemsSelected}</p>`;
+        cases.push(formData);
+        showToast(currentLang === 'ar' ? 'تم إضافة الحالة بنجاح' : 'Case added successfully', 'success');
+      }
+      
+      // Close modal and refresh
+      bootstrap.Modal.getInstance(document.getElementById('caseModal')).hide();
+      refreshData();
+    }
+
+    // Edit case
+    function editCase(index) {
+      const caseItem = cases[index];
+      document.getElementById('editIndex').value = index;
+      document.getElementById('modalTitle').textContent = currentLang === 'ar' ? 'تعديل حالة' : 'Edit Case';
+      
+      // Populate form
+      document.getElementById('simpleOrderId').value = caseItem.orderId;
+      document.getElementById('simpleOutletId').value = caseItem.outletId;
+      document.getElementById('simpleOutletArea').value = caseItem.outletArea;
+      document.getElementById('simpleOrderDateTime').value = formatDateTimeForInput(caseItem.orderDateTime);
+      document.getElementById('simpleRefundDateTime').value = formatDateTimeForInput(caseItem.refundDateTime);
+      document.getElementById('simpleBasketAmount').value = caseItem.basketAmount.replace(/[^\d.-]/g, '');
+      document.getElementById('simpleRefundAmount').value = caseItem.refundAmount.replace(/[^\d.-]/g, '');
+      document.getElementById('simpleStatus').value = caseItem.status;
+      document.getElementById('simpleReason').value = mapReasonToValue(caseItem.reason);
+      document.getElementById('simpleOutletName').value = caseItem.outletName;
+      document.getElementById('simpleBrandName').value = caseItem.brandName;
+      
+      document.getElementById('simplifiedForm').style.display = 'block';
+      document.getElementById('detailedForm').style.display = 'none';
+      
+      const modal = new bootstrap.Modal(document.getElementById('caseModal'));
+      modal.show();
+    }
+
+    // Delete case
+    function deleteCase(index) {
+      if (confirm(currentLang === 'ar' ? 'هل أنت متأكد من حذف هذه الحالة؟' : 'Are you sure you want to delete this case?')) {
+        cases.splice(index, 1);
+        showToast(currentLang === 'ar' ? 'تم حذف الحالة بنجاح' : 'Case deleted successfully', 'success');
+        refreshData();
       }
     }
 
-    // Dispute functions
+    // Toggle select all checkboxes
+    function toggleSelectAll() {
+      const selectAll = document.getElementById('selectAll').checked;
+      const checkboxes = document.querySelectorAll('.case-checkbox');
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAll;
+      });
+    }
+
+    // Get selected cases
+    function getSelectedCases() {
+      const checkboxes = document.querySelectorAll('.case-checkbox:checked');
+      return Array.from(checkboxes).map(checkbox => parseInt(checkbox.value));
+    }
+
+    // Bulk update status
+    function bulkUpdateStatus(status) {
+      const selectedCases = getSelectedCases();
+      if (selectedCases.length === 0) {
+        showToast(currentLang === 'ar' ? 'يرجى تحديد حالة واحدة على الأقل' : 'Please select at least one case', 'warning');
+        return;
+      }
+      
+      const statusText = getStatusText(status);
+      if (confirm(currentLang === 'ar' ? 
+          `هل أنت متأكد من تحديث حالة ${selectedCases.length} حالة إلى "${statusText}"؟` : 
+          `Are you sure you want to update ${selectedCases.length} cases to "${statusText}"?`)) {
+        selectedCases.forEach(index => {
+          cases[index].status = status;
+        });
+        
+        showToast(currentLang === 'ar' ? 
+            `تم تحديث ${selectedCases.length} حالة بنجاح` : 
+            `${selectedCases.length} cases updated successfully`, 'success');
+        refreshData();
+      }
+    }
+
+    // Bulk delete
+    function bulkDelete() {
+      const selectedCases = getSelectedCases();
+      if (selectedCases.length === 0) {
+        showToast(currentLang === 'ar' ? 'يرجى تحديد حالة واحدة على الأقل' : 'Please select at least one case', 'warning');
+        return;
+      }
+      
+      if (confirm(currentLang === 'ar' ? 
+          `هل أنت متأكد من حذف ${selectedCases.length} حالة؟` : 
+          `Are you sure you want to delete ${selectedCases.length} cases?`)) {
+        // Sort indices in descending order to avoid index shifting when deleting
+        selectedCases.sort((a, b) => b - a);
+        selectedCases.forEach(index => {
+          cases.splice(index, 1);
+        });
+        
+        showToast(currentLang === 'ar' ? 
+            `تم حذف ${selectedCases.length} حالة بنجاح` : 
+            `${selectedCases.length} cases deleted successfully`, 'success');
+        refreshData();
+      }
+    }
+
+    // Filter table
+    function filterTable() {
+      const reasonFilter = document.getElementById('filterReason').value;
+      const statusFilter = document.getElementById('filterStatus').value;
+      
+      dataTable.column(8).search(statusFilter === 'all' ? '' : statusFilter);
+      dataTable.column(9).search(reasonFilter === 'all' ? '' : reasonFilter);
+      dataTable.draw();
+    }
+
+    // Export data
+    function exportData() {
+      // Create CSV content
+      let csv = 'Order ID,Outlet ID,Outlet Area,Order Date & Time,Refund Date & Time,Basket Amount,Refund Amount,Status,Reason,Outlet Name,Brand Name\n';
+      
+      cases.forEach(caseItem => {
+        csv += `${caseItem.orderId},${caseItem.outletId},"${caseItem.outletArea}","${caseItem.orderDateTime}","${caseItem.refundDateTime}",${caseItem.basketAmount},${caseItem.refundAmount},${caseItem.status},"${caseItem.reason}",${caseItem.outletName},${caseItem.brandName}\n`;
+      });
+      
+      // Create download link
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `compensation_cases_${new Date().toISOString().slice(0, 10)}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      showToast(currentLang === 'ar' ? 'تم تصدير البيانات بنجاح' : 'Data exported successfully', 'success');
+    }
+
+    // Toggle view mode (simplified/detailed)
+    function toggleViewMode() {
+      const simplifiedForm = document.getElementById('simplifiedForm');
+      const detailedForm = document.getElementById('detailedForm');
+      const viewModeText = document.getElementById('viewModeText');
+      
+      if (simplifiedForm.style.display === 'none') {
+        simplifiedForm.style.display = 'block';
+        detailedForm.style.display = 'none';
+        viewModeText.textContent = currentLang === 'ar' ? 'عرض مفصل' : 'Detailed View';
+      } else {
+        simplifiedForm.style.display = 'none';
+        detailedForm.style.display = 'block';
+        viewModeText.textContent = currentLang === 'ar' ? 'عرض مبسط' : 'Simplified View';
+      }
+    }
+
+    // Toggle dispute section
     function toggleDisputeSection() {
       const isDisputed = document.getElementById('isDisputed').checked;
       const disputeDetails = document.getElementById('disputeDetails');
       
-      if (isDisputed) {
-        disputeDetails.style.display = 'block';
-        // Update status to disputed if not already
-        const statusSelect = isSimplifiedView ? 
-          document.getElementById('simpleStatus') : 
-          document.getElementById('status');
-          
-        if (statusSelect.value !== 'disputed' && 
-            statusSelect.value !== 'under_review' && 
-            statusSelect.value !== 'rejected') {
-          statusSelect.value = 'disputed';
-        }
-      } else {
-        disputeDetails.style.display = 'none';
+      disputeDetails.style.display = isDisputed ? 'block' : 'none';
+    }
+
+    // Update email template based on reason
+    function updateEmailTemplate() {
+      const reason = document.getElementById('reason').value;
+      const templateTextarea = document.getElementById('emailTemplate');
+      
+      // This is a simplified example - in a real app, you would have more detailed templates
+      const templates = {
+        'spilled_damaged': currentLang === 'ar' ? 
+          'عزيزي العميل،\n\nنشكرك على إبلاغنا بوجود انسكاب أو تلف في طلبك. نأسف للإزعاج الذي سببناه لك.\n\nتمت معالجة طلب الاسترداد الخاص بك وسيعتمد المبلغ في حسابك خلال 3-5 أيام عمل.\n\nنتطلع لخدمتك مرة أخرى.\n\nمع تحيات،\nفريق خدمة العملاء' :
+          'Dear Customer,\n\nThank you for informing us about the spillage or damage in your order. We apologize for the inconvenience caused.\n\nYour refund request has been processed and the amount will be credited to your account within 3-5 business days.\n\nWe look forward to serving you again.\n\nRegards,\nCustomer Service Team',
+        'wrong_item': currentLang === 'ar' ? 
+          'عزيزي العميل،\n\nنشكرك على إبلاغنا بإرسال عنصر خاطئ في طلبك. نأسف للخطأ الذي حدث.\n\nتمت معالجة طلب الاسترداد الخاص بك وسيعتمد المبلغ في حسابك خلال 3-5 أيام عمل.\n\nنتطلع لخدمتك مرة أخرى.\n\nمع تحيات،\nفريق خدمة العملاء' :
+          'Dear Customer,\n\nThank you for informing us about the wrong item sent in your order. We apologize for the mistake.\n\nYour refund request has been processed and the amount will be credited to your account within 3-5 business days.\n\nWe look forward to serving you again.\n\nRegards,\nCustomer Service Team',
+        'missing_main': currentLang === 'ar' ? 
+          'عزيزي العميل،\n\nنشكرك على إبلاغنا بنقص العنصر الرئيسي في طلبك. نأسف للإزعاج الذي سببناه لك.\n\nتمت معالجة طلب الاسترداد الخاص بك وسيعتمد المبلغ في حسابك خلال 3-5 أيام عمل.\n\nنتطلع لخدمتك مرة أخرى.\n\nمع تحيات،\nفريق خدمة العملاء' :
+          'Dear Customer,\n\nThank you for informing us about the missing main item in your order. We apologize for the inconvenience caused.\n\nYour refund request has been processed and the amount will be credited to your account within 3-5 business days.\n\nWe look forward to serving you again.\n\nRegards,\nCustomer Service Team',
+        'default': currentLang === 'ar' ? 
+          'عزيزي العميل،\n\nنشكرك على إبلاغنا بالمشكلة في طلبك. نأسف للإزعاج الذي سببناه لك.\n\nتمت معالجة طلب الاسترداد الخاص بك وسيعتمد المبلغ في حسابك خلال 3-5 أيام عمل.\n\nنتطلع لخدمتك مرة أخرى.\n\nمع تحيات،\nفريق خدمة العملاء' :
+          'Dear Customer,\n\nThank you for informing us about the issue with your order. We apologize for the inconvenience caused.\n\nYour refund request has been processed and the amount will be credited to your account within 3-5 business days.\n\nWe look forward to serving you again.\n\nRegards,\nCustomer Service Team'
+      };
+      
+      templateTextarea.value = templates[reason] || templates['default'];
+    }
+
+    // Load default template
+    function loadDefaultTemplate() {
+      const useDefault = document.getElementById('useDefaultTemplate').checked;
+      if (useDefault) {
+        updateEmailTemplate();
       }
     }
 
+    // Preview image
+    function previewImage(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const preview = document.getElementById('imagePreview');
+          preview.src = e.target.result;
+          preview.classList.remove('d-none');
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    // Add evidence
     function addEvidence(input) {
       const container = document.getElementById('evidenceContainer');
       const noEvidence = document.getElementById('noEvidence');
       
-      if (input.files && input.files.length > 0) {
-        // Hide "no evidence" message
-        if (noEvidence) {
-          noEvidence.style.display = 'none';
-        }
+      if (input.files.length > 0) {
+        noEvidence.style.display = 'none';
         
-        // Add each file as evidence
-        Array.from(input.files).forEach(file => {
-          const evidenceId = 'evidence-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-          
+        for (let i = 0; i < input.files.length; i++) {
+          const file = input.files[i];
           const evidenceItem = document.createElement('div');
           evidenceItem.className = 'evidence-item';
-          evidenceItem.id = evidenceId;
           
-          const isImage = file.type.startsWith('image/');
-          const icon = isImage ? 'bi-image' : 'bi-camera-video';
-          
-          evidenceItem.innerHTML = `
-            <i class="bi ${icon}"></i> ${file.name}
-            <span class="evidence-remove" onclick="removeEvidence('${evidenceId}')">×</span>
-          `;
-          
-          container.appendChild(evidenceItem);
-          
-          // Store file reference
-          evidenceFiles.push({
-            id: evidenceId,
-            file: file
-          });
-        });
-      }
-      
-      // Reset input to allow selecting the same file again
-      input.value = '';
-    }
-
-    function removeEvidence(evidenceId) {
-      // Remove from DOM
-      const evidenceElement = document.getElementById(evidenceId);
-      if (evidenceElement) {
-        evidenceElement.remove();
-      }
-      
-      // Remove from files array
-      evidenceFiles = evidenceFiles.filter(e => e.id !== evidenceId);
-      
-      // Show "no evidence" message if no files left
-      const container = document.getElementById('evidenceContainer');
-      const remainingEvidence = container.querySelectorAll('.evidence-item');
-      
-      if (remainingEvidence.length === 0) {
-        const noEvidence = document.getElementById('noEvidence');
-        if (noEvidence) {
-          noEvidence.style.display = 'block';
-        }
-      }
-    }
-
-    function loadDefaultTemplate() {
-      const useDefault = document.getElementById('useDefaultTemplate').checked;
-      const emailTemplate = document.getElementById('emailTemplate');
-      const emailPreview = document.getElementById('emailPreview');
-      const emailContent = document.getElementById('emailContent');
-      
-      if (useDefault) {
-        const t = translations[currentLang];
-        
-        // Get the reason from the appropriate select based on view mode
-        const reasonSelect = isSimplifiedView ? 
-          document.getElementById('simpleReason') : 
-          document.getElementById('reason');
-          
-        const reason = reasonSelect.value;
-        
-        // Get the appropriate template for the reason
-        const template = t.emailTemplates[reason] || t.emailTemplates.other;
-        
-        // Replace placeholders with actual data
-        const referenceId = isSimplifiedView ? 
-          document.getElementById('simpleOrderId').value : 
-          (document.getElementById('referenceId').value || document.getElementById('orderId').value);
-          
-        const orderDate = isSimplifiedView ? 
-          formatDateTime(document.getElementById('simpleOrderDate').value) : 
-          document.getElementById('orderDate').value;
-          
-        const location = isSimplifiedView ? '' : document.getElementById('location').value;
-        const totalAmount = isSimplifiedView ? 
-          document.getElementById('simpleBasketAmount').value : 
-          document.getElementById('totalAmount').value;
-        
-        // Default restaurant info
-        const managerName = 'Ahmed Kenawy';
-        const restaurantName = 'Crispy Chicken';
-        const managerPhone = '+971 50 902 1993';
-        const managerEmail = 'kenawe@crispychicken.rest';
-        
-        let filledTemplate = template
-          .replace('{referenceId}', referenceId || 'N/A')
-          .replace('{orderDate}', orderDate || 'N/A')
-          .replace('{location}', location || 'N/A')
-          .replace('{totalAmount}', totalAmount || '0')
-          .replace('{managerName}', managerName)
-          .replace('{restaurantName}', restaurantName)
-          .replace('{managerPhone}', managerPhone)
-          .replace('{managerEmail}', managerEmail);
-        
-        emailTemplate.value = filledTemplate;
-        emailContent.textContent = filledTemplate;
-        emailPreview.style.display = 'block';
-      } else {
-        emailPreview.style.display = 'none';
-      }
-    }
-
-    // Format date and time for display
-    function formatDateTime(dateTimeString) {
-      if (!dateTimeString) return 'N/A';
-      
-      const date = new Date(dateTimeString);
-      const options = { 
-        year: 'numeric', 
-        month: 'short', 
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      };
-      
-      return date.toLocaleDateString(currentLang === 'ar' ? 'ar-AE' : 'en-US', options);
-    }
-
-    // Case management functions
-    function openAddCase() {
-      const t = translations[currentLang];
-      document.getElementById("modalTitle").textContent = t.modalTitleAdd;
-      document.getElementById("caseForm").reset();
-      document.getElementById("editIndex").value = "";
-      document.getElementById("caseForm").classList.remove('was-validated');
-      
-      // Reset items to one empty item
-      const itemsContainer = document.getElementById('itemsContainer');
-      itemsContainer.innerHTML = `
-        <div class="item-row">
-          <div class="row align-items-center">
-            <div class="col-md-1">
-              <label class="form-label">${t.quantityLabel}</label>
-              <input type="number" class="form-control item-quantity" value="1" min="1">
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">${t.itemNameLabel}</label>
-              <input type="text" class="form-control item-name" placeholder="${t.itemNameLabel}">
-            </div>
-            <div class="col-md-3">
-              <label class="form-label">${t.itemCategoryLabel}</label>
-              <input type="text" class="form-control item-category" placeholder="${t.itemCategoryLabel}">
-            </div>
-            <div class="col-md-2">
-              <label class="form-label">${t.itemPriceLabel}</label>
-              <input type="number" class="form-control item-price" value="0" min="0" step="0.01">
-            </div>
-            <div class="col-md-2 d-flex align-items-end">
-              <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(this)">
-                <i class="bi bi-trash"></i>
-              </button>
-            </div>
-          </div>
-          <div class="row mt-2">
-            <div class="col-12">
-              <label class="form-label">${t.itemDescriptionLabel}</label>
-              <textarea class="form-control item-description" rows="1" placeholder="${t.itemDescriptionLabel}"></textarea>
-            </div>
-          </div>
-        </div>
-      `;
-      
-      // Reset image preview
-      document.getElementById('imagePreview').classList.add('d-none');
-      
-      // Reset dispute section
-      document.getElementById('isDisputed').checked = false;
-      document.getElementById('disputeDetails').style.display = 'none';
-      document.getElementById('evidenceContainer').innerHTML = `<p class="text-muted mb-0">${t.noEvidence}</p>`;
-      document.getElementById('emailPreview').style.display = 'none';
-      evidenceFiles = [];
-      
-      // Add event listeners
-      document.querySelectorAll('.item-price, .item-quantity').forEach(input => {
-        input.addEventListener('input', calculateTotals);
-      });
-      
-      // Set default dates
-      const today = new Date().toISOString().slice(0, 16);
-      document.getElementById('simpleOrderDate').value = today;
-      document.getElementById('simpleRefundDate').value = today;
-      document.getElementById('orderDate').value = today.split('T')[0];
-      document.getElementById('responseDate').value = today.split('T')[0];
-      document.getElementById('refundDate').value = today.split('T')[0];
-      
-      // Reset totals
-      calculateTotals();
-      updateSelectedItems();
-    }
-
-    function saveCase() {
-      const t = translations[currentLang];
-      const form = document.getElementById("caseForm");
-      
-      // Validate form
-      if (!form.checkValidity()) {
-        form.classList.add('was-validated');
-        return;
-      }
-      
-      // Collect data based on view mode
-      let caseData;
-      
-      if (isSimplifiedView) {
-        // Simplified form data
-        caseData = {
-          orderId: document.getElementById("simpleOrderId").value,
-          outlet: document.getElementById("simpleOutlet").value,
-          orderDate: document.getElementById("simpleOrderDate").value,
-          refundDate: document.getElementById("simpleRefundDate").value,
-          basketAmount: parseFloat(document.getElementById("simpleBasketAmount").value) || 0,
-          refundAmount: parseFloat(document.getElementById("simpleRefundAmount").value) || 0,
-          reason: document.getElementById("simpleReason").value,
-          status: document.getElementById("simpleStatus").value,
-          isDisputed: document.getElementById("isDisputed").checked,
-          dateAdded: new Date().toISOString()
-        };
-      } else {
-        // Detailed form data
-        // Collect items data
-        const items = [];
-        document.querySelectorAll('.item-row').forEach(row => {
-          const name = row.querySelector('.item-name').value;
-          if (name) {
-            items.push({
-              quantity: parseInt(row.querySelector('.item-quantity').value) || 0,
-              name: name,
-              category: row.querySelector('.item-category').value,
-              price: parseFloat(row.querySelector('.item-price').value) || 0,
-              description: row.querySelector('.item-description').value
-            });
+          if (file.type.startsWith('image/')) {
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            img.style.maxWidth = '100px';
+            img.style.maxHeight = '100px';
+            evidenceItem.appendChild(img);
+          } else {
+            const video = document.createElement('video');
+            video.src = URL.createObjectURL(file);
+            video.style.maxWidth = '100px';
+            video.style.maxHeight = '100px';
+            video.controls = true;
+            evidenceItem.appendChild(video);
           }
-        });
-        
-        // Collect selected items
-        const selectedItems = [];
-        document.querySelectorAll('#selectedItemsContainer input[type="checkbox"]:checked').forEach(checkbox => {
-          const index = parseInt(checkbox.value);
-          if (items[index]) {
-            selectedItems.push({
-              quantity: items[index].quantity,
-              name: items[index].name
-            });
-          }
-        });
-        
-        // Get image data
-        let imageData = null;
-        const imageFile = document.getElementById('itemImage').files[0];
-        if (imageFile) {
-          // In a real application, you would upload the image to a server
-          // For this demo, we'll just store the filename
-          imageData = imageFile.name;
-        }
-        
-        // Collect dispute data
-        const isDisputed = document.getElementById("isDisputed").checked;
-        let disputeData = null;
-        
-        if (isDisputed) {
-          // Collect evidence files (just names for demo)
-          const evidenceNames = evidenceFiles.map(e => e.file.name);
           
-          disputeData = {
-            reason: document.getElementById("disputeReason").value,
-            evidence: evidenceNames,
-            emailTemplate: document.getElementById("emailTemplate").value
+          const removeBtn = document.createElement('div');
+          removeBtn.className = 'evidence-remove';
+          removeBtn.innerHTML = '×';
+          removeBtn.onclick = function() {
+            evidenceItem.remove();
+            if (container.children.length === 1) {
+              noEvidence.style.display = 'block';
+            }
           };
-        }
-        
-        caseData = {
-          orderId: document.getElementById("orderId").value,
-          outlet: document.getElementById("outlet").value,
-          orderDate: document.getElementById("orderDate").value,
-          partner: document.getElementById("partner").value,
-          referenceId: document.getElementById("referenceId").value,
-          items: items,
-          basketAmount: parseFloat(document.getElementById("basketAmount").value) || 0,
-          promoCode: document.getElementById("promoCode").value,
-          promoAmount: parseFloat(document.getElementById("promoAmount").value) || 0,
-          totalAmount: parseFloat(document.getElementById("totalAmount").value) || 0,
-          deductedAmount: parseFloat(document.getElementById("deductedAmount").value) || 0,
-          refundDate: document.getElementById("refundDate").value,
-          location: document.getElementById("location").value,
-          reason: document.getElementById("reason").value,
-          customerReason: document.getElementById("customerReason").value,
-          selectedItems: selectedItems,
-          customerNotes: document.getElementById("customerNotes").value,
-          image: imageData,
-          response: document.getElementById("response").value,
-          responseDate: document.getElementById("responseDate").value,
-          status: document.getElementById("status").value,
-          isDisputed: isDisputed,
-          dispute: disputeData,
-          dateAdded: new Date().toISOString()
-        };
-      }
-      
-      // Collect dispute data for both views
-      if (caseData.isDisputed) {
-        // Collect evidence files (just names for demo)
-        const evidenceNames = evidenceFiles.map(e => e.file.name);
-        
-        caseData.dispute = {
-          reason: document.getElementById("disputeReason").value,
-          evidence: evidenceNames,
-          emailTemplate: document.getElementById("emailTemplate").value
-        };
-      }
-      
-      const editIndex = document.getElementById("editIndex").value;
-      if (editIndex === "") {
-        cases.push(caseData);
-        showToast(t.successSave, 'success');
-      } else {
-        cases[editIndex] = caseData;
-        showToast(t.successSave, 'success');
-      }
-      
-      saveToLocalStorage();
-      renderTable();
-      updateStats();
-      bootstrap.Modal.getInstance(document.getElementById("caseModal")).hide();
-    }
-
-    function editCase(index) {
-      const t = translations[currentLang];
-      const c = cases[index];
-      document.getElementById("modalTitle").textContent = t.modalTitleEdit;
-      
-      // Check if this is a simplified case (has only basic fields)
-      const isSimplifiedCase = !c.items || c.items.length === 0;
-      
-      // Set view mode based on case type
-      if (isSimplifiedCase) {
-        if (!isSimplifiedView) {
-          toggleViewMode();
-        }
-        
-        // Populate simplified form
-        document.getElementById("simpleOrderId").value = c.orderId;
-        document.getElementById("simpleOutlet").value = c.outlet;
-        document.getElementById("simpleOrderDate").value = c.orderDate;
-        document.getElementById("simpleRefundDate").value = c.refundDate;
-        document.getElementById("simpleBasketAmount").value = c.basketAmount;
-        document.getElementById("simpleRefundAmount").value = c.refundAmount;
-        document.getElementById("simpleReason").value = c.reason;
-        document.getElementById("simpleStatus").value = c.status;
-      } else {
-        if (isSimplifiedView) {
-          toggleViewMode();
-        }
-        
-        // Populate detailed form
-        document.getElementById("orderId").value = c.orderId;
-        document.getElementById("outlet").value = c.outlet;
-        document.getElementById("orderDate").value = c.orderDate;
-        document.getElementById("partner").value = c.partner;
-        document.getElementById("referenceId").value = c.referenceId || '';
-        document.getElementById("promoCode").value = c.promoCode;
-        document.getElementById("promoAmount").value = c.promoAmount;
-        document.getElementById("deductedAmount").value = c.deductedAmount;
-        document.getElementById("refundDate").value = c.refundDate;
-        document.getElementById("location").value = c.location || '';
-        document.getElementById("reason").value = c.reason;
-        document.getElementById("customerReason").value = c.customerReason;
-        document.getElementById("customerNotes").value = c.customerNotes;
-        document.getElementById("response").value = c.response;
-        document.getElementById("responseDate").value = c.responseDate;
-        document.getElementById("status").value = c.status;
-        
-        // Populate items
-        const itemsContainer = document.getElementById('itemsContainer');
-        itemsContainer.innerHTML = '';
-        
-        c.items.forEach(item => {
-          const newItem = document.createElement('div');
-          newItem.className = 'item-row';
-          newItem.innerHTML = `
-            <div class="row align-items-center">
-              <div class="col-md-1">
-                <label class="form-label">${t.quantityLabel}</label>
-                <input type="number" class="form-control item-quantity" value="${item.quantity}" min="1">
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">${t.itemNameLabel}</label>
-                <input type="text" class="form-control item-name" value="${item.name}" placeholder="${t.itemNameLabel}">
-              </div>
-              <div class="col-md-3">
-                <label class="form-label">${t.itemCategoryLabel}</label>
-                <input type="text" class="form-control item-category" value="${item.category}" placeholder="${t.itemCategoryLabel}">
-              </div>
-              <div class="col-md-2">
-                <label class="form-label">${t.itemPriceLabel}</label>
-                <input type="number" class="form-control item-price" value="${item.price}" min="0" step="0.01">
-              </div>
-              <div class="col-md-2 d-flex align-items-end">
-                <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(this)">
-                  <i class="bi bi-trash"></i>
-                </button>
-              </div>
-            </div>
-            <div class="row mt-2">
-              <div class="col-12">
-                <label class="form-label">${t.itemDescriptionLabel}</label>
-                <textarea class="form-control item-description" rows="1" placeholder="${t.itemDescriptionLabel}">${item.description}</textarea>
-              </div>
-            </div>
-          `;
-          itemsContainer.appendChild(newItem);
-        });
-        
-        // Add event listeners
-        document.querySelectorAll('.item-price, .item-quantity').forEach(input => {
-          input.addEventListener('input', calculateTotals);
-        });
-        
-        // Update totals
-        calculateTotals();
-        
-        // Update selected items
-        updateSelectedItems();
-        
-        // Check selected items
-        setTimeout(() => {
-          c.selectedItems.forEach(selectedItem => {
-            document.querySelectorAll('#selectedItemsContainer input[type="checkbox"]').forEach(checkbox => {
-              const index = parseInt(checkbox.value);
-              const item = c.items[index];
-              if (item && item.name === selectedItem.name && item.quantity === selectedItem.quantity) {
-                checkbox.checked = true;
-              }
-            });
-          });
-        }, 100);
-        
-        // Show image if exists
-        const imagePreview = document.getElementById('imagePreview');
-        if (c.image) {
-          // In a real application, you would load the image from the server
-          // For this demo, we'll just show a placeholder
-          imagePreview.src = 'https://via.placeholder.com/300x200?text=Image+Preview';
-          imagePreview.classList.remove('d-none');
-        } else {
-          imagePreview.classList.add('d-none');
+          
+          evidenceItem.appendChild(removeBtn);
+          container.appendChild(evidenceItem);
         }
       }
-      
-      // Populate dispute data for both views
-      document.getElementById('isDisputed').checked = c.isDisputed || false;
-      const disputeDetails = document.getElementById('disputeDetails');
-      
-      if (c.isDisputed && c.dispute) {
-        disputeDetails.style.display = 'block';
-        document.getElementById('disputeReason').value = c.dispute.reason || '';
-        document.getElementById('emailTemplate').value = c.dispute.emailTemplate || '';
-        
-        // Show evidence
-        const evidenceContainer = document.getElementById('evidenceContainer');
-        const noEvidence = document.getElementById('noEvidence');
-        
-        if (c.dispute.evidence && c.dispute.evidence.length > 0) {
-          noEvidence.style.display = 'none';
-          evidenceContainer.innerHTML = '';
-          
-          c.dispute.evidence.forEach((evidenceName, idx) => {
-            const evidenceId = 'evidence-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-            
-            const evidenceItem = document.createElement('div');
-            evidenceItem.className = 'evidence-item';
-            evidenceItem.id = evidenceId;
-            
-            // Determine if it's an image or video based on extension
-            const isImage = /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(evidenceName);
-            const icon = isImage ? 'bi-image' : 'bi-camera-video';
-            
-            evidenceItem.innerHTML = `
-              <i class="bi ${icon}"></i> ${evidenceName}
-              <span class="evidence-remove" onclick="removeEvidence('${evidenceId}')">×</span>
-            `;
-            
-            evidenceContainer.appendChild(evidenceItem);
-            
-            // Add to files array (mock)
-            evidenceFiles.push({
-              id: evidenceId,
-              file: { name: evidenceName }
-            });
-          });
-        } else {
-          evidenceContainer.innerHTML = `<p class="text-muted mb-0">${t.noEvidence}</p>`;
-        }
-      } else {
-        disputeDetails.style.display = 'none';
-      }
-      
-      document.getElementById("editIndex").value = index;
-      document.getElementById("caseForm").classList.remove('was-validated');
-      new bootstrap.Modal(document.getElementById("caseModal")).show();
     }
 
-    function deleteCase(index) {
-      const t = translations[currentLang];
-      if (confirm(t.confirmDelete)) {
-        cases.splice(index, 1);
-        saveToLocalStorage();
-        renderTable();
-        updateStats();
-        showToast(t.successDelete, 'danger');
-      }
-    }
-
-    // Table rendering functions
-    function renderTable() {
-      const t = translations[currentLang];
-      const tbody = document.querySelector("#casesTable tbody");
-      tbody.innerHTML = "";
-      
-      const casesToRender = filteredCases.length > 0 ? filteredCases : cases;
-      
-      if (casesToRender.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" class="text-center py-3">${t.noData}</td></tr>`;
-        return;
-      }
-      
-      casesToRender.forEach((c, i) => {
-        const originalIndex = cases.indexOf(c);
-        const statusClass = `status-${c.status}`;
-        const reasonText = getReasonText(c.reason);
-        const statusText = getStatusText(c.status);
-        
-        // Format dates for display
-        const orderDate = c.orderDate.includes('T') ? 
-          formatDateTime(c.orderDate) : 
-          c.orderDate;
-          
-        const refundDate = c.refundDate.includes('T') ? 
-          formatDateTime(c.refundDate) : 
-          c.refundDate;
-        
-        tbody.innerHTML += `
-          <tr>
-            <td>${c.orderId}</td>
-            <td>${c.outlet}</td>
-            <td>${orderDate}</td>
-            <td>${refundDate}</td>
-            <td>${c.basketAmount.toFixed(2)}</td>
-            <td>${c.refundAmount ? c.refundAmount.toFixed(2) : (c.deductedAmount ? c.deductedAmount.toFixed(2) : '0.00')}</td>
-            <td><span class="badge ${statusClass}">${statusText}</span></td>
-            <td>${reasonText}</td>
-            <td class="action-buttons">
-              <button class="btn btn-sm btn-warning" onclick="editCase(${originalIndex})" title="${t.editBtn}">
-                <i class="bi bi-pencil"></i>
-              </button>
-              <button class="btn btn-sm btn-danger" onclick="deleteCase(${originalIndex})" title="${t.deleteBtn}">
-                <i class="bi bi-trash"></i>
-              </button>
-            </td>
-          </tr>
-        `;
-      });
-    }
-
-    function getReasonText(reasonKey) {
-      const t = translations[currentLang];
-      switch(reasonKey) {
-        case 'spilled': return t.reasonSpilled;
-        case 'wrong': return t.reasonWrong;
-        case 'missing_main': return t.reasonMissingMain;
-        case 'missing_side': return t.reasonMissingSide;
-        case 'overcooked': return t.reasonOvercooked;
-        case 'undercooked': return t.reasonUndercooked;
-        case 'smell': return t.reasonSmell;
-        case 'hair': return t.reasonHair;
-        case 'inedible': return t.reasonInedible;
-        case 'other': return t.reasonOther;
-        default: return reasonKey;
-      }
-    }
-
-    function getStatusText(statusKey) {
-      const t = translations[currentLang];
-      switch(statusKey) {
-        case 'pending': return t.statusPending;
-        case 'responded': return t.statusResponded;
-        case 'resolved': return t.statusResolved;
-        case 'disputed': return t.statusDisputed;
-        case 'under_review': return t.statusUnderReview;
-        case 'rejected': return t.statusRejected;
-        default: return statusKey;
-      }
-    }
-
-    // Stats functions
-    function updateStats() {
-      const totalCases = cases.length;
-      const pendingCases = cases.filter(c => c.status === 'pending').length;
-      const resolvedCases = cases.filter(c => c.status === 'resolved').length;
-      const disputedCases = cases.filter(c => c.status === 'disputed').length;
-      const underReviewCases = cases.filter(c => c.status === 'under_review').length;
-      const totalAmount = cases.reduce((sum, c) => {
-        return sum + (c.refundAmount || c.deductedAmount || 0);
-      }, 0);
-      
-      document.getElementById('totalCases').textContent = totalCases;
-      document.getElementById('pendingCases').textContent = pendingCases;
-      document.getElementById('resolvedCases').textContent = resolvedCases;
-      document.getElementById('disputedCases').textContent = disputedCases;
-      document.getElementById('underReviewCases').textContent = underReviewCases;
-      document.getElementById('totalAmount').textContent = totalAmount.toFixed(2);
-    }
-
-    // Search and filter functions
-    function searchCases() {
-      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-      const statusFilter = document.getElementById('filterStatus').value;
-      
-      filteredCases = cases.filter(c => {
-        const matchesSearch = 
-          c.orderId.toLowerCase().includes(searchTerm) ||
-          c.outlet.toLowerCase().includes(searchTerm) ||
-          (c.customerNotes && c.customerNotes.toLowerCase().includes(searchTerm)) ||
-          getReasonText(c.reason).toLowerCase().includes(searchTerm) ||
-          getStatusText(c.status).toLowerCase().includes(searchTerm) ||
-          (c.items && c.items.some(item => item.name.toLowerCase().includes(searchTerm)));
-          
-        const matchesStatus = statusFilter === 'all' || c.status === statusFilter;
-        
-        return matchesSearch && matchesStatus;
-      });
-      
-      renderTable();
-    }
-
-    function filterByStatus() {
-      searchCases(); // Reuse search logic
-    }
-
-    // Data persistence functions
-    function saveToLocalStorage() {
-      localStorage.setItem('compensationCases', JSON.stringify(cases));
-    }
-
-    function loadFromLocalStorage() {
-      const savedCases = localStorage.getItem('compensationCases');
-      if (savedCases) {
-        cases = JSON.parse(savedCases);
-      }
-    }
-
-    // Export function
-    function exportData() {
-      const t = translations[currentLang];
-      let csvContent = "data:text/csv;charset=utf-8,";
-      
-      // Add headers
-      csvContent += `${t.thOrderId},${t.thOutlet},${t.thOrderDate},${t.thRefundDate},${t.thBasketAmount},${t.thRefundAmount},${t.thStatus},${t.thReason}\n`;
-      
-      // Add data
-      cases.forEach(c => {
-        const orderDate = c.orderDate.includes('T') ? 
-          formatDateTime(c.orderDate) : 
-          c.orderDate;
-          
-        const refundDate = c.refundDate.includes('T') ? 
-          formatDateTime(c.refundDate) : 
-          c.refundDate;
-          
-        csvContent += `${c.orderId},${c.outlet},${orderDate},${refundDate},${c.basketAmount.toFixed(2)},${(c.refundAmount || c.deductedAmount || 0).toFixed(2)},${getStatusText(c.status)},${getReasonText(c.reason)}\n`;
-      });
-      
-      // Create download link
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `compensation_cases_${new Date().toISOString().slice(0,10)}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-
-    // Toast notification function
+    // Show toast notification
     function showToast(message, type = 'info') {
       const toastContainer = document.querySelector('.toast-container');
       const toastId = 'toast-' + Date.now();
       
-      const toastHTML = `
-        <div id="${toastId}" class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      const toastHtml = `
+        <div id="${toastId}" class="toast align-items-center text-white bg-${type === 'error' ? 'danger' : type === 'success' ? 'success' : 'primary'} border-0" role="alert" aria-live="assertive" aria-atomic="true">
           <div class="d-flex">
             <div class="toast-body">
               ${message}
@@ -2111,14 +1568,80 @@ Call Center Manager | {restaurantName}
         </div>
       `;
       
-      toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+      toastContainer.insertAdjacentHTML('beforeend', toastHtml);
       const toastElement = document.getElementById(toastId);
       const toast = new bootstrap.Toast(toastElement, { autohide: true, delay: 3000 });
       toast.show();
       
-      toastElement.addEventListener('hidden.bs.toast', () => {
+      toastElement.addEventListener('hidden.bs.toast', function() {
         toastElement.remove();
       });
+    }
+
+    // Refresh all data
+    function refreshData() {
+      if (dataTable) {
+        dataTable.destroy();
+      }
+      initializeDataTable();
+      updateStatistics();
+      updateSummaryTables();
+      updateTopReason();
+      createCharts();
+      renderCardView();
+    }
+
+    // Helper functions
+    function formatDateTimeForInput(dateTimeStr) {
+      // Convert "31 Aug 2025, 02:21 AM" to datetime-local format
+      const months = {
+        'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04', 'May': '05', 'Jun': '06',
+        'Jul': '07', 'Aug': '08', 'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
+      };
+      
+      const parts = dateTimeStr.match(/(\d+) (\w+) (\d+), (\d+):(\d+) (\w+)/);
+      if (parts) {
+        const day = parts[1].padStart(2, '0');
+        const month = months[parts[2]];
+        const year = parts[3];
+        let hours = parseInt(parts[4]);
+        const minutes = parts[5].padStart(2, '0');
+        const ampm = parts[6];
+        
+        if (ampm === 'PM' && hours < 12) hours += 12;
+        if (ampm === 'AM' && hours === 12) hours = 0;
+        
+        return `${year}-${month}-${day}T${hours.toString().padStart(2, '0')}:${minutes}`;
+      }
+      return '';
+    }
+
+    function mapReasonToValue(reason) {
+      const reasonMap = {
+        'Spilled / damaged': 'spilled_damaged',
+        'Wrong item sent': 'wrong_item',
+        'Missing or unavailable items (Main item)': 'missing_main',
+        'Missing or unavailable items (Side item)': 'missing_side',
+        'Food is overcooked/burnt': 'overcooked',
+        'Food is undercooked': 'undercooked',
+        'Foul Smell': 'foul_smell',
+        'Hair in the food': 'hair_food',
+        'My Food is not edible (SelfServe)': 'not_edible'
+      };
+      return reasonMap[reason] || 'other';
+    }
+
+    function getStatusText(status) {
+      const statusMap = {
+        'Deducted': currentLang === 'ar' ? 'مسترد' : 'Deducted',
+        'pending': currentLang === 'ar' ? 'قيد الانتظار' : 'Pending',
+        'responded': currentLang === 'ar' ? 'تم الرد' : 'Responded',
+        'resolved': currentLang === 'ar' ? 'تم الحل' : 'Resolved',
+        'disputed': currentLang === 'ar' ? 'متنازع عليها' : 'Disputed',
+        'under_review': currentLang === 'ar' ? 'قيد المراجعة' : 'Under Review',
+        'rejected': currentLang === 'ar' ? 'مرفوض' : 'Rejected'
+      };
+      return statusMap[status] || status;
     }
   </script>
 </body>
