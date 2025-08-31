@@ -1,1642 +1,598 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام الرد على تعويضات كريم</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <link href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #1a237e;
-            --secondary-color: #3949ab;
-            --success-color: #2e7d32;
-            --danger-color: #c62828;
-            --warning-color: #f57c00;
-            --info-color: #0277bd;
-            --light-bg: #f5f5f5;
-            --card-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--light-bg);
-            color: #333;
-        }
-        
-        .main-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 2rem 0;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-        
-        .stats-card {
-            border-radius: 12px;
-            box-shadow: var(--card-shadow);
-            transition: transform 0.3s, box-shadow 0.3s;
-            border: none;
-            margin-bottom: 1.5rem;
-            height: 100%;
-        }
-        
-        .stats-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
-        }
-        
-        .stats-card .card-body {
-            padding: 1.5rem;
-        }
-        
-        .stats-card h5 {
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: #666;
-        }
-        
-        .stats-card h3 {
-            font-weight: 700;
-            margin-bottom: 0;
-            color: var(--primary-color);
-        }
-        
-        .stats-card .icon {
-            font-size: 2.5rem;
-            opacity: 0.8;
-        }
-        
-        .section-card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: var(--card-shadow);
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .upload-area {
-            border: 2px dashed #ddd;
-            border-radius: 12px;
-            padding: 3rem;
-            text-align: center;
-            transition: all 0.3s;
-            cursor: pointer;
-            background: #fafafa;
-        }
-        
-        .upload-area:hover {
-            border-color: var(--secondary-color);
-            background: #f0f4ff;
-        }
-        
-        .upload-area.dragover {
-            border-color: var(--primary-color);
-            background: #e8eaf6;
-        }
-        
-        .table-container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: var(--card-shadow);
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .table thead th {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            font-weight: 600;
-            text-align: center;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        
-        .table tbody tr {
-            transition: background-color 0.2s;
-        }
-        
-        .table tbody tr:hover {
-            background-color: #f8f9ff;
-        }
-        
-        .status-badge {
-            font-size: 0.8rem;
-            padding: 0.35rem 0.7rem;
-            border-radius: 20px;
-            font-weight: 600;
-        }
-        
-        .status-pending {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-        
-        .status-responded {
-            background-color: #d1ecf1;
-            color: #0c5460;
-        }
-        
-        .status-resolved {
-            background-color: #d4edda;
-            color: #155724;
-        }
-        
-        .status-rejected {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-        
-        .reason-tag {
-            display: inline-block;
-            padding: 0.2rem 0.6rem;
-            border-radius: 15px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-left: 0.5rem;
-        }
-        
-        .reason-spilled {
-            background-color: #ffebee;
-            color: #c62828;
-        }
-        
-        .reason-wrong {
-            background-color: #e8eaf6;
-            color: #3949ab;
-        }
-        
-        .reason-missing {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-        }
-        
-        .reason-overcooked {
-            background-color: #fff3e0;
-            color: #e65100;
-        }
-        
-        .reason-undercooked {
-            background-color: #fce4ec;
-            color: #c2185b;
-        }
-        
-        .reason-hair {
-            background-color: #f3e5f5;
-            color: #7b1fa2;
-        }
-        
-        .reason-smell {
-            background-color: #efebe9;
-            color: #5d4037;
-        }
-        
-        .action-btn {
-            padding: 0.3rem 0.6rem;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin: 0.1rem;
-            font-size: 0.85rem;
-        }
-        
-        .action-btn:hover {
-            transform: scale(1.05);
-        }
-        
-        .btn-view {
-            background-color: var(--info-color);
-            color: white;
-        }
-        
-        .btn-respond {
-            background-color: var(--warning-color);
-            color: white;
-        }
-        
-        .btn-template {
-            background-color: var(--success-color);
-            color: white;
-        }
-        
-        .modal-header {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        
-        .modal-body {
-            background-color: #f8f9fa;
-        }
-        
-        .template-container {
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-top: 1rem;
-            position: relative;
-        }
-        
-        .copy-btn {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background-color: var(--secondary-color);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 0.3rem 0.8rem;
-            font-size: 0.85rem;
-            transition: all 0.3s;
-        }
-        
-        .copy-btn:hover {
-            background-color: var(--primary-color);
-        }
-        
-        .template-content {
-            font-family: 'Courier New', monospace;
-            line-height: 1.6;
-            white-space: pre-wrap;
-            margin-top: 1rem;
-            background: #f8f9fa;
-            padding: 1rem;
-            border-radius: 5px;
-            border: 1px solid #e9ecef;
-        }
-        
-        .footer {
-            background-color: var(--primary-color);
-            color: white;
-            text-align: center;
-            padding: 1.5rem 0;
-            margin-top: 3rem;
-        }
-        
-        .toast-container {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            z-index: 1050;
-        }
-        
-        .custom-toast {
-            background-color: var(--success-color);
-            color: white;
-            padding: 1rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            display: flex;
-            align-items: center;
-            margin-bottom: 0.5rem;
-            animation: slideIn 0.3s ease-out;
-        }
-        
-        @keyframes slideIn {
-            from {
-                transform: translateX(-100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-        
-        .custom-toast i {
-            font-size: 1.5rem;
-            margin-left: 0.8rem;
-        }
-        
-        .filter-section {
-            background: white;
-            border-radius: 12px;
-            box-shadow: var(--card-shadow);
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .filter-btn {
-            background-color: var(--secondary-color);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            margin-left: 0.5rem;
-            transition: all 0.3s;
-        }
-        
-        .filter-btn:hover {
-            background-color: var(--primary-color);
-        }
-        
-        .filter-btn.active {
-            background-color: var(--primary-color);
-        }
-        
-        .adjustment-amount {
-            font-weight: 700;
-            color: var(--danger-color);
-        }
-        
-        .search-box {
-            position: relative;
-        }
-        
-        .search-box input {
-            padding-left: 40px;
-        }
-        
-        .search-box i {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6c757d;
-        }
-        
-        .chart-container {
-            height: 300px;
-            margin-top: 1rem;
-        }
-        
-        .loading-spinner {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .loading-spinner.show {
-            display: flex;
-        }
-        
-        .spinner-content {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            text-align: center;
-        }
-        
-        .progress-container {
-            display: none;
-            margin-top: 1rem;
-        }
-        
-        .btn-primary-custom {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-        
-        .btn-primary-custom:hover {
-            background-color: var(--secondary-color);
-            transform: translateY(-2px);
-        }
-        
-        .form-control:focus, .form-select:focus {
-            border-color: var(--secondary-color);
-            box-shadow: 0 0 0 0.2rem rgba(57, 73, 171, 0.25);
-        }
-        
-        .dataTables_wrapper .dataTables_filter input {
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            padding: 0.5rem;
-        }
-        
-        .dataTables_wrapper .dataTables_length select {
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            padding: 0.5rem;
-        }
-        
-        .table-responsive {
-            max-height: 600px;
-            overflow-y: auto;
-        }
-        
-        .summary-stats {
-            display: flex;
-            justify-content: space-around;
-            margin: 1rem 0;
-        }
-        
-        .summary-stat {
-            text-align: center;
-        }
-        
-        .summary-stat h4 {
-            color: var(--primary-color);
-            margin: 0;
-        }
-        
-        .summary-stat p {
-            color: #666;
-            margin: 0;
-            font-size: 0.9rem;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نظام إدارة التعويضات | Compensation Management System</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+  <style>
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1050;
+    }
+    .status-pending { background-color: #fff3cd; }
+    .status-responded { background-color: #cfe2ff; }
+    .status-resolved { background-color: #d1e7dd; }
+    .action-buttons .btn { margin: 0 2px; }
+    .lang-toggle {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      z-index: 1000;
+    }
+    @media (max-width: 768px) {
+      .action-buttons .btn { 
+        display: block; 
+        width: 100%;
+        margin: 2px 0;
+      }
+    }
+  </style>
 </head>
-<body>
-    <!-- Loading Spinner -->
-    <div class="loading-spinner" id="loadingSpinner">
-        <div class="spinner-content">
-            <div class="spinner-border text-primary mb-3" role="status">
-                <span class="visually-hidden">جاري التحميل...</span>
-            </div>
-            <p>جاري المعالجة...</p>
+<body class="container py-4">
+  <!-- Language Toggle -->
+  <div class="lang-toggle">
+    <button class="btn btn-sm btn-outline-secondary" onclick="toggleLanguage()">
+      <i class="bi bi-translate"></i> <span id="langToggleText">English</span>
+    </button>
+  </div>
+
+  <h2 class="mb-4 text-center">📋 <span id="systemTitle">نظام إدارة التعويضات</span></h2>
+  
+  <!-- Stats Cards -->
+  <div class="row mb-4">
+    <div class="col-md-3 mb-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <h5 class="card-title" id="totalCasesTitle">إجمالي الحالات</h5>
+          <h2 class="text-primary" id="totalCases">0</h2>
         </div>
+      </div>
     </div>
-
-    <!-- Header -->
-    <header class="main-header">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <h1 class="mb-0"><i class="bi bi-shield-check me-2"></i>نظام الرد على تعويضات كريم</h1>
-                    <p class="mb-0 mt-2 opacity-75">إدارة الردود على ادعاءات التعويض وإثبات عدم صحتها</p>
-                </div>
-                <div class="col-md-6 text-md-start mt-3 mt-md-0">
-                    <div class="d-flex align-items-center justify-content-md-end">
-                        <div class="me-3">
-                            <i class="bi bi-calendar3 me-1"></i>
-                            <span id="currentDate"></span>
-                        </div>
-                        <div>
-                            <i class="bi bi-clock me-1"></i>
-                            <span id="currentTime"></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <div class="col-md-3 mb-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <h5 class="card-title" id="pendingTitle">قيد الانتظار</h5>
+          <h2 class="text-warning" id="pendingCases">0</h2>
         </div>
-    </header>
-
-    <div class="container">
-        <!-- Statistics Cards -->
-        <div class="row">
-            <div class="col-md-3 col-sm-6">
-                <div class="card stats-card">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5>إجمالي الحالات</h5>
-                            <h3 id="totalCases">0</h3>
-                        </div>
-                        <div class="icon text-primary">
-                            <i class="bi bi-folder2-open"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="card stats-card">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5>قيد الانتظار</h5>
-                            <h3 id="pendingCases">0</h3>
-                        </div>
-                        <div class="icon text-warning">
-                            <i class="bi bi-hourglass-split"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="card stats-card">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5>تم الرد</h5>
-                            <h3 id="respondedCases">0</h3>
-                        </div>
-                        <div class="icon text-info">
-                            <i class="bi bi-reply-fill"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="card stats-card">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5>تم الحل</h5>
-                            <h3 id="resolvedCases">0</h3>
-                        </div>
-                        <div class="icon text-success">
-                            <i class="bi bi-check-circle-fill"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Summary Statistics -->
-        <div class="section-card">
-            <h5 class="mb-3"><i class="bi bi-graph-up me-2"></i>ملخص الإحصائيات</h5>
-            <div class="summary-stats">
-                <div class="summary-stat">
-                    <h4 id="totalDeducted">0 AED</h4>
-                    <p>إجمالي المبالغ المخصومة</p>
-                </div>
-                <div class="summary-stat">
-                    <h4 id="totalSaved">0 AED</h4>
-                    <p>المبالغ التي تم حفظها</p>
-                </div>
-                <div class="summary-stat">
-                    <h4 id="avgDeduction">0 AED</h4>
-                    <p>متوسط الخصم</p>
-                </div>
-                <div class="summary-stat">
-                    <h4 id="successRate">0%</h4>
-                    <p>نسبة النجاح</p>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="chart-container">
-                        <canvas id="reasonsChart"></canvas>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="chart-container">
-                        <canvas id="branchesChart"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Data Import Section -->
-        <div class="section-card">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="mb-0"><i class="bi bi-cloud-upload me-2"></i>استيراد البيانات</h5>
-                <div>
-                    <button class="btn btn-primary-custom" onclick="downloadTemplate()">
-                        <i class="bi bi-download me-1"></i>تحميل قالب Excel
-                    </button>
-                </div>
-            </div>
-            
-            <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-                <i class="bi bi-cloud-arrow-up" style="font-size: 3rem; color: var(--primary-color);"></i>
-                <h5 class="mt-3">اسحب وأفلت ملف Excel هنا</h5>
-                <p class="text-muted">أو انقر لاختيار الملف</p>
-                <div class="progress-container" id="progressContainer">
-                    <div class="progress">
-                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
-                             role="progressbar" style="width: 0%"></div>
-                    </div>
-                    <small class="text-muted mt-1 d-block">جاري المعالجة...</small>
-                </div>
-            </div>
-            <input type="file" id="fileInput" accept=".xlsx, .xls" onchange="handleFileUpload(event)" style="display: none;">
-        </div>
-
-        <!-- Filters Section -->
-        <div class="section-card">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <h5 class="mb-0"><i class="bi bi-funnel-fill me-2"></i>تصفية البيانات</h5>
-                </div>
-                <div class="col-md-6 text-md-start mt-3 mt-md-0">
-                    <div class="d-flex align-items-center justify-content-md-end">
-                        <div class="search-box me-3">
-                            <i class="bi bi-search"></i>
-                            <input type="text" class="form-control" id="searchInput" placeholder="بحث...">
-                        </div>
-                        <button class="btn btn-primary-custom" onclick="exportData()">
-                            <i class="bi bi-file-earmark-excel me-1"></i>تصدير
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="row mt-3">
-                <div class="col-md-12">
-                    <div class="d-flex flex-wrap">
-                        <button class="filter-btn active" data-filter="all">الكل</button>
-                        <button class="filter-btn" data-filter="pending">قيد الانتظار</button>
-                        <button class="filter-btn" data-filter="responded">تم الرد</button>
-                        <button class="filter-btn" data-filter="resolved">تم الحل</button>
-                        <button class="filter-btn" data-filter="spilled">انسكاب/تلف</button>
-                        <button class="filter-btn" data-filter="wrong">طلب خاطئ</button>
-                        <button class="filter-btn" data-filter="missing">عنصر مفقود</button>
-                        <button class="filter-btn" data-filter="overcooked">طعام محروق</button>
-                        <button class="filter-btn" data-filter="undercooked">طعام نيء</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Cases Table -->
-        <div class="section-card">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="mb-0"><i class="bi bi-table me-2"></i>قائمة الحالات</h5>
-                <div>
-                    <button class="btn btn-outline-secondary btn-sm me-2" onclick="refreshData()">
-                        <i class="bi bi-arrow-clockwise me-1"></i>تحديث
-                    </button>
-                    <button class="btn btn-outline-primary btn-sm" onclick="printReport()">
-                        <i class="bi bi-printer me-1"></i>طباعة
-                    </button>
-                </div>
-            </div>
-            
-            <div class="table-responsive">
-                <table class="table table-hover" id="casesTable">
-                    <thead>
-                        <tr>
-                            <th>الحالة</th>
-                            <th>الفرع</th>
-                            <th>تاريخ الطلب</th>
-                            <th>تاريخ التعويض</th>
-                            <th>قيمة السلة</th>
-                            <th>مبلغ التعويض</th>
-                            <th>سبب التعويض</th>
-                            <th>الإجراءات</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Data will be populated here -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
+      </div>
     </div>
-
-    <!-- Case Details Modal -->
-    <div class="modal fade" id="caseDetailsModal" tabindex="-1" aria-labelledby="caseDetailsModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="caseDetailsModalLabel">
-                        <i class="bi bi-info-circle-fill me-2"></i>تفاصيل الحالة
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label"><strong>الفرع:</strong></label>
-                            <span id="detailsBranch" class="form-control-plaintext"></span>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label"><strong>تاريخ الطلب:</strong></label>
-                            <span id="detailsOrderDate" class="form-control-plaintext"></span>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label"><strong>تاريخ التعويض:</strong></label>
-                            <span id="detailsRefundDate" class="form-control-plaintext"></span>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label"><strong>قيمة السلة:</strong></label>
-                            <span id="detailsBasketAmount" class="form-control-plaintext"></span>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label"><strong>مبلغ التعويض:</strong></label>
-                            <span id="detailsRefundAmount" class="form-control-plaintext"></span>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label"><strong>سبب التعويض:</strong></label>
-                            <span id="detailsReason" class="form-control-plaintext"></span>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label"><strong>الحالة:</strong></label>
-                            <span id="detailsStatus" class="form-control-plaintext"></span>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label"><strong>تاريخ الرد:</strong></label>
-                            <span id="detailsResponseDate" class="form-control-plaintext"></span>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-12">
-                            <label class="form-label"><strong>ملاحظات:</strong></label>
-                            <textarea class="form-control" id="detailsNotes" rows="3" placeholder="أضف ملاحظات حول هذه الحالة..."></textarea>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
-                    <button type="button" class="btn btn-primary" onclick="saveCaseDetails()">
-                        <i class="bi bi-save me-1"></i>حفظ التغييرات
-                    </button>
-                </div>
-            </div>
+    <div class="col-md-3 mb-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <h5 class="card-title" id="resolvedTitle">تم الحل</h5>
+          <h2 class="text-success" id="resolvedCases">0</h2>
         </div>
+      </div>
     </div>
-
-    <!-- Response Template Modal -->
-    <div class="modal fade" id="responseModal" tabindex="-1" aria-labelledby="responseModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="responseModalLabel">
-                        <i class="bi bi-envelope-paper-fill me-2"></i>نموذج الرد
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label"><strong>نوع الرد:</strong></label>
-                            <select class="form-select" id="responseType" onchange="updateResponseTemplate()">
-                                <option value="video">دليل فيديو</option>
-                                <option value="witness">شهادة شهود</option>
-                                <option value="evidence">أدلة أخرى</option>
-                                <option value="policy">سياسة الشركة</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label"><strong>الفرع:</strong></label>
-                            <span id="responseBranch" class="form-control-plaintext"></span>
-                        </div>
-                    </div>
-                    
-                    <div class="template-container">
-                        <button class="copy-btn" onclick="copyResponseTemplate()">
-                            <i class="bi bi-clipboard me-1"></i>نسخ النص
-                        </button>
-                        <div class="template-content" id="responseContent"></div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
-                    <button type="button" class="btn btn-primary" onclick="sendResponse()">
-                        <i class="bi bi-send-fill me-1"></i>إرسال الرد
-                    </button>
-                </div>
-            </div>
+    <div class="col-md-3 mb-3">
+      <div class="card text-center">
+        <div class="card-body">
+          <h5 class="card-title" id="totalAmountTitle">إجمالي المبلغ</h5>
+          <h2 class="text-info" id="totalAmount">0</h2>
         </div>
+      </div>
     </div>
+  </div>
 
-    <!-- Toast Notification -->
-    <div class="toast-container" id="toastContainer"></div>
+  <!-- Controls -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+    <div>
+      <button class="btn btn-primary mb-2 mb-md-0" data-bs-toggle="modal" data-bs-target="#caseModal" onclick="openAddCase()">
+        <i class="bi bi-plus-circle"></i> <span id="addCaseBtn">➕ إضافة حالة جديدة</span>
+      </button>
+      <button class="btn btn-success ms-2 mb-2 mb-md-0" onclick="exportData()">
+        <i class="bi bi-download"></i> <span id="exportBtn">تصدير البيانات</span>
+      </button>
+    </div>
+    <div class="d-flex">
+      <input type="text" id="searchInput" class="form-control me-2" placeholder="بحث في الحالات..." onkeyup="searchCases()">
+      <select id="filterStatus" class="form-select" onchange="filterByStatus()">
+        <option value="all" id="filterAll">الكل</option>
+        <option value="pending" id="filterPending">قيد الانتظار</option>
+        <option value="responded" id="filterResponded">تم الرد</option>
+        <option value="resolved" id="filterResolved">تم الحل</option>
+      </select>
+    </div>
+  </div>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <p class="mb-0">© 2025 نظام الرد على تعويضات كريم - جميع الحقوق محفوظة</p>
-            <p class="mb-0 mt-1 opacity-75">تم تطويره بواسطة فريق إدارة المطاعم</p>
+  <!-- The Modal (Add/Edit) -->
+  <div class="modal fade" id="caseModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTitle">إضافة حالة جديدة</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
-    </footer>
+        <div class="modal-body">
+          <form id="caseForm">
+            <input type="hidden" id="editIndex">
+            <div class="mb-3">
+              <label for="orderId" class="form-label" id="orderIdLabel">رقم الطلب</label>
+              <input type="text" id="orderId" class="form-control" required>
+              <div class="invalid-feedback" id="orderIdError">يرجى إدخال رقم الطلب</div>
+            </div>
+            <div class="mb-3">
+              <label for="branch" class="form-label" id="branchLabel">الفرع</label>
+              <input type="text" id="branch" class="form-control">
+            </div>
+            <div class="mb-3">
+              <label for="amount" class="form-label" id="amountLabel">المبلغ</label>
+              <input type="number" id="amount" class="form-control" min="0" step="0.01" required>
+              <div class="invalid-feedback" id="amountError">يرجى إدخال مبلغ صحيح</div>
+            </div>
+            <div class="mb-3">
+              <label for="reason" class="form-label" id="reasonLabel">السبب</label>
+              <select id="reason" class="form-control">
+                <option value="leak">تسريب</option>
+                <option value="orderError">خطأ بالطلب</option>
+                <option value="delay">تأخير</option>
+                <option value="other">أخرى</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="status" class="form-label" id="statusLabel">الحالة</label>
+              <select id="status" class="form-control">
+                <option value="pending">قيد الانتظار</option>
+                <option value="responded">تم الرد</option>
+                <option value="resolved">تم الحل</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="notes" class="form-label" id="notesLabel">ملاحظات</label>
+              <textarea id="notes" class="form-control" rows="3"></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="cancelBtn">إلغاء</button>
+          <button type="button" class="btn btn-success" onclick="saveCase()" id="saveBtn">💾 حفظ</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-    
-    <script>
-        // Global variables
-        let cases = [];
-        let dataTable;
-        let reasonsChart;
-        let branchesChart;
-        let currentCase = null;
+  <!-- Cases Table -->
+  <div class="table-responsive">
+    <table id="casesTable" class="table table-bordered table-striped mt-3 text-center align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th id="thOrderId">رقم الطلب</th>
+          <th id="thBranch">الفرع</th>
+          <th id="thAmount">المبلغ</th>
+          <th id="thReason">السبب</th>
+          <th id="thStatus">الحالة</th>
+          <th id="thNotes">ملاحظات</th>
+          <th id="thActions">إجراءات</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
-        // Response templates
-        const responseTemplates = {
-            video: {
-                title: "رد على طلب التعويض - دليل فيديو",
-                content: `السادة فريق كريم المحترم،
+  <!-- Toast Container -->
+  <div class="toast-container"></div>
 
-تحية طيبة وبعد،
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Language translations
+    const translations = {
+      ar: {
+        systemTitle: "نظام إدارة التعويضات",
+        totalCasesTitle: "إجمالي الحالات",
+        pendingTitle: "قيد الانتظار",
+        resolvedTitle: "تم الحل",
+        totalAmountTitle: "إجمالي المبلغ",
+        addCaseBtn: "➕ إضافة حالة جديدة",
+        exportBtn: "تصدير البيانات",
+        filterAll: "الكل",
+        filterPending: "قيد الانتظار",
+        filterResponded: "تم الرد",
+        filterResolved: "تم الحل",
+        modalTitleAdd: "إضافة حالة جديدة",
+        modalTitleEdit: "تعديل حالة",
+        orderIdLabel: "رقم الطلب",
+        branchLabel: "الفرع",
+        amountLabel: "المبلغ",
+        reasonLabel: "السبب",
+        statusLabel: "الحالة",
+        notesLabel: "ملاحظات",
+        cancelBtn: "إلغاء",
+        saveBtn: "💾 حفظ",
+        editBtn: "✏️ تعديل",
+        deleteBtn: "🗑️ حذف",
+        confirmDelete: "⚠️ هل أنت متأكد أنك تريد حذف هذه الحالة؟",
+        orderIdError: "يرجى إدخال رقم الطلب",
+        amountError: "يرجى إدخال مبلغ صحيح",
+        successSave: "تم حفظ الحالة بنجاح",
+        successDelete: "تم حذف الحالة بنجاح",
+        noData: "لا توجد حالات مسجلة",
+        searchPlaceholder: "بحث في الحالات...",
+        thOrderId: "رقم الطلب",
+        thBranch: "الفرع",
+        thAmount: "المبلغ",
+        thReason: "السبب",
+        thStatus: "الحالة",
+        thNotes: "ملاحظات",
+        thActions: "إجراءات",
+        langToggleText: "English",
+        reasonLeak: "تسريب",
+        reasonOrderError: "خطأ بالطلب",
+        reasonDelay: "تأخير",
+        reasonOther: "أخرى",
+        statusPending: "قيد الانتظار",
+        statusResponded: "تم الرد",
+        statusResolved: "تم الحل"
+      },
+      en: {
+        systemTitle: "Compensation Management System",
+        totalCasesTitle: "Total Cases",
+        pendingTitle: "Pending",
+        resolvedTitle: "Resolved",
+        totalAmountTitle: "Total Amount",
+        addCaseBtn: "➕ Add New Case",
+        exportBtn: "Export Data",
+        filterAll: "All",
+        filterPending: "Pending",
+        filterResponded: "Responded",
+        filterResolved: "Resolved",
+        modalTitleAdd: "Add New Case",
+        modalTitleEdit: "Edit Case",
+        orderIdLabel: "Order ID",
+        branchLabel: "Branch",
+        amountLabel: "Amount",
+        reasonLabel: "Reason",
+        statusLabel: "Status",
+        notesLabel: "Notes",
+        cancelBtn: "Cancel",
+        saveBtn: "💾 Save",
+        editBtn: "✏️ Edit",
+        deleteBtn: "🗑️ Delete",
+        confirmDelete: "⚠️ Are you sure you want to delete this case?",
+        orderIdError: "Please enter an order ID",
+        amountError: "Please enter a valid amount",
+        successSave: "Case saved successfully",
+        successDelete: "Case deleted successfully",
+        noData: "No cases recorded",
+        searchPlaceholder: "Search cases...",
+        thOrderId: "Order ID",
+        thBranch: "Branch",
+        thAmount: "Amount",
+        thReason: "Reason",
+        thStatus: "Status",
+        thNotes: "Notes",
+        thActions: "Actions",
+        langToggleText: "العربية",
+        reasonLeak: "Leak",
+        reasonOrderError: "Order Error",
+        reasonDelay: "Delay",
+        reasonOther: "Other",
+        statusPending: "Pending",
+        statusResponded: "Responded",
+        statusResolved: "Resolved"
+      }
+    };
 
-نود إعلامكم بخصوص طلب التعويض رقم [رقم الحالة] من فرع [الفرع]، والذي تم تقديمه في تاريخ [تاريخ التعويض].
+    // Global variables
+    let cases = [];
+    let currentLang = 'ar';
+    let filteredCases = [];
 
-بعد مراجعة دقيقة للطلب والتحقق من التفاصيل، نؤكد أن الطلب رقم [رقم الطلب] قد تم إعداده وتسليمه للسائق بالكامل وبشكل صحيح في التاريخ المحدد [تاريخ الطلب].
+    // Initialize the app
+    document.addEventListener('DOMContentLoaded', function() {
+      loadFromLocalStorage();
+      renderTable();
+      updateStats();
+      updateLanguage();
+    });
 
-نرفق لكم أدلة دامغة تثبت صحة ادعاءاتنا:
-1. تسجيل فيديو واضح يوضح عملية التسليم بالكامل
-2. التسجيل يظهر التوقيت الدقيق لعملية التسليم
-3. تأكيد استلام السائق للطلب كاملاً وبجميع العناصر المطلوبة
-4. عدم وجود أي تلف أو عيب في الطلب عند التسليم
+    // Language functions
+    function toggleLanguage() {
+      currentLang = currentLang === 'ar' ? 'en' : 'ar';
+      document.documentElement.lang = currentLang;
+      document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+      updateLanguage();
+      renderTable();
+    }
 
-نظرًا للأدلة المقدمة، نطلب منكم إعادة النظر في هذا الطلب ورفض التعويض المطلوب، حيث أن الطلب تم تسليمه بشكل صحيح وكامل وفقًا للمعايير المطلوبة.
+    function updateLanguage() {
+      const t = translations[currentLang];
+      
+      // Update all text elements
+      document.getElementById('systemTitle').textContent = t.systemTitle;
+      document.getElementById('totalCasesTitle').textContent = t.totalCasesTitle;
+      document.getElementById('pendingTitle').textContent = t.pendingTitle;
+      document.getElementById('resolvedTitle').textContent = t.resolvedTitle;
+      document.getElementById('totalAmountTitle').textContent = t.totalAmountTitle;
+      document.getElementById('addCaseBtn').innerHTML = `<i class="bi bi-plus-circle"></i> ${t.addCaseBtn}`;
+      document.getElementById('exportBtn').innerHTML = `<i class="bi bi-download"></i> ${t.exportBtn}`;
+      document.getElementById('filterAll').textContent = t.filterAll;
+      document.getElementById('filterPending').textContent = t.filterPending;
+      document.getElementById('filterResponded').textContent = t.filterResponded;
+      document.getElementById('filterResolved').textContent = t.filterResolved;
+      document.getElementById('cancelBtn').textContent = t.cancelBtn;
+      document.getElementById('saveBtn').innerHTML = t.saveBtn;
+      document.getElementById('searchInput').placeholder = t.searchPlaceholder;
+      document.getElementById('langToggleText').textContent = t.langToggleText;
+      
+      // Update table headers
+      document.getElementById('thOrderId').textContent = t.thOrderId;
+      document.getElementById('thBranch').textContent = t.thBranch;
+      document.getElementById('thAmount').textContent = t.thAmount;
+      document.getElementById('thReason').textContent = t.thReason;
+      document.getElementById('thStatus').textContent = t.thStatus;
+      document.getElementById('thNotes').textContent = t.thNotes;
+      document.getElementById('thActions').textContent = t.thActions;
+      
+      // Update form labels
+      document.getElementById('orderIdLabel').textContent = t.orderIdLabel;
+      document.getElementById('branchLabel').textContent = t.branchLabel;
+      document.getElementById('amountLabel').textContent = t.amountLabel;
+      document.getElementById('reasonLabel').textContent = t.reasonLabel;
+      document.getElementById('statusLabel').textContent = t.statusLabel;
+      document.getElementById('notesLabel').textContent = t.notesLabel;
+      
+      // Update form validation messages
+      document.getElementById('orderIdError').textContent = t.orderIdError;
+      document.getElementById('amountError').textContent = t.amountError;
+      
+      // Update form options
+      updateFormOptions();
+    }
 
-نشكر لكم تعاونكم وننتظر ردكم العاجل.
+    function updateFormOptions() {
+      const t = translations[currentLang];
+      
+      // Update reason options
+      const reasonSelect = document.getElementById('reason');
+      reasonSelect.innerHTML = `
+        <option value="leak">${t.reasonLeak}</option>
+        <option value="orderError">${t.reasonOrderError}</option>
+        <option value="delay">${t.reasonDelay}</option>
+        <option value="other">${t.reasonOther}</option>
+      `;
+      
+      // Update status options
+      const statusSelect = document.getElementById('status');
+      statusSelect.innerHTML = `
+        <option value="pending">${t.statusPending}</option>
+        <option value="responded">${t.statusResponded}</option>
+        <option value="resolved">${t.statusResolved}</option>
+      `;
+    }
 
-مع خالص التقدير،
-فريق إدارة [الفرع]
-هاتف: [رقم الهاتف]
-البريد الإلكتروني: [البريد الإلكتروني]`
-            },
-            witness: {
-                title: "رد على طلب التعويض - شهادة شهود",
-                content: `السادة فريق كريم المحترم،
+    // Case management functions
+    function openAddCase() {
+      const t = translations[currentLang];
+      document.getElementById("modalTitle").textContent = t.modalTitleAdd;
+      document.getElementById("caseForm").reset();
+      document.getElementById("editIndex").value = "";
+      document.getElementById("caseForm").classList.remove('was-validated');
+    }
 
-تحية طيبة وبعد،
+    function saveCase() {
+      const t = translations[currentLang];
+      const form = document.getElementById("caseForm");
+      
+      // Validate form
+      if (!form.checkValidity()) {
+        form.classList.add('was-validated');
+        return;
+      }
+      
+      const caseData = {
+        orderId: document.getElementById("orderId").value,
+        branch: document.getElementById("branch").value,
+        amount: parseFloat(document.getElementById("amount").value),
+        reason: document.getElementById("reason").value,
+        status: document.getElementById("status").value,
+        notes: document.getElementById("notes").value,
+        dateAdded: new Date().toISOString()
+      };
+      
+      const editIndex = document.getElementById("editIndex").value;
+      if (editIndex === "") {
+        cases.push(caseData);
+        showToast(t.successSave, 'success');
+      } else {
+        cases[editIndex] = caseData;
+        showToast(t.successSave, 'success');
+      }
+      
+      saveToLocalStorage();
+      renderTable();
+      updateStats();
+      bootstrap.Modal.getInstance(document.getElementById("caseModal")).hide();
+    }
 
-بخصوص طلب التعويض رقم [رقم الحالة] من فرع [الفرع]، نود توضيح النقاط التالية:
+    function editCase(index) {
+      const t = translations[currentLang];
+      const c = cases[index];
+      document.getElementById("modalTitle").textContent = t.modalTitleEdit;
+      document.getElementById("orderId").value = c.orderId;
+      document.getElementById("branch").value = c.branch;
+      document.getElementById("amount").value = c.amount;
+      document.getElementById("reason").value = c.reason;
+      document.getElementById("status").value = c.status;
+      document.getElementById("notes").value = c.notes;
+      document.getElementById("editIndex").value = index;
+      document.getElementById("caseForm").classList.remove('was-validated');
+      new bootstrap.Modal(document.getElementById("caseModal")).show();
+    }
 
-الطلب رقم [رقم الطلب] تم تسليمه للسائق في التاريخ [تاريخ الطلب]، وقد شهد على ذلك:
-- السائق [اسم السائق] الذي استلم الطلب شخصيًا
-- العميل [اسم العميل] الذي كان حاضرًا وقت التسليم
-- موظف المطعم [اسم الموظف] الذي قام بتجهيز الطلب
+    function deleteCase(index) {
+      const t = translations[currentLang];
+      if (confirm(t.confirmDelete)) {
+        cases.splice(index, 1);
+        saveToLocalStorage();
+        renderTable();
+        updateStats();
+        showToast(t.successDelete, 'danger');
+      }
+    }
 
-نرفق لكم شهادات موقعة من الشهود تؤكد أن:
-1. الطلب تم تسليمه كاملاً وبجميع العناصر المطلوبة
-2. لم يحدث أي تلف أو ضرر بالطلب أثناء التسليم
-3. العميل استلم الطلب راضيًا دون أي اعتراضات
-4. تم تسليم الطلب في الوقت المحدد دون أي تأخير
-
-بناءًا على هذه الشهادات، نطلب منكم إلغاء طلب التعويض، حيث أن الأدلة تثبت عدم وجود أي مبرر للتعويض.
-
-نتطلع إلى حل عادل لهذه المسألة.
-
-مع خالص التقدير،
-فريق إدارة [الفرع]
-هاتف: [رقم الهاتف]
-البريد الإلكتروني: [البريد الإلكتروني]`
-            },
-            evidence: {
-                title: "رد على طلب التعويض - أدلة أخرى",
-                content: `السادة فريق كريم المحترم،
-
-تحية طيبة وبعد،
-
-نود الرد على طلب التعويض رقم [رقم الحالة] المتعلق بالطلب رقم [رقم الطلب] من فرع [الفرع].
-
-بعد التحقيق في هذا الطلب، وجدنا الأدلة التالية تثبت عدم صحة ادعاءات العميل:
-
-1. **سجل الطلب**: يظهر أن الطلب تم تجهيزه وتسليمه في الوقت المحدد [تاريخ الطلب]
-2. **إيصال الاستلام**: يوجد إيصال موقع من السائق يؤكد استلام الطلب كاملاً
-3. **سجل الكاميرات**: تسجيلات الكاميرات الأمنية تظهر عملية التسليم بوضوح
-4. **تقرير الجودة**: تقرير فحص الجودة يؤكد أن جميع العناصر كانت مطابقة للمواصفات
-5. **سجل الوقت**: سجل العمل يثبت أن الطلب تم إعداده في الوقت المحدد دون أي تأخير
-
-نظرًا لهذه الأدلة القاطعة، نؤكد أن طلب التعويض غير مبرر ونطلب رفضه.
-
-نحن على استعداد تام لتقديم أي أدلة إضافية تطلبونها لإثبات صحة موقفنا.
-
-نشكر تفهمكم وتعاونكم.
-
-مع خالص التقدير،
-فريق إدارة [الفرع]
-هاتف: [رقم الهاتف]
-البريد الإلكتروني: [البريد الإلكتروني]`
-            },
-            policy: {
-                title: "رد على طلب التعويض - سياسة الشركة",
-                content: `السادة فريق كريم المحترم،
-
-تحية طيبة وبعد،
-
-بخصوص طلب التعويض رقم [رقم الحالة] من فرع [الفرع]، نود توضيح سياسة الشركة في مثل هذه الحالات:
-
-سياسة شركتنا واضحة فيما يخص التعويضات:
-1. يتم التعويض فقط في حالة وجود خطأ واضح من جانب المطعم
-2. يجب تقديم طلب التعويض خلال 24 ساعة من وقت استلام الطلب
-3. يجب إثبات وجود تلف أو عيب في الطلب وقت التسليم
-4. يتم فحص جميع الطلبات قبل تسليمها للتأكد من جودتها
-
-في حالة الطلب رقم [رقم الطلب]:
-- تم فحص الطلب بعناية قبل تسليمه
-- تم تسليمه للسائق في التاريخ [تاريخ الطلب] دون أي مشاكل
-- لم يتم الإبلاغ عن أي مشاكل وقت التسليم
-- لا يوجد أي دليل على وجود تلف أو عيب في الطلب
-
-بناءًا على سياسة الشركة والأدلة المتوفرة، نعتبر أن هذا الطلب لا يستحق تعويضًا.
-
-نحن ملتزمون بجودة خدمتنا وسنكون سعداء بالتعاون معكم في حل هذه المسألة.
-
-مع خالص التقدير،
-فريق إدارة [الفرع]
-هاتف: [رقم الهاتف]
-البريد الإلكتروني: [البريد الإلكتروني]`
-            }
-        };
-
-        // Initialize the application
-        $(document).ready(function() {
-            updateDateTime();
-            initializeCharts();
-            initializeDataTable();
-            setupEventListeners();
-            loadSampleData();
-        });
-
-        // Update date and time
-        function updateDateTime() {
-            const now = new Date();
-            const dateOptions = { year: 'numeric', month: 'long', day: 'numeric' };
-            const timeOptions = { hour: '2-digit', minute: '2-digit' };
-            
-            document.getElementById('currentDate').textContent = now.toLocaleDateString('ar-SA', dateOptions);
-            document.getElementById('currentTime').textContent = now.toLocaleTimeString('ar-SA', timeOptions);
-        }
+    // Table rendering functions
+    function renderTable() {
+      const t = translations[currentLang];
+      const tbody = document.querySelector("#casesTable tbody");
+      tbody.innerHTML = "";
+      
+      const casesToRender = filteredCases.length > 0 ? filteredCases : cases;
+      
+      if (casesToRender.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-3">${t.noData}</td></tr>`;
+        return;
+      }
+      
+      casesToRender.forEach((c, i) => {
+        const originalIndex = cases.indexOf(c);
+        const statusClass = `status-${c.status}`;
+        const reasonText = getReasonText(c.reason);
+        const statusText = getStatusText(c.status);
         
-        setInterval(updateDateTime, 60000);
-
-        // Initialize charts
-        function initializeCharts() {
-            // Reasons Chart
-            const reasonsCtx = document.getElementById('reasonsChart').getContext('2d');
-            reasonsChart = new Chart(reasonsCtx, {
-                type: 'pie',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        data: [],
-                        backgroundColor: [
-                            '#c62828',
-                            '#3949ab',
-                            '#2e7d32',
-                            '#e65100',
-                            '#c2185b',
-                            '#7b1fa2',
-                            '#5d4037'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        },
-                        title: {
-                            display: true,
-                            text: 'توزيع الحالات حسب السبب'
-                        }
-                    }
-                }
-            });
-
-            // Branches Chart
-            const branchesCtx = document.getElementById('branchesChart').getContext('2d');
-            branchesChart = new Chart(branchesCtx, {
-                type: 'bar',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: 'عدد الحالات',
-                        data: [],
-                        backgroundColor: '#3949ab'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        title: {
-                            display: true,
-                            text: 'الحالات حسب الفرع'
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                stepSize: 1
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // Initialize DataTable
-        function initializeDataTable() {
-            dataTable = $('#casesTable').DataTable({
-                data: [],
-                columns: [
-                    {
-                        data: 'status',
-                        render: function(data) {
-                            const statusMap = {
-                                'pending': '<span class="status-badge status-pending">قيد الانتظار</span>',
-                                'responded': '<span class="status-badge status-responded">تم الرد</span>',
-                                'resolved': '<span class="status-badge status-resolved">تم الحل</span>',
-                                'rejected': '<span class="status-badge status-rejected">مرفوض</span>'
-                            };
-                            return statusMap[data] || data;
-                        }
-                    },
-                    { data: 'branch' },
-                    {
-                        data: 'orderDate',
-                        render: function(data) {
-                            return new Date(data).toLocaleString('ar-SA');
-                        }
-                    },
-                    {
-                        data: 'refundDate',
-                        render: function(data) {
-                            return new Date(data).toLocaleString('ar-SA');
-                        }
-                    },
-                    {
-                        data: 'basketAmount',
-                        render: function(data) {
-                            return 'AED ' + data.toFixed(2);
-                        }
-                    },
-                    {
-                        data: 'refundAmount',
-                        render: function(data) {
-                            return '- AED ' + data.toFixed(2);
-                        }
-                    },
-                    {
-                        data: 'reason',
-                        render: function(data) {
-                            const reasonMap = {
-                                'Spilled / damaged': '<span class="reason-tag reason-spilled">انسكاب/تلف</span>',
-                                'Wrong item sent': '<span class="reason-tag reason-wrong">طلب خاطئ</span>',
-                                'Missing or unavailable items (Main item)': '<span class="reason-tag reason-missing">عنصر مفقود</span>',
-                                'Food is overcooked/burnt': '<span class="reason-tag reason-overcooked">طعام محروق</span>',
-                                'Food is undercooked': '<span class="reason-tag reason-undercooked">طعام نيء</span>',
-                                'Hair in the food': '<span class="reason-tag reason-hair">شعر في الطعام</span>',
-                                'Foul Smell': '<span class="reason-tag reason-smell">رائحة كريهة</span>'
-                            };
-                            return reasonMap[data] || data;
-                        }
-                    },
-                    {
-                        data: null,
-                        render: function(data, type, row) {
-                            return `
-                                <button class="action-btn btn-view" onclick="viewCaseDetails(${row.id})" title="عرض التفاصيل">
-                                    <i class="bi bi-eye"></i>
-                                </button>
-                                <button class="action-btn btn-respond" onclick="openResponseModal(${row.id})" title="رد">
-                                    <i class="bi bi-reply"></i>
-                                </button>
-                                <button class="action-btn btn-template" onclick="generateResponse(${row.id})" title="إنشاء رد">
-                                    <i class="bi bi-envelope"></i>
-                                </button>
-                            `;
-                        }
-                    }
-                ],
-                pageLength: 10,
-                responsive: true,
-                dom: '<"row"<"col-sm-6"l><"col-sm-6"f>>' +
-                     '<"row"<"col-sm-12"tr>>' +
-                     '<"row"<"col-sm-5"i><"col-sm-7"p>>',
-                language: {
-                    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/ar.json'
-                }
-            });
-        }
-
-        // Setup event listeners
-        function setupEventListeners() {
-            // Filter buttons
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    const filter = this.getAttribute('data-filter');
-                    filterTable(filter);
-                });
-            });
-
-            // Search input
-            document.getElementById('searchInput').addEventListener('input', function() {
-                dataTable.search(this.value).draw();
-            });
-
-            // Drag and drop
-            const uploadArea = document.querySelector('.upload-area');
-            
-            uploadArea.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                uploadArea.classList.add('dragover');
-            });
-            
-            uploadArea.addEventListener('dragleave', () => {
-                uploadArea.classList.remove('dragover');
-            });
-            
-            uploadArea.addEventListener('drop', (e) => {
-                e.preventDefault();
-                uploadArea.classList.remove('dragover');
-                
-                const files = e.dataTransfer.files;
-                if (files.length > 0) {
-                    processExcelFile(files[0]);
-                }
-            });
-        }
-
-        // Load sample data
-        function loadSampleData() {
-            const sampleData = [
-                {
-                    id: 1,
-                    branch: 'Al Barsha 1',
-                    orderDate: '2025-08-30T20:25',
-                    refundDate: '2025-08-30T21:33',
-                    basketAmount: 17.05,
-                    refundAmount: 15.50,
-                    reason: 'Spilled / damaged',
-                    status: 'pending',
-                    responseDate: null,
-                    notes: ''
-                },
-                {
-                    id: 2,
-                    branch: 'Al Barsha 1',
-                    orderDate: '2025-08-29T23:47',
-                    refundDate: '2025-08-30T00:29',
-                    basketAmount: 20.35,
-                    refundAmount: 18.50,
-                    reason: 'Spilled / damaged',
-                    status: 'responded',
-                    responseDate: '2025-08-30T10:00',
-                    notes: 'تم الرد بالأدلة'
-                },
-                {
-                    id: 3,
-                    branch: 'Al Danah',
-                    orderDate: '2025-08-30T19:59',
-                    refundDate: '2025-08-30T20:52',
-                    basketAmount: 33.88,
-                    refundAmount: 32.00,
-                    reason: 'Missing or unavailable items (Main item)',
-                    status: 'resolved',
-                    responseDate: '2025-08-30T14:00',
-                    notes: 'تم رفض التعويض'
-                },
-                {
-                    id: 4,
-                    branch: 'Al Markaziyah',
-                    orderDate: '2025-08-30T18:40',
-                    refundDate: '2025-08-30T19:16',
-                    basketAmount: 19.44,
-                    refundAmount: 12.00,
-                    reason: 'Wrong item sent',
-                    status: 'pending',
-                    responseDate: null,
-                    notes: ''
-                },
-                {
-                    id: 5,
-                    branch: 'Al Rawdah',
-                    orderDate: '2025-08-30T12:57',
-                    refundDate: '2025-08-30T14:20',
-                    basketAmount: 141.95,
-                    refundAmount: 138.00,
-                    reason: 'Wrong item sent',
-                    status: 'resolved',
-                    responseDate: '2025-08-30T16:00',
-                    notes: 'تم تقديم الفيديو'
-                }
-            ];
-
-            cases = sampleData;
-            updateDataTable();
-            updateStatistics();
-            updateCharts();
-        }
-
-        // Update DataTable
-        function updateDataTable() {
-            dataTable.clear();
-            dataTable.rows.add(cases);
-            dataTable.draw();
-        }
-
-        // Update statistics
-        function updateStatistics() {
-            const totalCases = cases.length;
-            const pendingCases = cases.filter(c => c.status === 'pending').length;
-            const respondedCases = cases.filter(c => c.status === 'responded').length;
-            const resolvedCases = cases.filter(c => c.status === 'resolved').length;
-            
-            const totalDeducted = cases.reduce((sum, c) => sum + c.refundAmount, 0);
-            const totalSaved = cases
-                .filter(c => c.status === 'resolved')
-                .reduce((sum, c) => sum + c.refundAmount, 0);
-            const avgDeduction = totalCases > 0 ? totalDeducted / totalCases : 0;
-            const successRate = totalCases > 0 ? (resolvedCases / totalCases * 100) : 0;
-
-            document.getElementById('totalCases').textContent = totalCases;
-            document.getElementById('pendingCases').textContent = pendingCases;
-            document.getElementById('respondedCases').textContent = respondedCases;
-            document.getElementById('resolvedCases').textContent = resolvedCases;
-            document.getElementById('totalDeducted').textContent = totalDeducted.toFixed(2) + ' AED';
-            document.getElementById('totalSaved').textContent = totalSaved.toFixed(2) + ' AED';
-            document.getElementById('avgDeduction').textContent = avgDeduction.toFixed(2) + ' AED';
-            document.getElementById('successRate').textContent = successRate.toFixed(1) + '%';
-        }
-
-        // Update charts
-        function updateCharts() {
-            // Update reasons chart
-            const reasonCounts = {};
-            cases.forEach(c => {
-                reasonCounts[c.reason] = (reasonCounts[c.reason] || 0) + 1;
-            });
-            
-            reasonsChart.data.labels = Object.keys(reasonCounts);
-            reasonsChart.data.datasets[0].data = Object.values(reasonCounts);
-            reasonsChart.update();
-
-            // Update branches chart
-            const branchCounts = {};
-            cases.forEach(c => {
-                branchCounts[c.branch] = (branchCounts[c.branch] || 0) + 1;
-            });
-            
-            branchesChart.data.labels = Object.keys(branchCounts);
-            branchesChart.data.datasets[0].data = Object.values(branchCounts);
-            branchesChart.update();
-        }
-
-        // Filter table
-        function filterTable(filter) {
-            if (filter === 'all') {
-                dataTable.search('').draw();
-                return;
-            }
-
-            const filteredData = cases.filter(c => {
-                if (filter === 'pending' || filter === 'responded' || filter === 'resolved' || filter === 'rejected') {
-                    return c.status === filter;
-                }
-                return c.reason.toLowerCase().includes(filter);
-            });
-
-            dataTable.clear();
-            dataTable.rows.add(filteredData);
-            dataTable.draw();
-        }
-
-        // View case details
-        function viewCaseDetails(id) {
-            const caseData = cases.find(c => c.id === id);
-            if (!caseData) return;
-
-            currentCase = caseData;
-
-            document.getElementById('detailsBranch').textContent = caseData.branch;
-            document.getElementById('detailsOrderDate').textContent = new Date(caseData.orderDate).toLocaleString('ar-SA');
-            document.getElementById('detailsRefundDate').textContent = new Date(caseData.refundDate).toLocaleString('ar-SA');
-            document.getElementById('detailsBasketAmount').textContent = 'AED ' + caseData.basketAmount.toFixed(2);
-            document.getElementById('detailsRefundAmount').textContent = '- AED ' + caseData.refundAmount.toFixed(2);
-            document.getElementById('detailsReason').textContent = caseData.reason;
-            document.getElementById('detailsStatus').textContent = getStatusText(caseData.status);
-            document.getElementById('detailsResponseDate').textContent = caseData.responseDate ? 
-                new Date(caseData.responseDate).toLocaleString('ar-SA') : 'لم يتم الرد بعد';
-            document.getElementById('detailsNotes').value = caseData.notes || '';
-
-            const modal = new bootstrap.Modal(document.getElementById('caseDetailsModal'));
-            modal.show();
-        }
-
-        // Get status text
-        function getStatusText(status) {
-            const statusMap = {
-                'pending': 'قيد الانتظار',
-                'responded': 'تم الرد',
-                'resolved': 'تم الحل',
-                'rejected': 'مرفوض'
-            };
-            return statusMap[status] || status;
-        }
-
-        // Save case details
-        function saveCaseDetails() {
-            if (!currentCase) return;
-
-            currentCase.notes = document.getElementById('detailsNotes').value;
-            
-            // Update the case in the array
-            const index = cases.findIndex(c => c.id === currentCase.id);
-            if (index !== -1) {
-                cases[index] = currentCase;
-            }
-
-            updateDataTable();
-            showToast('تم حفظ التغييرات بنجاح!', 'success');
-            
-            const modal = bootstrap.Modal.getInstance(document.getElementById('caseDetailsModal'));
-            modal.hide();
-        }
-
-        // Open response modal
-        function openResponseModal(id) {
-            const caseData = cases.find(c => c.id === id);
-            if (!caseData) return;
-
-            currentCase = caseData;
-
-            document.getElementById('responseBranch').textContent = caseData.branch;
-            document.getElementById('responseType').value = 'video';
-            
-            updateResponseTemplate();
-
-            const modal = new bootstrap.Modal(document.getElementById('responseModal'));
-            modal.show();
-        }
-
-        // Update response template
-        function updateResponseTemplate() {
-            if (!currentCase) return;
-
-            const type = document.getElementById('responseType').value;
-            const template = responseTemplates[type];
-            
-            let content = template.content;
-            content = content.replace('[رقم الحالة]', currentCase.id);
-            content = content.replace('[الفرع]', currentCase.branch);
-            content = content.replace('[رقم الطلب]', currentCase.id);
-            content = content.replace('[تاريخ الطلب]', new Date(currentCase.orderDate).toLocaleDateString('ar-SA'));
-            content = content.replace('[تاريخ التعويض]', new Date(currentCase.refundDate).toLocaleDateString('ar-SA'));
-            content = content.replace('[رقم الهاتف]', '+971-XX-XXX-XXXX');
-            content = content.replace('[البريد الإلكتروني]', 'restaurant@example.com');
-
-            // Replace placeholders with actual data
-            content = content.replace('[اسم السائق]', 'أحمد محمد');
-            content = content.replace('[اسم العميل]', 'علي أحمد');
-            content = content.replace('[اسم الموظف]', 'محمد علي');
-
-            document.getElementById('responseContent').textContent = content;
-        }
-
-        // Copy response template
-        function copyResponseTemplate() {
-            const content = document.getElementById('responseContent').textContent;
-            navigator.clipboard.writeText(content).then(() => {
-                showToast('تم نسخ النص بنجاح!', 'success');
-            }).catch(err => {
-                showToast('فشل نسخ النص، يرجى النسخ يدويًا', 'danger');
-            });
-        }
-
-        // Generate response
-        function generateResponse(id) {
-            const caseData = cases.find(c => c.id === id);
-            if (!caseData) return;
-
-            // Update case status
-            caseData.status = 'responded';
-            caseData.responseDate = new Date().toISOString();
-            
-            const index = cases.findIndex(c => c.id === id);
-            if (index !== -1) {
-                cases[index] = caseData;
-            }
-
-            updateDataTable();
-            updateStatistics();
-            showToast('تم إنشاء الرد بنجاح!', 'success');
-        }
-
-        // Send response
-        function sendResponse() {
-            if (!currentCase) return;
-
-            // Update case status
-            currentCase.status = 'responded';
-            currentCase.responseDate = new Date().toISOString();
-            
-            const index = cases.findIndex(c => c.id === currentCase.id);
-            if (index !== -1) {
-                cases[index] = currentCase;
-            }
-
-            updateDataTable();
-            updateStatistics();
-            showToast('تم إرسال الرد بنجاح!', 'success');
-            
-            const modal = bootstrap.Modal.getInstance(document.getElementById('responseModal'));
-            modal.hide();
-        }
-
-        // Handle file upload
-        function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (file) {
-                processExcelFile(file);
-            }
-        }
-
-        // Process Excel file
-        function processExcelFile(file) {
-            showLoading();
-
-            const reader = new FileReader();
-            
-            reader.onload = function(e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const sheetName = workbook.SheetNames[0];
-                    const sheet = workbook.Sheets[sheetName];
-                    const jsonData = XLSX.utils.sheet_to_json(sheet, { defval: '' });
-
-                    // Validate required columns
-                    const requiredColumns = ['Branch', 'Order Date', 'Refund Date', 'Basket Amount', 'Refund Amount', 'Reason', 'Status'];
-                    const firstRow = jsonData[0] || {};
-                    const missingColumns = requiredColumns.filter(col => !(col in firstRow));
-                    
-                    if (missingColumns.length > 0) {
-                        showToast(`الأعمدة المطلوبة مفقودة: ${missingColumns.join(', ')}`, 'danger');
-                        hideLoading();
-                        return;
-                    }
-
-                    // Process data
-                    let addedCount = 0;
-                    const maxId = cases.length > 0 ? Math.max(...cases.map(c => c.id)) : 0;
-                    let newId = maxId + 1;
-
-                    jsonData.forEach(row => {
-                        const newCase = {
-                            id: newId++,
-                            branch: row['Branch'],
-                            orderDate: parseDate(row['Order Date']),
-                            refundDate: parseDate(row['Refund Date']),
-                            basketAmount: parseFloat(row['Basket Amount']) || 0,
-                            refundAmount: parseFloat(row['Refund Amount']) || 0,
-                            reason: row['Reason'],
-                            status: row['Status'].toLowerCase(),
-                            responseDate: null,
-                            notes: row['Notes'] || ''
-                        };
-
-                        cases.push(newCase);
-                        addedCount++;
-                    });
-
-                    updateDataTable();
-                    updateStatistics();
-                    updateCharts();
-
-                    showToast(`تم استيراد ${addedCount} حالة بنجاح!`, 'success');
-                } catch (err) {
-                    console.error('Error processing Excel file:', err);
-                    showToast('خطأ في معالجة ملف Excel', 'danger');
-                } finally {
-                    hideLoading();
-                }
-            };
-
-            reader.readAsArrayBuffer(file);
-            event.target.value = '';
-        }
-
-        // Parse date
-        function parseDate(dateValue) {
-            if (!dateValue) return new Date().toISOString();
-            
-            if (typeof dateValue === 'number') {
-                const excelDate = new Date((dateValue - 25569) * 86400 * 1000);
-                return excelDate.toISOString();
-            }
-            
-            const date = new Date(dateValue);
-            return isNaN(date.getTime()) ? new Date().toISOString() : date.toISOString();
-        }
-
-        // Download template
-        function downloadTemplate() {
-            const template = [{
-                'Branch': 'Al Barsha 1',
-                'Order Date': '30 Aug 2025, 08:25 PM',
-                'Refund Date': '30 Aug 2025, 09:33 PM',
-                'Basket Amount': 17.05,
-                'Refund Amount': 15.50,
-                'Reason': 'Spilled / damaged',
-                'Status': 'Pending',
-                'Notes': ''
-            }];
-
-            const ws = XLSX.utils.json_to_sheet(template);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Template');
-
-            XLSX.writeFile(wb, 'Refund_Cases_Template.xlsx');
-            showToast('تم تحميل القالب بنجاح!', 'success');
-        }
-
-        // Export data
-        function exportData() {
-            showLoading();
-
-            setTimeout(() => {
-                const ws = XLSX.utils.json_to_sheet(cases.map(c => ({
-                    'ID': c.id,
-                    'Branch': c.branch,
-                    'Order Date': new Date(c.orderDate).toLocaleString('ar-SA'),
-                    'Refund Date': new Date(c.refundDate).toLocaleString('ar-SA'),
-                    'Basket Amount': c.basketAmount,
-                    'Refund Amount': c.refundAmount,
-                    'Reason': c.reason,
-                    'Status': c.status,
-                    'Response Date': c.responseDate ? new Date(c.responseDate).toLocaleString('ar-SA') : '',
-                    'Notes': c.notes
-                })));
-
-                const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, 'Refund_Cases');
-
-                const date = new Date().toISOString().split('T')[0];
-                XLSX.writeFile(wb, `Refund_Cases_${date}.xlsx`);
-
-                hideLoading();
-                showToast('تم تصدير البيانات بنجاح!', 'success');
-            }, 1000);
-        }
-
-        // Refresh data
-        function refreshData() {
-            showLoading();
-
-            setTimeout(() => {
-                updateDataTable();
-                updateStatistics();
-                updateCharts();
-                hideLoading();
-                showToast('تم تحديث البيانات بنجاح!', 'success');
-            }, 1000);
-        }
-
-        // Print report
-        function printReport() {
-            showToast('جاري تجهيز التقرير للطباعة...', 'info');
-            
-            setTimeout(() => {
-                window.print();
-            }, 1000);
-        }
-
-        // Show loading
-        function showLoading() {
-            document.getElementById('loadingSpinner').classList.add('show');
-        }
-
-        // Hide loading
-        function hideLoading() {
-            document.getElementById('loadingSpinner').classList.remove('show');
-        }
-
-        // Show toast notification
-        function showToast(message, type = 'success') {
-            const toastContainer = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = 'custom-toast';
-            
-            if (type === 'danger') {
-                toast.style.backgroundColor = 'var(--danger-color)';
-            } else if (type === 'warning') {
-                toast.style.backgroundColor = 'var(--warning-color)';
-            } else if (type === 'info') {
-                toast.style.backgroundColor = 'var(--info-color)';
-            }
-            
-            const icon = type === 'success' ? 'bi-check-circle-fill' : 
-                        type === 'danger' ? 'bi-exclamation-triangle-fill' :
-                        type === 'warning' ? 'bi-exclamation-triangle-fill' : 'bi-info-circle-fill';
-            
-            toast.innerHTML = `
-                <i class="bi ${icon}"></i>
-                <span>${message}</span>
-            `;
-            
-            toastContainer.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                setTimeout(() => {
-                    if (toast.parentNode) {
-                        toast.parentNode.removeChild(toast);
-                    }
-                }, 300);
-            }, 3000);
-        }
-    </script>
+        tbody.innerHTML += `
+          <tr>
+            <td>${c.orderId}</td>
+            <td>${c.branch}</td>
+            <td>${c.amount.toFixed(2)}</td>
+            <td>${reasonText}</td>
+            <td><span class="badge ${statusClass}">${statusText}</span></td>
+            <td>${c.notes}</td>
+            <td class="action-buttons">
+              <button class="btn btn-sm btn-warning" onclick="editCase(${originalIndex})" title="${t.editBtn}">
+                <i class="bi bi-pencil"></i>
+              </button>
+              <button class="btn btn-sm btn-danger" onclick="deleteCase(${originalIndex})" title="${t.deleteBtn}">
+                <i class="bi bi-trash"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function getReasonText(reasonKey) {
+      const t = translations[currentLang];
+      switch(reasonKey) {
+        case 'leak': return t.reasonLeak;
+        case 'orderError': return t.reasonOrderError;
+        case 'delay': return t.reasonDelay;
+        case 'other': return t.reasonOther;
+        default: return reasonKey;
+      }
+    }
+
+    function getStatusText(statusKey) {
+      const t = translations[currentLang];
+      switch(statusKey) {
+        case 'pending': return t.statusPending;
+        case 'responded': return t.statusResponded;
+        case 'resolved': return t.statusResolved;
+        default: return statusKey;
+      }
+    }
+
+    // Stats functions
+    function updateStats() {
+      const totalCases = cases.length;
+      const pendingCases = cases.filter(c => c.status === 'pending').length;
+      const resolvedCases = cases.filter(c => c.status === 'resolved').length;
+      const totalAmount = cases.reduce((sum, c) => sum + c.amount, 0);
+      
+      document.getElementById('totalCases').textContent = totalCases;
+      document.getElementById('pendingCases').textContent = pendingCases;
+      document.getElementById('resolvedCases').textContent = resolvedCases;
+      document.getElementById('totalAmount').textContent = totalAmount.toFixed(2);
+    }
+
+    // Search and filter functions
+    function searchCases() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+      const statusFilter = document.getElementById('filterStatus').value;
+      
+      filteredCases = cases.filter(c => {
+        const matchesSearch = 
+          c.orderId.toLowerCase().includes(searchTerm) ||
+          c.branch.toLowerCase().includes(searchTerm) ||
+          c.notes.toLowerCase().includes(searchTerm) ||
+          getReasonText(c.reason).toLowerCase().includes(searchTerm) ||
+          getStatusText(c.status).toLowerCase().includes(searchTerm);
+          
+        const matchesStatus = statusFilter === 'all' || c.status === statusFilter;
+        
+        return matchesSearch && matchesStatus;
+      });
+      
+      renderTable();
+    }
+
+    function filterByStatus() {
+      searchCases(); // Reuse search logic
+    }
+
+    // Data persistence functions
+    function saveToLocalStorage() {
+      localStorage.setItem('compensationCases', JSON.stringify(cases));
+    }
+
+    function loadFromLocalStorage() {
+      const savedCases = localStorage.getItem('compensationCases');
+      if (savedCases) {
+        cases = JSON.parse(savedCases);
+      }
+    }
+
+    // Export function
+    function exportData() {
+      const t = translations[currentLang];
+      let csvContent = "data:text/csv;charset=utf-8,";
+      
+      // Add headers
+      csvContent += `${t.thOrderId},${t.thBranch},${t.thAmount},${t.thReason},${t.thStatus},${t.thNotes}\n`;
+      
+      // Add data
+      cases.forEach(c => {
+        csvContent += `${c.orderId},${c.branch},${c.amount},${getReasonText(c.reason)},${getStatusText(c.status)},${c.notes}\n`;
+      });
+      
+      // Create download link
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `compensation_cases_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // Toast notification function
+    function showToast(message, type = 'info') {
+      const toastContainer = document.querySelector('.toast-container');
+      const toastId = 'toast-' + Date.now();
+      
+      const toastHTML = `
+        <div id="${toastId}" class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+          <div class="d-flex">
+            <div class="toast-body">
+              ${message}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+        </div>
+      `;
+      
+      toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+      const toastElement = document.getElementById(toastId);
+      const toast = new bootstrap.Toast(toastElement, { autohide: true, delay: 3000 });
+      toast.show();
+      
+      toastElement.addEventListener('hidden.bs.toast', () => {
+        toastElement.remove();
+      });
+    }
+  </script>
 </body>
 </html>
